@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>svg绘图和选择</title>
+    <style>
+        html{height: 100%}
+        body{height: 100%;margin: 0;}
+    </style>
+</head>
+
+<body>
+<!--https://www.w3school.com.cn/svg/svg_inhtml.asp-->
+<embed id="svg"
+       src="./images/scenery.svg"
+       width="503"
+       height="395"
+       type="image/svg+xml"
+       pluginspage="http://www.adobe.com/svg/viewer/install/"/>
+
+<script type="module">
+    const embed = document.querySelector('embed');
+
+    /*当页面内容加载成功*/
+    window.onload = function() {
+        const dom = embed.getSVGDocument();
+        const mount = dom.querySelector('#mount');
+        mount.setAttribute('fill','rgba(0,0,0,0)');
+        mount.addEventListener('mouseover',function(){
+            console.log('over');
+            mount.setAttribute('fill','rgba(0,255,255,0.4)')
+        });
+        mount.addEventListener('mouseout',function(){
+            console.log('out');
+            mount.setAttribute('fill','rgba(0,0,0,0)')
+        })
+    };
+
+
+
+</script>
+</body>
+</html>

@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>坐标系变换后的选择</title>
+    <style>
+        html{height: 100%}
+        body{height: 100%;margin: 0;}
+        #canvas{background: antiquewhite}
+    </style>
+</head>
+<body>
+    <canvas id="canvas"></canvas>
+    <script type="module">
+        import Vector2 from "./jsm/Vector2.js";
+        import Poly from "./jsm/Poly.js";
+        import {getMousePos,isPointInPath} from "./jsm/Tool.js";
+
+        const canvas=document.getElementById('canvas');
+        canvas.width=window.innerWidth;
+        canvas.height=window.innerHeight;
+        const ctx=canvas.getContext('2d');
+
+        const poly=new Poly({
+            position:new Vector2(400,500),
+            rotation:Math.PI/4,
+            scale:new Vector2(1.5,1.5),
+            stroke:true,
+            close:true,
+            crtPath:function(ctx){
+                ctx.beginPath();
+                ctx.moveTo(0,0);
+                ctx.bezierCurveTo(-200,-50,-180,-300,0,-200);
+                ctx.bezierCurveTo(180,-300,200,-50,0,0);
+            }
+        });
+        poly.draw(ctx);
+
+        let hover=false;
+
+        /*鼠标移动*/
+        canvas.addEventListener('mousemove',mousemoveFn);
+        function mousemoveFn(event){
+            const mousePos=getMousePos(event);
+            poly.crtPath(ctx);
+            const bool=isPointInPath(ctx,mousePos,poly);
+            if(hover!==bool){
+                poly.fill=bool;
+                ctx.clearRect(0,0,canvas.width,canvas.height);
+                poly.draw(ctx);
+                hover=bool;
+            }
+        }
+
+
+    </script>
+</body>
+</html>

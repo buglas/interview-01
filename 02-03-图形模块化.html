@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>图形模块化</title>
+    <style>
+        html{height: 100%}
+        body{height: 100%;margin: 0;}
+        #canvas{background: antiquewhite}
+    </style>
+</head>
+<body>
+    <canvas id="canvas"></canvas>
+    <script type="module">
+        import Vector2 from "./jsm/Vector2.js";
+        import Poly from "./jsm/Poly.js";
+        import {getMousePos} from "./jsm/Tool.js";
+
+        const canvas=document.getElementById('canvas');
+        canvas.width=window.innerWidth;
+        canvas.height=window.innerHeight;
+        const ctx=canvas.getContext('2d');
+
+        const poly=new Poly({
+            stroke:true,
+            close:true,
+            vertices:[
+                new Vector2(50,50),
+                new Vector2(450,50),
+                new Vector2(250,450),
+            ]
+        });
+        poly.draw(ctx);
+
+        let hover=false;
+
+        /*鼠标移动*/
+        canvas.addEventListener('mousemove',mousemoveFn);
+        function mousemoveFn(event){
+            const mousePos=getMousePos(event);
+            poly.crtPath(ctx);
+            const bool=ctx.isPointInPath(mousePos.x,mousePos.y);
+            if(hover!==bool){
+                poly.fill=bool;
+                ctx.clearRect(0,0,canvas.width,canvas.height);
+                poly.draw(ctx);
+                hover=bool;
+            }
+        }
+    </script>
+</body>
+</html>

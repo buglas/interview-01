@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>图形模块化</title>
+    <style>
+        html{height: 100%}
+        body{height: 100%;margin: 0;}
+        #canvas{background: antiquewhite}
+    </style>
+</head>
+<body>
+<canvas id="canvas"></canvas>
+<script type="module">
+    import Vector2 from "./jsm/Vector2.js";
+    import Poly from "./jsm/Poly.js";
+    import {getMousePos} from "./jsm/Tool.js";
+
+    const canvas=document.getElementById('canvas');
+    canvas.width=window.innerWidth;
+    canvas.height=window.innerHeight;
+    const ctx=canvas.getContext('2d');
+
+    const poly=new Poly({
+        stroke:true,
+        close:true,
+        vertices:[
+            new Vector2(50,50),
+            new Vector2(450,50),
+            new Vector2(250,200),
+        ]
+    });
+    poly.draw(ctx);
+
+    const p=new Vector2(150,100);
+    ctx.beginPath();
+    ctx.arc(p.x,p.y,3,0,Math.PI*2);
+    ctx.fill();
+    const bool=inTriangle(p,...poly.vertices);
+    console.log(bool);
+
+    let hover=false;
+
+    /*鼠标移动*/
+    canvas.addEventListener('mousemove',mousemoveFn);
+
+    function mousemoveFn(event){
+        const mousePos=getMousePos(event);
+        poly.crtPath(ctx);
+        // const bool=ctx.isPointInPath(mousePos.x,mousePos.y);
+        const bool=mousePos.inTriangle(...poly.vertices);
+        if(hover!==bool){
+            poly.fill=bool;
+            ctx.clearRect(0,0,canvas.width,canvas.height);
+            poly.draw(ctx);
+            hover=bool;
+        }
+    }
+
+    /*判断点是否在三角形中*/
+    function inTriangle(p,p0,p1,p2){
+        const [a0,a1,a2]=[
+            p0.includedAngleTo(p,p1),
+            p1.includedAngleTo(p,p2),
+            p2.includedAngleTo(p,p0),
+        ];
+        const sum=a0+a1+a2;
+        return Math.PI*2-sum<0.001;
+    }
+
+    /*求夹角*/
+    function angle(a, b) {
+        return  Math.acos((a.x * b.x + a.y * b.y) / (a.length() * b.length()));
+    }
+
+</script>
+</body>
+</html>
