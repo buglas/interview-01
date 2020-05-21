@@ -141,6 +141,12 @@ export default class Vector2{
         this.y = Math.min( this.y, v.y );
         return this;
     }
+    //向量乘法
+    scale(x=1,y=1){
+        this.x*=x;
+        this.y*=y;
+        return this;
+    }
     //将当前向量的长度*scalar
     multiplyScalar ( scalar ) {
         this.x *= scalar;

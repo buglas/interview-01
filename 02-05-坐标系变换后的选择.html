@@ -14,7 +14,7 @@
     <script type="module">
         import Vector2 from "./jsm/Vector2.js";
         import Poly from "./jsm/Poly.js";
-        import {getMousePos,isPointInPath} from "./jsm/Tool.js";
+        import {getMousePos} from "./jsm/Tool.js";
 
         const canvas=document.getElementById('canvas');
         canvas.width=window.innerWidth;
@@ -41,9 +41,9 @@
         /*鼠标移动*/
         canvas.addEventListener('mousemove',mousemoveFn);
         function mousemoveFn(event){
-            const mousePos=getMousePos(event);
+            const {x,y}=getMousePos(event,poly);
             poly.crtPath(ctx);
-            const bool=isPointInPath(ctx,mousePos,poly);
+            const bool=ctx.isPointInPath(x,y);
             if(hover!==bool){
                 poly.fill=bool;
                 ctx.clearRect(0,0,canvas.width,canvas.height);

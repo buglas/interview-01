@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>计算夹角</title>
+    <style>
+        html{height: 100%}
+        body{height: 100%;margin: 0;}
+        #canvas{background: antiquewhite}
+    </style>
+</head>
+<body>
+<canvas id="canvas"></canvas>
+<script type="module">
+    import Vector2 from "./jsm/Vector2.js";
+    import Poly from "./jsm/Poly.js";
+    import {getMousePos} from "./jsm/Tool.js";
+
+    const canvas=document.getElementById('canvas');
+    canvas.width=window.innerWidth;
+    canvas.height=window.innerHeight;
+    const ctx=canvas.getContext('2d');
+
+    /*
+    * 已知：m o n 三个点，求∠mol 的值θ，θ取值范围[0,Math.PI]
+    * 1.移动 m o n，把 o 放在零点
+    * 2.根据点积公式，求cos(θ)：
+    *   m*n=|m|*|n|*cos(θ)
+    *   cos(θ)=(m*n)/(|m|*|n|)
+    * 3.根据反余弦求余弦中的角度[0,Math.PI]：
+    *   θ=acos(cos(θ))
+    * */
+    const [m,o,n]=[
+        new Vector2(300,50),
+        new Vector2(300,200),
+        new Vector2(500,200),
+    ];
+
+    const poly=new Poly({
+        stroke:true,
+        vertices:[m,o,n]
+    });
+    poly.draw(ctx);
+
+    m.x-=o.x;
+    m.y-=o.y;
+    n.x-=o.x;
+    n.y-=o.y;
+    const dot=(m.x*n.x+m.y*n.y);
+    const len=Math.sqrt(m.x*m.x+m.y*m.y)*Math.sqrt(n.x*n.x+n.y*n.y);
+    const cosTheta=dot/len;
+    const theta=Math.acos(cosTheta);
+    console.log(theta);
+
+
+
+
+
+</script>
+</body>
+</html>

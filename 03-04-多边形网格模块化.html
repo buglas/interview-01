@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>多边形网格化</title>
+    <style>
+        html{height: 100%}
+        body{height: 100%;margin: 0;}
+        #canvas{background: antiquewhite}
+    </style>
+</head>
+<body>
+    <canvas id="canvas"></canvas>
+    <script type="module">
+        import Vector2 from "./jsm/Vector2.js";
+        import {getMousePos} from "./jsm/Tool.js";
+        import Poly from "./jsm/Poly.js";
+        import Mesh from "./jsm/Mesh.js";
+
+        const canvas=document.getElementById('canvas');
+        canvas.width=window.innerWidth;
+        canvas.height=window.innerHeight;
+        const ctx=canvas.getContext('2d');
+        const points=[
+            new Vector2(0,0),
+            new Vector2(0,600),
+            new Vector2(600,600),
+            new Vector2(600,200),
+            new Vector2(200,200),
+            new Vector2(200,400),
+            new Vector2(300,400),
+            new Vector2(300,300),
+            new Vector2(500,300),
+            new Vector2(500,500),
+            new Vector2(100,500),
+            new Vector2(100,100),
+            new Vector2(600,100),
+            new Vector2(600,0)
+        ];
+        const poly=new Poly({
+            position:new Vector2(50,50),
+            stroke:true,
+            close:true,
+            fillStyle:'#ffffaa',
+            vertices:[...points]
+        });
+        poly.draw(ctx);
+
+        const mesh=new Mesh(points);
+        mesh.triangles.forEach((ele,ind)=>{
+            const poly=new Poly({
+                position:new Vector2(50,50),
+                stroke:true,
+                close:true,
+                vertices:ele
+            });
+            poly.draw(ctx);
+        });
+
+        /*鼠标移动*/
+        canvas.addEventListener('mousemove',mousemoveFn);
+        let hover=false;
+        function mousemoveFn(event){
+            const mousePos=getMousePos(event,poly);
+            const obj=mesh.inMesh(mousePos);
+            console.log(obj);
+            const bool=!!obj;
+            if(hover!==bool){
+                poly.fill=bool;
+                ctx.clearRect(0,0,canvas.width,canvas.height);
+                poly.draw(ctx);
+                hover=bool;
+            }
+        }
+
+    </script>
+</body>
+</html>

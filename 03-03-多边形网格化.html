@@ -44,23 +44,58 @@
         poly.draw(ctx);
 
         const triangles=[];
-        let p0=0;
-        crtMesh(p0);
-        function crtMesh(p0){
+        let start=0;
+        crtMesh(start);
+        console.log(triangles);
+        triangles.forEach((ele,ind)=>{
+            const poly=new Poly({
+                position:new Vector2(50,50),
+                stroke:true,
+                close:true,
+                vertices:ele
+            });
+            poly.draw(ctx);
+        });
+
+        function crtMesh(start){
+            const len=points.length;
+            console.log(len);
+            const [i0,i1,i2]=[
+                start%len,
+                (start+1)%len,
+                (start+2)%len
+            ];
+            const [p0,p1,p2]=[
+                points[i0],
+                points[i1],
+                points[i2],
+            ];
+            console.log(p0,p1,p2);
             if(points.length===3){
-                triangles.push([
-                    points[0],
-                    points[1],
-                    points[2],
-                ])
+                triangles.push([p0,p1,p2]);
             }else{
-                const area=triangleArea(points[0],points[1],points[2]);
-                if(area>=0){
-                    crtMesh(p0+1);
+                const area=triangleArea(p0,p1,p2);
+                if(area>=0||hasOtherPointInTriangle(p0,p1,p2)){
+                    //凹三角
+                    crtMesh(i1);
                 }else{
-                    
+                    //凸三角
+                    triangles.push([p0,p1,p2]);
+                    points.splice(i1,1);
+                    crtMesh(i1);
                 }
             }
+        }
+        /*判断除三角形之外的顶点里，是否有在三角形里的*/
+        function hasOtherPointInTriangle(p0,p1,p2){
+            for (let ele of points){
+                if(ele!==p0&&ele!==p1&&ele!==p2){
+                    if (ele.inTriangle(p0,p1,p2)){
+                        return true;
+                    }
+                }
+            }
+            return false;
         }
         /*获取三角形面积*/
         function triangleArea(p0,p1,p2){
