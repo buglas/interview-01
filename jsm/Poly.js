@@ -1,65 +1,53 @@
 import Vector2 from "./Vector2.js";
+/*多边形默认属性*/
+const defAttr={
+    crtPath:crtLinePath,
+    vertices:[],
 
-/*Poly 多边形
-*   close 是否闭合
-*   fill 是否填充
-*   stroke 是否描边
-*   shadow 是否投影
-*   vertices 顶点集合
-* */
+    close:false,
+    fill:false,
+    stroke:false,
+    shadow:false,
+
+    fillStyle:'#000',
+    strokeStyle:'#000',
+    lineWidth:1,
+    lineDash:[],
+    lineDashOffset:0,
+    lineCap:'butt',
+    lineJoin:'miter',
+    miterLimit:10,
+    shadowColor:'rgba(0,0,0,0)',
+    shadowBlur:0,
+    shadowOffsetX:0,
+    shadowOffsetY:0,
+
+    scale:new Vector2(1,1),
+    position:new Vector2(0,0),
+    rotation:0,
+};
+
+/*绘制多边形*/
+function crtLinePath(ctx){
+    const {vertices}=this;
+    /*连点成线*/
+    ctx.beginPath();
+    ctx.moveTo(vertices[0].x,vertices[0].y);
+    const len=vertices.length;
+    for(let i=1;i<len;i++){
+        ctx.lineTo(vertices[i].x,vertices[i].y);
+    }
+}
+
+/*Poly 多边形*/
 export default class Poly{
     constructor(param={}){
-        const {
-            close=false,
-            fill=false,
-            stroke=false,
-            shadow=false,
-            vertices=[],
-
-            fillStyle='#000',
-            strokeStyle='#000',
-            lineWidth=1,
-            dash=[],
-            lineCap='butt',
-            lineJoin='miter',
-            miterLimit=10,
-            shadowColor='rgba(0,0,0,0)',
-            shadowBlur=0,
-            shadowOffsetX=0,
-            shadowOffsetY=0,
-
-            crtPath=crtLinePath,
-            scale=new Vector2(1,1),
-            position=new Vector2(0,0),
-            rotation=0,
-        }=param;
-
-        this.close=close;
-        this.fill=fill;
-        this.stroke=stroke;
-        this.vertices=vertices;
-
-        this.fillStyle=fillStyle;
-        this.strokeStyle=strokeStyle;
-        this.lineWidth=lineWidth;
-        this.dash=dash;
-        this.lineCap=lineCap;
-        this.lineJoin=lineJoin;
-        this.miterLimit=miterLimit;
-        this.shadowColor=shadowColor;
-        this.shadowBlur=shadowBlur;
-        this.shadowOffsetX=shadowOffsetX;
-        this.shadowOffsetY=shadowOffsetY;
-
-        this.crtPath=crtPath;
-        this.scale=scale;
-        this.position=position;
-        this.rotation=rotation;
+        Object.assign(this,defAttr,param);
     }
     draw(ctx){
         const {
             shadow, shadowColor, shadowBlur, shadowOffsetX, shadowOffsetY,
-            stroke, close, strokeStyle, lineWidth, lineCap, lineJoin, miterLimit,
+            stroke, close, strokeStyle, lineWidth, lineCap, lineJoin, miterLimit,lineDash,lineDashOffset,
             fill, fillStyle,
             scale,position,rotation
         }=this;
@@ -88,11 +76,13 @@ export default class Poly{
             ctx.lineCap=lineCap;
             ctx.lineJoin=lineJoin;
             ctx.miterLimit=miterLimit;
+            ctx.lineDashOffset=lineDashOffset;
+            ctx.setLineDash(lineDash);
             close&&ctx.closePath();
             ctx.stroke();
         }
 
-        /*投影*/
+        /*填充*/
         if(fill){
             ctx.fillStyle=fillStyle;
             ctx.fill();
@@ -103,16 +93,5 @@ export default class Poly{
     checkPointInPath(ctx,{x,y}){
         this.crtPath(ctx);
         const bool=ctx.isPointInPath(x,y);
-    }
-}
-/*绘制多边形*/
-function crtLinePath(ctx){
-    const {vertices}=this;
-    /*连点成线*/
-    ctx.beginPath();
-    ctx.moveTo(vertices[0].x,vertices[0].y);
-    const len=vertices.length;
-    for(let i=1;i<len;i++){
-        ctx.lineTo(vertices[i].x,vertices[i].y);
     }
 }
