@@ -1,16 +1,15 @@
 import Vector2 from "./Vector2.js";
 /*Mesh 网格对象
-*   triangles 三角形集合
 *   points 所有的顶点
-*
+*   triangles 三角形集合
+*   tmpPoints 顶点的暂存区，用于做递归删除
+*   update 更新方法，建立网格
 * */
 export default class Mesh{
     constructor(points=[]) {
         this.points=points;
         this.triangles=[];
         this.tmpPoints=[];
-        this.position=new Vector2(0,0);
-        this.polys=null;
         this.update();
     }
     update(){

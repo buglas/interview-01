@@ -73,9 +73,9 @@ export default class Vector2{
             p2.includedAngleTo(this,p0),
         ];
         const sum=a0+a1+a2;
-        return Math.PI*2-sum<0.001;
+        return Math.PI*2-sum<=0.01;
     }
-    //非等比例切割向量
+    //向量除法
     divide ( v ) {
         this.x /= v.x;
         this.y /= v.y;

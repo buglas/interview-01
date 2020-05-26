@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<script>
+    const points=[
+        {x:1,y:1},
+        {x:2,y:1},
+        {x:2,y:2},
+        {x:3,y:2},
+        {x:3,y:4},
+        {x:1,y:4},
+    ];
+    class Polly{
+        constructor(points){
+            this.points=points;
+        }
+        getPoints0(points){
+            const {x,y}=points[0];
+            return points.map((p,i)=>{
+                return {x:p.x-x,y:p.y-y};
+            })
+        }
+        getTriangleArea(B,C){
+            const [bx,by,cx,cy]=[B.x,B.y,C.x,C.y];
+            return (bx*cy - cx*by)/2;
+        }
+        getArea(points=this.points){
+            const points0=this.getPoints0(points);
+            const len=points0.length;
+            let area=0;
+            for(let i=0;i<len-1;i++){
+                area+=this.getTriangleArea(points0[i],points0[i+1]);
+            }
+            return area;
+        }
+    }
+    let polly=new Polly(points);
+    console.log(polly.getArea())
+</script>
+</body>
+</html>
