@@ -40,21 +40,18 @@
             position:new Vector2(50,50),
             stroke:true,
             close:true,
-            fillStyle:'#ffffaa',
+            fillStyle:'#48ceff',
             vertices:[...points]
         });
         poly.draw(ctx);
 
         const mesh=new Mesh(points);
-        mesh.triangles.forEach((ele,ind)=>{
-            const poly=new Poly({
-                position:new Vector2(50,50),
-                stroke:true,
-                close:true,
-                vertices:ele
-            });
-            poly.draw(ctx);
+        mesh.crtPolys({
+            position:new Vector2(50,50),
+            stroke:true,
+            close:true,
         });
+        mesh.draw(ctx);
 
         /*鼠标移动*/
         canvas.addEventListener('mousemove',mousemoveFn);
@@ -67,6 +64,7 @@
                 poly.fill=bool;
                 ctx.clearRect(0,0,canvas.width,canvas.height);
                 poly.draw(ctx);
+                mesh.draw(ctx);
                 hover=bool;
             }
         }

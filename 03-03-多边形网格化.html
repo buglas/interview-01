@@ -9,105 +9,113 @@
     </style>
 </head>
 <body>
-    <canvas id="canvas"></canvas>
-    <script type="module">
-        import Vector2 from "./jsm/Vector2.js";
-        import Poly from "./jsm/Poly.js";
+<canvas id="canvas"></canvas>
+<script type="module">
+    import Vector2 from "./jsm/Vector2.js";
+    import Poly from "./jsm/Poly.js";
 
-        const canvas=document.getElementById('canvas');
-        canvas.width=window.innerWidth;
-        canvas.height=window.innerHeight;
-        const ctx=canvas.getContext('2d');
-        const points=[
-            new Vector2(0,0),
-            new Vector2(0,600),
-            new Vector2(600,600),
-            new Vector2(600,200),
-            new Vector2(200,200),
-            new Vector2(200,400),
-            new Vector2(300,400),
-            new Vector2(300,300),
-            new Vector2(500,300),
-            new Vector2(500,500),
-            new Vector2(100,500),
-            new Vector2(100,100),
-            new Vector2(600,100),
-            new Vector2(600,0)
-        ];
+    const canvas=document.getElementById('canvas');
+    canvas.width=window.innerWidth;
+    canvas.height=window.innerHeight;
+    const ctx=canvas.getContext('2d');
+    const points=[
+        new Vector2(0,0),
+        new Vector2(0,600),
+        new Vector2(600,600),
+        new Vector2(600,200),
+        new Vector2(200,200),
+        new Vector2(200,400),
+        new Vector2(300,400),
+        new Vector2(300,300),
+        new Vector2(500,300),
+        new Vector2(500,500),
+        new Vector2(100,500),
+        new Vector2(100,100),
+        new Vector2(600,100),
+        new Vector2(600,0)
+    ];
+    const poly=new Poly({
+        position:new Vector2(50,50),
+        stroke:true,
+        close:true,
+        lineWidth:2,
+        vertices:[...points]
+    });
+    poly.draw(ctx);
+
+
+    const triangles=[];
+    let start=0;
+    crtMesh(start);
+
+    triangles.forEach((ele,ind)=>{
         const poly=new Poly({
             position:new Vector2(50,50),
             stroke:true,
             close:true,
-            lineWidth:2,
-            vertices:[...points]
+            vertices:ele
         });
         poly.draw(ctx);
+    });
 
-        const triangles=[];
-        let start=0;
-        crtMesh(start);
-        console.log(triangles);
-        triangles.forEach((ele,ind)=>{
-            const poly=new Poly({
-                position:new Vector2(50,50),
-                stroke:true,
-                close:true,
-                vertices:ele
-            });
-            poly.draw(ctx);
-        });
-
-        function crtMesh(start){
-            const len=points.length;
-            console.log(len);
-            const [i0,i1,i2]=[
-                start%len,
-                (start+1)%len,
-                (start+2)%len
-            ];
-            const [p0,p1,p2]=[
-                points[i0],
-                points[i1],
-                points[i2],
-            ];
-            console.log(p0,p1,p2);
-            if(len===3){
+    /*crtMesh(start) 建立网格
+    *   获取points 顶点长度
+    *   基于起点获取三角形顶点的索引位置
+    *   基于索引位置获取顶点
+    *   若points 顶点长度为3：
+    *       将3个顶点打包成一个数组添加到triangles里
+    *   否则：
+    *       基于三个顶点获取三角形面积
+    *       若三角形为凸三角形，或者三角形中没有包含了其它顶点，则三角形成立：
+    *           将3个顶点打包成一个数组添加到triangles里
+    *           将三角形的第2个顶点从points中删除
+    *       将三角形第二个顶点作为起点参数，执行crtMesh(start) 方法
+    * */
+    function crtMesh(start){
+        const len=points.length;
+        const [i0,i1,i2]=[
+            start%len,
+            (start+1)%len,
+            (start+2)%len
+        ];
+        const [p0,p1,p2]=[
+            points[i0],
+            points[i1],
+            points[i2],
+        ];
+        if(len===3){
+            triangles.push([p0,p1,p2]);
+        }else{
+            const area=triangleArea(p0,p1,p2);
+            if(area<0&&!hasOtherPointInTriangle(p0,p1,p2)){
                 triangles.push([p0,p1,p2]);
-            }else{
-                const area=triangleArea(p0,p1,p2);
-                if(area>=0||hasOtherPointInTriangle(p0,p1,p2)){
-                    //凹三角
-                    crtMesh(i1);
-                }else{
-                    //凸三角
-                    triangles.push([p0,p1,p2]);
-                    points.splice(i1,1);
-                    crtMesh(i1);
+                points.splice(i1,1);
+            }
+            crtMesh(i1);
+        }
+    }
+    /*判断除三角形之外的顶点里，是否有在三角形里的*/
+    function hasOtherPointInTriangle(p0,p1,p2){
+        for (let ele of points){
+            if(ele!==p0&&ele!==p1&&ele!==p2){
+                if (ele.inTriangle(p0,p1,p2)){
+                    return true;
                 }
             }
         }
-        /*判断除三角形之外的顶点里，是否有在三角形里的*/
-        function hasOtherPointInTriangle(p0,p1,p2){
-            for (let ele of points){
-                if(ele!==p0&&ele!==p1&&ele!==p2){
-                    if (ele.inTriangle(p0,p1,p2)){
-                        return true;
-                    }
-                }
-            }
-            return false;
-        }
-        /*获取三角形面积*/
-        function triangleArea(p0,p1,p2){
-            const [bx,by,cx,cy]=[
-                p1.x-p0.x,
-                p1.y-p0.y,
-                p2.x-p0.x,
-                p2.y-p0.y,
-            ];
-            return (bx*cy-cx*by)/2;
-        }
+        return false;
+    }
+    /*获取三角形面积*/
+    function triangleArea(p0,p1,p2){
+        const [bx,by,cx,cy]=[
+            p1.x-p0.x,
+            p1.y-p0.y,
+            p2.x-p0.x,
+            p2.y-p0.y,
+        ];
+        return (bx*cy-cx*by)/2;
+    }
 
-    </script>
+</script>
 </body>
 </html>

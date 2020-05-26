@@ -9,14 +9,13 @@ import Poly from "./Poly.js";
 *   hasOtherPointInTriangle(p0,p1,p2) 判断▲p0p1p2是否包含了其它顶点
 *   triangleArea(p0,p1,p2) ▲p0p1p2的面积
 *   inMesh(v) 点v是否在多边形中
-*   crtPolys() 根据三角形集合建立多边形集合
-*   draw(ctx) 绘图
 * */
 export default class Mesh{
-    constructor(points=[]) {
+    constructor(points=[],polyOption={}) {
         this.points=points;
         this.triangles=[];
         this.tmpPoints=[];
+        this.polyOption=polyOption;
         this.polys=[];
         this.update();
     }
@@ -39,14 +38,28 @@ export default class Mesh{
             points[i1],
             points[i2],
         ];
+        let state=0;
         if(points.length===3){
-            this.triangles.push([p0,p1,p2]);
+            state=1;
         }else{
             const area=this.triangleArea(p0,p1,p2);
-            if(area<0&&!this.hasOtherPointInTriangle(p0,p1,p2)){
-                this.triangles.push([p0,p1,p2]);
-                points.splice(i1,1);
+            if(area>=0||this.hasOtherPointInTriangle(p0,p1,p2)){
+                //凹三角
+                state=0;
+            }else{
+                //凸三角
+                state=2;
             }
+        }
+        if(state){
+            const polyOption=Object.assign(this.polyOption,{vertices:[p0,p1,p2]});
+            this.polys.push(new Poly(polyOption));
+            this.triangles.push([p0,p1,p2]);
+            if(state===2){
+                points.splice(i1,1);
+                this.crtMesh(i1);
+            }
+        }else{
             this.crtMesh(i1);
         }
     }
@@ -78,17 +91,5 @@ export default class Mesh{
             }
         }
         return null;
-    }
-    crtPolys(option){
-        this.triangles.forEach((ele,ind)=>{
-            option.vertices=ele;
-            const poly=new Poly(option);
-            this.polys.push(poly);
-        });
-    }
-    draw(ctx){
-        this.polys.forEach((poly,ind)=>{
-            poly.draw(ctx);
-        })
     }
 }
