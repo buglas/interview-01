@@ -53,14 +53,6 @@ export default class Poly{
         }=this;
         ctx.save();
 
-        /*投影*/
-        if(shadow){
-            ctx.shadowColor=shadowColor;
-            ctx.shadowBlur=shadowBlur;
-            ctx.shadowOffsetX=shadowOffsetX;
-            ctx.shadowOffsetY=shadowOffsetY;
-        }
-
         /*变换*/
         ctx.translate(position.x,position.y);
         ctx.rotate(rotation);
@@ -68,6 +60,14 @@ export default class Poly{
 
         /*建立路径*/
         this.crtPath(ctx);
+
+        /*投影*/
+        if(shadow){
+            ctx.shadowColor=shadowColor;
+            ctx.shadowBlur=shadowBlur;
+            ctx.shadowOffsetX=shadowOffsetX;
+            ctx.shadowOffsetY=shadowOffsetY;
+        }
 
         /*描边*/
         if(stroke){
@@ -88,10 +88,13 @@ export default class Poly{
             ctx.fill();
         }
 
+
+
         ctx.restore();
     }
     checkPointInPath(ctx,{x,y}){
         this.crtPath(ctx);
-        const bool=ctx.isPointInPath(x,y);
+        return ctx.isPointInPath(x,y);
+
     }
 }

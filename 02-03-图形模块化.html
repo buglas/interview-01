@@ -34,7 +34,7 @@
         let hover=false;
         canvas.addEventListener('mousemove',mousemoveFn);
         function mousemoveFn(event){
-            const mousePos=getMousePos(event);
+            const mousePos=getMousePos(event,canvas);
             poly.crtPath(ctx);
             const bool=ctx.isPointInPath(mousePos.x,mousePos.y);
             if(hover!==bool){

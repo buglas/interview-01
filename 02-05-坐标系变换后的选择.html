@@ -41,7 +41,7 @@
         /*鼠标移动*/
         canvas.addEventListener('mousemove',mousemoveFn);
         function mousemoveFn(event){
-            const {x,y}=getMousePos(event,poly);
+            const {x,y}=getMousePos(event,canvas,poly);
             poly.crtPath(ctx);
             const bool=ctx.isPointInPath(x,y);
             if(hover!==bool){

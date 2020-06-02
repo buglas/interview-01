@@ -39,7 +39,7 @@
         /*鼠标移动*/
         canvas.addEventListener('mousemove',mousemoveFn);
         function mousemoveFn(event){
-            const mousePos=getMousePos(event);
+            const mousePos=getMousePos(event,canvas);
             poly.crtPath(ctx);
             const [nx,ny]=[
                 mousePos.x-poly.position.x,

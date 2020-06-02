@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>图形模块化</title>
+    <title>点在三角形中</title>
     <style>
         html{height: 100%}
         body{height: 100%;margin: 0;}
@@ -36,18 +36,12 @@
     ctx.beginPath();
     ctx.arc(p.x,p.y,3,0,Math.PI*2);
     ctx.fill();
-    const bool=inTriangle(p,...poly.vertices);
-    console.log(bool);
 
     let hover=false;
-
     /*鼠标移动*/
     canvas.addEventListener('mousemove',mousemoveFn);
-
     function mousemoveFn(event){
-        const mousePos=getMousePos(event);
-        poly.crtPath(ctx);
-        // const bool=ctx.isPointInPath(mousePos.x,mousePos.y);
+        const mousePos=getMousePos(event,canvas);
         const bool=mousePos.inTriangle(...poly.vertices);
         if(hover!==bool){
             poly.fill=bool;
@@ -56,23 +50,6 @@
             hover=bool;
         }
     }
-
-    /*判断点是否在三角形中*/
-    function inTriangle(p,p0,p1,p2){
-        const [a0,a1,a2]=[
-            p0.includedAngleTo(p,p1),
-            p1.includedAngleTo(p,p2),
-            p2.includedAngleTo(p,p0),
-        ];
-        const sum=a0+a1+a2;
-        return Math.PI*2-sum<0.001;
-    }
-
-    /*求夹角*/
-    function angle(a, b) {
-        return  Math.acos((a.x * b.x + a.y * b.y) / (a.length() * b.length()));
-    }
-
 </script>
 </body>
 </html>

@@ -57,7 +57,7 @@
         canvas.addEventListener('mousemove',mousemoveFn);
         let hover=false;
         function mousemoveFn(event){
-            const mousePos=getMousePos(event,poly);
+            const mousePos=getMousePos(event,canvas,poly);
             const obj=mesh.inMesh(mousePos);
             const bool=!!obj;
             if(hover!==bool){
