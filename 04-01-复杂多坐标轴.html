@@ -13,9 +13,11 @@
 
         const myChart = echarts.init(document.getElementById('main'));
 
-        //销售量的系列数据
+        /*
+        * data1 销售量的系列数据
+        * data2 盈利额的系列数据
+        */
         const data1=[15, 12, 16, 11, 16, 20];
-        //盈利额的系列数据
         const data2=[-150, 120, 160, -110, 160, 200];
 
         //理想行数（实际行数会有浮动）
@@ -32,19 +34,25 @@
         let min1=Math.min(...data1);
         let min2=Math.min(...data2);
 
-        /*根据所有数据重新设置盈利额极值*/
-        max2=Math.max(max2,max1);
-        min2=Math.min(min2,min1);
+        /*极值比例*/
+        const rat1=min1/max1;
+        const rat2=min2/max2;
 
-        /*min1和max1的比值要和min2和max2的比值一致*/
-        min1=(min2/max2)*max1;
+        /*比例大小对比*/
+        const ratState=rat1>rat2;
+        /*设置极小值*/
+        if(ratState){
+            min1=rat2*max1;
+        }else{
+            min2=rat1*max2;
+        }
 
         /*
         * inter1 销售量的行高取整
         * inter2 盈利额的行高取整
         * */
-        const inter1=Math.ceil((max1-min1)/rowNum);
-        const inter2=Math.ceil((max2-min2)/rowNum);
+        let inter1=Math.ceil((max1-min1)/rowNum);
+        let inter2=Math.ceil((max2-min2)/rowNum);
 
         /*对极值微调*/
         min1=Math.floor(min1/inter1)*inter1;

@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>鼠标点在图形中</title>
+    <style>
+        html{height: 100%}
+        body{height: 100%;margin: 0;}
+    </style>
+</head>
+<body>
+<canvas id="canvas"></canvas>
+<script>
+    const canvas=document.getElementById('canvas');
+    canvas.width=window.innerWidth;
+    canvas.height=window.innerHeight;
+    const ctx=canvas.getContext('2d');
+
+    /*绘制图形*/
+    ctx.beginPath();
+    ctx.moveTo(50,50);
+    ctx.lineTo(450,50);
+    ctx.lineTo(250,200);
+    ctx.stroke();
+
+    /*绘制新图形*/
+    ctx.beginPath();
+    ctx.arc(250,300,50,0,Math.PI*2);
+    ctx.fill();
+
+    /*鼠标移动*/
+    canvas.addEventListener('mousemove',mousemoveFn);
+    function mousemoveFn(event){
+        const {x,y}=getMousePos(event);
+        const bool=ctx.isPointInPath(x,y);
+        console.log(bool);
+    }
+    /*获取鼠标位置*/
+    function getMousePos(event){
+        const {clientX,clientY}=event;
+        const {top,left}=canvas.getBoundingClientRect();
+        const x=clientX-left;
+        const y=clientY-top;
+        return {x,y};
+    }
+</script>
+</body>
+</html>

@@ -17,9 +17,16 @@
 
     const ctx=canvas.getContext('2d');
 
+    /*封装路径的绘制方法：*/
+    function crtPath(){
+        ctx.beginPath();
+        ctx.moveTo(50,50);
+        ctx.lineTo(450,50);
+        ctx.lineTo(250,200);
+    }
+    /*绘图*/
     crtPath();
     ctx.stroke();
-
     /*鼠标移动*/
     canvas.addEventListener('mousemove',mousemoveFn);
     function mousemoveFn(event){
@@ -29,13 +36,7 @@
         console.log(bool);
     }
 
-    /*建立路径*/
-    function crtPath(){
-        ctx.beginPath();
-        ctx.moveTo(50,50);
-        ctx.lineTo(450,50);
-        ctx.lineTo(250,200);
-    }
+
 
     /*获取鼠标位置*/
     function getMousePos(event){
