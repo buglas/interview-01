@@ -5,7 +5,6 @@ export default class Lattice{
         Object.assign(this,{type:'Ball'},option);
         this.obj=null;
         this.nodes=[];
-
     }
     update(){
         const {obj,type,nodes}=this;

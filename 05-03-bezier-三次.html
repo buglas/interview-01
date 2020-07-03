@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>bezier-线性</title>
+    <title>bezier-三次</title>
     <style>
         html{height: 100%}
         body{height: 100%;margin: 0;}
@@ -21,14 +21,18 @@
 
         const ctx=canvas.getContext('2d');
 
-        const p0=new Vector2(50,300);
-        const p1=new Vector2(700,300);
+        const p0=new Vector2(50,50);
+        const p1=new Vector2(400,50);
+        const p2=new Vector2(400,300);
+        const p3=new Vector2(700,300);
 
         /*插值集合*/
         const interpolations=[];
         /*建立多个插值*/
         for(let t=0;t<1;t+=0.1){
-            interpolations.push(inter1(t,p0,p1));
+            const p=inter3(t,p0,p1,p2,p3)
+            console.log(p)
+            interpolations.push(p);
         }
 
         /*多边形对象*/
@@ -36,7 +40,7 @@
             vertices:interpolations,
             stroke:true,
         })
-
+        
         /*晶格化修改器*/
         const lattice=new Lattice();
 
@@ -47,14 +51,9 @@
         poly.draw(ctx);
 
 
-
-
-
-
-
         /*线性插值公式*/
-        function inter1(t,p0,p1){
-            return p0.clone().add(p1.clone().sub(p0).scale(t));
+        function inter3(t,p0,p1,p2,p3){
+            return (p0.clone().scale(Math.pow((1-t),3))).add(p1.clone().scale(3*t*(1-t)*(1-t))).add(p2.clone().scale(3*t*t*(1-t))).add(p3.clone().scale(t*t*t));
         }
 
 

@@ -31,16 +31,30 @@ const defAttr={
     scale:new Vector2(1,1),
     position:new Vector2(0,0),
     rotation:0,
+
+    //修改器集合：修改器统一具备draw(ctx) 接口
+    modifiers:[]
 };
 
-
+/*绘制多边形
+*   draw(ctx,fn) 绘图，fn在创建路径拦截路径的的选择
+*   checkPointInPath(ctx,pos)测试点是否在路径中（基于未变换的数据绘制路径，让鼠标点去变换）
+* */
+function crtLinePath(ctx){
+    const {vertices}=this;
+    /*连点成线*/
+    ctx.beginPath();
+    ctx.moveTo(vertices[0].x,vertices[0].y);
+    const len=vertices.length;
+    for(let i=1;i<len;i++){
+        ctx.lineTo(vertices[i].x,vertices[i].y);
+    }
+}
 
 /*Poly 多边形*/
-export default class Poly{
+export default class BasicObj{
     constructor(param={}){
         Object.assign(this,defAttr,param);
-        //修改器集合：修改器统一具备draw(ctx) 接口
-        this.modifiers=[]
     }
     draw(ctx){
         const {
@@ -88,26 +102,15 @@ export default class Poly{
         }
 
         /*修改器*/
+        console.log('modifiers',modifiers)
         modifiers.forEach(modifier=>{
             modifier.draw(ctx);
         })
 
         ctx.restore();
     }
-    /*绘制多边形
-    *   draw(ctx,fn) 绘图，fn在创建路径拦截路径的的选择
-    *   checkPointInPath(ctx,pos)测试点是否在路径中（基于未变换的数据绘制路径，让鼠标点去变换）
-    * */
-    crtPath(ctx){
-        let {vertices}=this;
-        /*连点成线*/
-        ctx.beginPath();
-        ctx.moveTo(vertices[0].x,vertices[0].y);
-        const len=vertices.length;
-        for(let i=1;i<len;i++){
-            ctx.lineTo(vertices[i].x,vertices[i].y);
-        }
-    }
+    /*创建路径的方法-会被具体图形覆盖*/
+    crtPath(){}
     /*检测顶点是否在路径中*/
     checkPointInPath(ctx,{x,y}){
         ctx.save();
