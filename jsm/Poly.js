@@ -27,7 +27,10 @@ const defAttr={
     rotation:0,
 };
 
-/*绘制多边形*/
+/*绘制多边形
+*   draw(ctx,fn) 绘图，fn在创建路径拦截路径的的选择
+*   checkPointInPath(ctx,pos)测试点是否在路径中（基于未变换的数据绘制路径，让鼠标点去变换）
+* */
 function crtLinePath(ctx){
     const {vertices}=this;
     /*连点成线*/
@@ -87,14 +90,16 @@ export default class Poly{
             ctx.fillStyle=fillStyle;
             ctx.fill();
         }
-
-
-
         ctx.restore();
     }
     checkPointInPath(ctx,{x,y}){
+        ctx.save();
+        //变换信息归零
+        ctx.setTransform(1,0,0,1,0,0);
+        //创建路径
         this.crtPath(ctx);
-        return ctx.isPointInPath(x,y);
-
+        const bool=ctx.isPointInPath(x,y);
+        ctx.restore();
+        return bool;
     }
 }

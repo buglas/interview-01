@@ -36,7 +36,7 @@
         function mousemoveFn(event){
             const mousePos=getMousePos(event,canvas);
             poly.crtPath(ctx);
-            const bool=ctx.isPointInPath(mousePos.x,mousePos.y);
+            const bool=poly.checkPointInPath(ctx,mousePos);
             if(hover!==bool){
                 poly.fill=bool;
                 ctx.clearRect(0,0,canvas.width,canvas.height);
