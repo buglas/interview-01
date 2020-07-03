@@ -51,7 +51,7 @@
         poly.draw(ctx);
 
 
-        /*线性插值公式*/
+        /*插值公式*/
         function inter3(t,p0,p1,p2,p3){
             return (p0.clone().scale(Math.pow((1-t),3))).add(p1.clone().scale(3*t*(1-t)*(1-t))).add(p2.clone().scale(3*t*t*(1-t))).add(p3.clone().scale(t*t*t));
         }
