@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>bezier-线性</title>
+    <style>
+        html{height: 100%}
+        body{height: 100%;margin: 0;}
+    </style>
+</head>
+<body>
+    <canvas id="canvas"></canvas>
+    <script type="module">
+        import Vector2 from "./jsm/Vector2.js"
+        import Poly from "./jsm/Poly.js"
+        import Lattice from "./jsm/modifierLib/Lattice.js"
+
+        const canvas=document.getElementById('canvas');
+        canvas.width=window.innerWidth;
+        canvas.height=window.innerHeight;
+
+        const ctx=canvas.getContext('2d');
+
+        const p0=new Vector2(50,300);
+        const p1=new Vector2(700,300);
+
+        /*插值集合*/
+        const interpolations=[];
+        /*建立多个插值*/
+        for(let t=0;t<1;t+=0.1){
+            interpolations.push(linerInter(t,p0,p1));
+        }
+        console.log(interpolations)
+
+        /*多边形对象*/
+        const poly=new Poly({
+            vertices:interpolations,
+            stroke:true,
+        })
+        /*晶格化修改器*/
+        const lattice=new Lattice();
+        /*将修改器应用于poly*/
+        poly.addModifier(lattice);
+        /*绘图*/
+        poly.draw(ctx);
+
+
+
+
+
+
+
+        /*线性插值公式*/
+        function linerInter(t,p0,p1){
+            return p0.clone().add(p1.clone().sub(p0).scale(t));
+        }
+
+
+    </script>
+</body>
+</html>

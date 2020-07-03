@@ -141,8 +141,8 @@ export default class Vector2{
         this.y = Math.min( this.y, v.y );
         return this;
     }
-    //向量乘法
-    scale(x=1,y=1){
+    //向量乘法，高数中角向量的数乘
+    scale(x=1,y=x){
         this.x*=x;
         this.y*=y;
         return this;
