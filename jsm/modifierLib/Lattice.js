@@ -4,10 +4,11 @@ export default class Lattice{
     constructor(option) {
         Object.assign(this,{type:'Ball'},option);
         this.obj=null;
+        this.fill=true;
         this.nodes=[];
     }
     update(){
-        const {obj,type,nodes}=this;
+        const {obj,type,nodes,fill}=this;
         obj.vertices.forEach(vertice=>{
             const node=new ShapeLib[type]();
             node.fillStyle=obj.fillStyle;
@@ -20,6 +21,7 @@ export default class Lattice{
             node.shadowOffsetX=obj.shadowOffsetX;
             node.shadowOffsetY=obj.shadowOffsetY;
             node.position=vertice;
+            node.fill=fill;
             nodes.push(node);
         })
     }

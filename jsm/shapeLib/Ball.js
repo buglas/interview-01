@@ -1,10 +1,8 @@
 import Poly from "../Poly.js"
 
 export default class Ball extends Poly{
-    constructor() {
-        super();
-        this.r=5;
-        this.fill=true;
+    constructor(param={r:5}) {
+        super(param);
     }
     crtPath(ctx){
         const {orign,r}=this;
