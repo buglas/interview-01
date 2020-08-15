@@ -43,7 +43,7 @@ export default class Mesh{
             this.triangles.push([p0,p1,p2]);
         }else{
             const area=this.triangleArea(p0,p1,p2);
-            if(area<0&&!this.hasOtherPointInTriangle(p0,p1,p2)){
+            if(area>0&&!this.hasOtherPointInTriangle(p0,p1,p2)){
                 this.triangles.push([p0,p1,p2]);
                 points.splice(i1,1);
             }
