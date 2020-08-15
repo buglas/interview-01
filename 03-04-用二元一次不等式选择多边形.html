@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>多边形网格化</title>
+    <style>
+        html{height: 100%}
+        body{height: 100%;margin: 0;}
+    </style>
+</head>
+<body>
+    <canvas id="canvas"></canvas>
+    <script type="module">
+        import Vector2 from "./jsm/Vector2.js";
+        import {getMousePos} from "./jsm/Tool.js";
+        import Poly from "./jsm/Poly.js";
+        import Mesh from "./jsm/Mesh.js";
+
+        const canvas=document.getElementById('canvas');
+        canvas.width=window.innerWidth;
+        canvas.height=window.innerHeight;
+        const ctx=canvas.getContext('2d');
+        /*const points=[
+            new Vector2(0,0),
+            new Vector2(600,0),
+            new Vector2(600,100),
+            new Vector2(100,100),
+            new Vector2(100,500),
+            new Vector2(500,500),
+            new Vector2(500,300),
+            new Vector2(300,300),
+            new Vector2(300,400),
+            new Vector2(200,400),
+            new Vector2(200,200),
+            new Vector2(600,200),
+            new Vector2(600,600),
+            new Vector2(0,600),
+        ];*/
+        const points=[
+            new Vector2(50,50),
+            new Vector2(450,50),
+            new Vector2(250,250),
+        ];
+        const poly=new Poly({
+            position:new Vector2(50,50),
+            stroke:true,
+            close:true,
+            fillStyle:'#48ceff',
+            vertices:[...points]
+        });
+        poly.draw(ctx);
+
+        points.forEach((pointStart,ind)=>{
+            const ind2=(ind+1)/points.length;
+            const pointEnd=points[ind2];
+
+        })
+        const len=points.length;
+        for(let i=0;i<len;i++){
+            const i2=(i+1)/len;
+            const [pointStart,pointEnd]=[
+                points[i],
+                points[i2],
+            ]
+            const vector=pointEnd.clone().sub(pointStart);
+
+        }
+
+
+    </script>
+</body>
+</html>
