@@ -35,7 +35,7 @@ export default class Vector2{
     //将向量长度限定在极值的闭区间中
     clampLength(min, max){
         const length = this.length();
-        return this.divideScalar( length || 1 ).multiplyScalar( Math.max( min, Math.min( max, length ) ) );
+        return this.divideScalar( length || 1 ).scale( Math.max( min, Math.min( max, length ) ) );
     }
     //向量拷贝
     copy(v){
@@ -65,8 +65,8 @@ export default class Vector2{
         ];
         return s1.includedAngle(s2);
     }
-    //是否在扇形中
-    inTriangle(p0,p1,p2){
+    //当前点是否在三角形中，用夹角之和判断
+    inTriangle([p0,p1,p2]){
         const [a0,a1,a2]=[
             p0.includedAngleTo(this,p1),
             p1.includedAngleTo(this,p2),
@@ -74,6 +74,26 @@ export default class Vector2{
         ];
         const sum=a0+a1+a2;
         return Math.PI*2-sum<=0.01;
+    }
+    //当前点是否在三角形中，用二元一次不等式
+    inTriangle2(points){
+        let inPoly=true;
+        for(let i=0;i<3;i++){
+            const i2=(i+1)%3;
+            const [pointStart,pointEnd]=[
+                points[i],
+                points[i2],
+            ];
+            const vector=pointEnd.clone().sub(pointStart);
+            const pr=this.clone().sub(pointStart);
+            const num=vector.y*pr.x-vector.x*pr.y;
+            if(num>0){
+                inPoly=false;
+                break
+            }
+            const {x,y}=vector;
+        }
+        return inPoly;
     }
     //向量除法
     divide ( v ) {
@@ -87,7 +107,7 @@ export default class Vector2{
     }
     //等比例切割向量，设置向量长度为当前长度的1/scalar
     divideScalar(scalar){
-        return this.multiplyScalar( 1 / scalar );
+        return this.scale( 1 / scalar );
     }
     //是否相等
     equal(v){
@@ -141,17 +161,15 @@ export default class Vector2{
         this.y = Math.min( this.y, v.y );
         return this;
     }
-    //向量乘法，高数中角向量的数乘
+    //向量乘法+数乘，返回向量
     scale(x=1,y=x){
         this.x*=x;
         this.y*=y;
         return this;
     }
-    //将当前向量的长度*scalar
-    multiplyScalar ( scalar ) {
-        this.x *= scalar;
-        this.y *= scalar;
-        return this;
+    //向量的乘法，返回数字
+    multiply( v ) {
+        return this.x *v.x+this.y *v.y;
     }
     //向量归一
     normalize(){
@@ -164,6 +182,15 @@ export default class Vector2{
         this.y = - this.y;
         return this;
     }
+    //计算世界外的一个点位，在一个被变换了的世界中的位置
+    setPosFromWorld(obj){
+        const {position,scale,rotation}=obj;
+        this.sub(position);
+        this.rotate(-rotation);
+        this.divide(scale);
+        return this;
+    }
+
     //围绕某一点旋转
     rotateAround(center, angle){
         const c = Math.cos( angle ), s = Math.sin( angle );

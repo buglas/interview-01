@@ -34,33 +34,33 @@ export default class Mesh{
             (start+1)%len,
             (start+2)%len
         ];
-        const [p0,p1,p2]=[
+        const triangle=[
             points[i0],
             points[i1],
             points[i2],
         ];
         if(points.length===3){
-            this.triangles.push([p0,p1,p2]);
+            this.triangles.push(triangle);
         }else{
-            const area=this.triangleArea(p0,p1,p2);
-            if(area>0&&!this.hasOtherPointInTriangle(p0,p1,p2)){
-                this.triangles.push([p0,p1,p2]);
+            const area=this.triangleArea(triangle);
+            if(area>0&&!this.hasOtherPointInTriangle(triangle)){
+                this.triangles.push(triangle);
                 points.splice(i1,1);
             }
             this.crtMesh(i1);
         }
     }
-    hasOtherPointInTriangle(p0,p1,p2){
+    hasOtherPointInTriangle(triangle){
         for (let ele of this.tmpPoints){
-            if(ele!==p0&&ele!==p1&&ele!==p2){
-                if (ele.inTriangle(p0,p1,p2)){
+            if(!triangle.includes(ele)){
+                if (ele.inTriangle(triangle)){
                     return true;
                 }
             }
         }
         return false;
     }
-    triangleArea(p0,p1,p2){
+    triangleArea([p0,p1,p2]){
         const [bx,by,cx,cy]=[
             p1.x-p0.x,
             p1.y-p0.y,
@@ -73,7 +73,7 @@ export default class Mesh{
         const len=this.triangles.length;
         for(let ind=0;ind<len;ind++){
             const triangle=this.triangles[ind];
-            if(v.inTriangle(...triangle)){
+            if(v.inTriangle(triangle)){
                 return {ind,triangle};
             }
         }

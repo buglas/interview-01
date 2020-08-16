@@ -78,27 +78,27 @@
             (start+1)%len,
             (start+2)%len
         ];
-        const [p0,p1,p2]=[
+        const triangle=[
             points[i0],
             points[i1],
             points[i2],
         ];
         if(len===3){
-            triangles.push([p0,p1,p2]);
+            triangles.push(triangle);
         }else{
-            const area=triangleArea(p0,p1,p2);
-            if(area>0&&!hasOtherPointInTriangle(p0,p1,p2)){
-                triangles.push([p0,p1,p2]);
+            const area=triangleArea(triangle);
+            if(area>0&&!hasOtherPointInTriangle(triangle)){
+                triangles.push(triangle);
                 points.splice(i1,1);
             }
             crtMesh(i1);
         }
     }
     /*判断除三角形之外的顶点里，是否有在三角形里的*/
-    function hasOtherPointInTriangle(p0,p1,p2){
+    function hasOtherPointInTriangle(triangle){
         for (let ele of points){
-            if(ele!==p0&&ele!==p1&&ele!==p2){
-                if (ele.inTriangle(p0,p1,p2)){
+            if(!triangle.includes(ele)){
+                if (ele.inTriangle(triangle)){
                     return true;
                 }
             }
@@ -106,7 +106,7 @@
         return false;
     }
     /*获取三角形面积*/
-    function triangleArea(p0,p1,p2){
+    function triangleArea([p0,p1,p2]){
         const [bx,by,cx,cy]=[
             p1.x-p0.x,
             p1.y-p0.y,
