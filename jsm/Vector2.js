@@ -4,17 +4,22 @@ export default class Vector2{
         this.x=x;
         this.y=y;
     }
+    //加法
+    add(v){
+        this.x += v.x;
+        this.y += v.y;
+        return this;
+    }
     //获取相对于x轴正方向的弧度
     angle(){
         let angle = Math.atan2( this.y, this.x );
         if ( angle < 0 ) angle += 2 * Math.PI;
         return angle;
     }
-    //加法
-    add(v){
-        this.x += v.x;
-        this.y += v.y;
-        return this;
+    //当前点到另一点的方向
+    angleTo(v) {
+        const point = this.clone().sub(v);
+        return point.angle();
     }
     //向量克隆
     clone(){
@@ -48,11 +53,7 @@ export default class Vector2{
         const [dx,dy] = [this.x - v.x, this.y - v.y];
         return Math.sqrt(dx * dx + dy * dy);
     }
-    //当前点到另一点的方向
-    angleTo(v) {
-        const point = this.clone().sub(v);
-        return point.angle();
-    }
+
     //当前点到零点再到另一个点的夹角
     includedAngle(v){
         return  Math.acos(this.clone().dot(v) / (this.length() * v.length()));
@@ -118,6 +119,10 @@ export default class Vector2{
         this.setLength(this.length()+dist);
         return this;
     }
+    //获取面积
+    getArea(){
+        return this.x*this.y;
+    }
     //根据线段，设置位置
     getPosByLine(v1,v2,dist){
         const oldDist=v1.distanceTo(v2);
@@ -138,10 +143,6 @@ export default class Vector2{
     //获取长度
     length() {
         return Math.sqrt( this.x * this.x + this.y * this.y );
-    }
-    //获取面积
-    getArea(){
-        return this.x*this.y;
     }
     //设置差值
     lerp(v, alpha){
