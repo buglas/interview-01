@@ -181,18 +181,15 @@
 
     function render(){
         ctx.clearRect(0,0,canvas.width,canvas.height);
-        nodes.forEach((ele,ind)=>{
-            const node=new Node(vertices[ind],ele.name,pattern);
-            node.draw(ctx);
-        })
         lines.forEach(([i0,i1])=>{
             const line=new Line(vertices[i0],vertices[i1]);
             line.draw(ctx);
         })
+        nodes.forEach((ele,ind)=>{
+            const node=new Node(vertices[ind],ele.name,pattern);
+            node.draw(ctx);
+        })
     }
-
-
-
 </script>
 </body>
 </html>
