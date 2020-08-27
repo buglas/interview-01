@@ -88,8 +88,15 @@
         [1,4],
     ];
     let mousePos=null;
+    let dragStart=null;
+    let dragDist=new Vector2();
+    
     let rate=1;
     let averageRate=1;
+    const minAverage=0.2;
+    const maxAverage=2;
+    
+    
 
     const backImg=new Image();
     backImg.src='./images/bjt.png';
@@ -98,39 +105,76 @@
         pattern=ctx.createPattern(backImg,'repeat');
         render();
     }
-
-
-
-
+    
     canvas.addEventListener('mousewheel',function(event){
         mousePos=getMousePos(event,canvas);
         rate=event.wheelDelta>0?1.1:0.9;
         averageRate*=rate;
-        scale();
-        render();
-    })
-
-    /*还原*/
-    canvas.addEventListener('mousedown',function(event){
-        if(event.button===1){
-            rate=1/averageRate;
-            averageRate=1;
+        if(averageRate<minAverage){
+            averageRate=minAverage;
+        }else if(averageRate>maxAverage){
+            averageRate=maxAverage;
+        }else{
             scale();
             render();
         }
     })
 
-    /*缩放
-    *   以图形顶点位始点
-    *   以鼠标点为终点
-    * */
-    function scale(p=mousePos){
-        // rate=Math.min(10,Math.max(0.1,rate));
-        p=new Vector2(400,300);
+
+    canvas.addEventListener('mousedown',function(event){
+        console.log(event.button);
+        mousePos=getMousePos(event,canvas);
+        switch (event.button) {
+            case 0:
+                dragStart=mousePos.clone();
+                break;
+            case 1:
+                rate=1/averageRate;
+                averageRate=1;
+                scale();
+                render();
+                break;
+        }
+    })
+
+    canvas.addEventListener('mousemove',function(event){
+        console.log(event.button);
+        mousePos=getMousePos(event,canvas);
+        switch (event.button) {
+            case 0:
+                if(dragStart){
+                    dragDist=mousePos.clone().sub(dragStart);
+                    dragStart=mousePos.clone();
+                    move();
+                    render();
+                }
+                break;
+        }
+    })
+
+    canvas.addEventListener('mouseup',function(event){
+        switch (event.button) {
+            case 0:
+                if(dragStart){
+                    dragDist=new Vector2();
+                    dragStart=null;
+                }
+                break;
+        }
+    })
+
+    /*位移*/
+    function move(){
         vertices.forEach(ele=>{
-            // ele.lerp(p,1-rate);
+            ele.add(dragDist);
+        })
+    }
+
+    /*缩放*/
+    function scale(){
+        vertices.forEach(ele=>{
             ele.copy(
-                p.clone().lerp(ele,rate)
+                mousePos.clone().lerp(ele,rate)
             )
         })
     }
