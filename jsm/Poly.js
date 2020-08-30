@@ -122,7 +122,8 @@ export default class Poly{
     /*添加修改器*/
     addModifier(modifier){
         this.modifiers.push(modifier);
-        modifier.obj=this;
-        modifier.update();
+        modifier.poly=this;
+        modifier.createNodes();
+        modifier.updateNodes();
     }
 }

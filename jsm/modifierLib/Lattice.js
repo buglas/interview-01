@@ -1,32 +1,48 @@
 import ShapeLib from "../shapeLib/ShapeLib.js"
-
+/*
+* createNodes()建立节点集合
+* updateNodes()节点的更新方法，需在需要的时候手动更新
+* 节点的single特性：节点静态属性single为true，且未闭合，则为true
+* */
 export default class Lattice{
-    constructor(option) {
-        Object.assign(this,{type:'Ball'},option);
-        this.obj=null;
-        this.fill=true;
-        this.nodes=[];
+    static defAttr={
+        type:'Ball',
+        poly:null,
+        nodes:[]
     }
-    update(){
-        const {obj,type,nodes,fill}=this;
-        obj.vertices.forEach(vertice=>{
-            const node=new ShapeLib[type]();
-            node.fillStyle=obj.fillStyle;
-            node.strokeStyle=obj.strokeStyle;
-            node.lineWidth=obj.lineWidth;
-            node.lineDash=obj.lineDash;
-            node.lineDashOffset=obj.lineDashOffset;
-            node.shadowColor=obj.shadowColor;
-            node.shadowBlur=obj.shadowBlur;
-            node.shadowOffsetX=obj.shadowOffsetX;
-            node.shadowOffsetY=obj.shadowOffsetY;
-            node.position=vertice;
-            node.fill=fill;
-            nodes.push(node);
+    constructor(option) {
+        Object.assign(this,Lattice.defAttr,option);
+    }
+    createNodes(){
+        const {poly:{close,vertices},type,nodes,fill}=this;
+        const single= ShapeLib[type].single&&!close;
+        let len=vertices.length;
+        if(single){
+            len-=1;
+        }
+        for (let i=0;i<len;i++) {
+            this.createNode(vertices[i]);
+        }
+    }
+    createNode(vertice){
+        const {poly,type,nodes}=this;
+        const {fillStyle,strokeStyle,lineWidth,lineDash,lineDashOffset,shadowColor,shadowBlur,shadowOffsetX,shadowOffsetY}=poly;
+        const polyAttr={fillStyle,strokeStyle,lineWidth,lineDash,lineDashOffset,shadowColor,shadowBlur,shadowOffsetX,shadowOffsetY}
+        const defAttr=ShapeLib[type].defAttr;
+        ShapeLib[type].defAttr=Object.assign(polyAttr,defAttr);
+        const node=new ShapeLib[type]({
+            orign:vertice
+        });
+        nodes.push(node);
+    }
+    updateNodes(){
+        const {poly,nodes}=this;
+        nodes.forEach((node,ind)=>{
+            node.update({ind,poly});
         })
     }
     draw(ctx){
-        const {nodes}=this;
+        const {nodes,type}=this;
         nodes.forEach(node=>{
             node.draw(ctx);
         })

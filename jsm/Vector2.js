@@ -192,7 +192,7 @@ export default class Vector2{
         return this;
     }
 
-    //围绕某一点旋转
+    //基于某一点旋转
     rotateAround(center, angle){
         const c = Math.cos( angle ), s = Math.sin( angle );
         const x = this.x - center.x;

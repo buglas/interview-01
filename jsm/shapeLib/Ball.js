@@ -1,8 +1,15 @@
 import Poly from "../Poly.js"
+import Vector2 from "../Vector2.js"
+import Shape from "./Shape.js"
 
-export default class Ball extends Poly{
-    constructor(param={r:5}) {
-        super(param);
+export default class Ball extends Shape{
+    static single=false;
+    static defAttr={
+        r:5,
+        fill:true,
+    };
+    constructor(attr={}) {
+        super({defAttr:Ball.defAttr,attr});
     }
     crtPath(ctx){
         const {orign,r}=this;

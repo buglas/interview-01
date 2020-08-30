@@ -1,5 +1,7 @@
 import Ball from "./Ball.js"
+import Arrow from "./Arrow.js"
 const ShapeLib={
-    Ball
+    Ball,
+    Arrow
 }
 export default ShapeLib;
