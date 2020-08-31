@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>拓补图</title>
+    <title>向量</title>
     <style>
         html{height: 100%}
         body{height: 100%;margin: 0;}
@@ -32,20 +32,22 @@
     const poly=new Poly({
         vertices,
         stroke:true,
-        // close:true
+        strokeStyle:'#00acec',
+        fillStyle:'#00acec',
+        close:true
     })
 
     const latArrow=new Lattice({
         type:'Arrow'
     });
-    // console.log(latArrow);
     const latBall=new Lattice();
     poly.addModifier(latArrow);
     poly.addModifier(latBall);
     poly.draw(ctx);
-    console.log(poly.modifiers[0].nodes);
+    
 
-
+    
+    
 </script>
 </body>
 </html>

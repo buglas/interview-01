@@ -2,10 +2,8 @@ import Poly from "../Poly.js"
 import Vector2 from "../Vector2.js"
 import Shape from "./Shape.js"
 
-
-export default class Arrow extends Shape{
-    static single=true;
-    static defAttr={
+function defAttr(){
+    return {
         p1:new Vector2(),
         p2:new Vector2(),
         a1:new Vector2(),
@@ -13,10 +11,12 @@ export default class Arrow extends Shape{
         size:24,
         stroke:true,
         arrowRadian:Math.PI/6
-    };
-    constructor(attr={}) {
-        super({defAttr:Arrow.defAttr,attr});
-
+    }
+}
+export default class Arrow extends Shape{
+    static single=true;
+    constructor(...attrs) {
+        super(attrs,defAttr);
     }
     update({ind,poly:{vertices}}){
         const len=vertices.length;
@@ -26,8 +26,10 @@ export default class Arrow extends Shape{
         const delta=p1.clone().sub(p2);
         delta.setLength(size);
         const dir=delta.angle();
-        this.a1=delta.clone().rotate(arrowRadian).add(p2);
-        this.a2=delta.clone().rotate(-arrowRadian).add(p2);
+        // this.a1=delta.clone().rotate(arrowRadian).add(p2);
+        // this.a2=delta.clone().rotate(-arrowRadian).add(p2);
+        a1.copy(delta.clone().rotate(arrowRadian).add(p2));
+        a2.copy(delta.clone().rotate(-arrowRadian).add(p2));
     }
     crtPath(ctx){
         const {p1,p2,a1,a2}=this;
