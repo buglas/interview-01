@@ -26,8 +26,10 @@ export default class Lattice{
     createNode(vertice){
         const {poly,type,nodes}=this;
         const {fillStyle,strokeStyle,lineWidth,lineDash,lineDashOffset,shadowColor,shadowBlur,shadowOffsetX,shadowOffsetY}=poly;
-        const polyAttr=()=>({fillStyle,strokeStyle,lineWidth,lineDash,lineDashOffset,shadowColor,shadowBlur,shadowOffsetX,shadowOffsetY});
-        const node=new ShapeLib[type]({orign:vertice},polyAttr);
+        const node=new ShapeLib[type](
+            {orign:vertice},
+            {fillStyle,strokeStyle,lineWidth,lineDash,lineDashOffset,shadowColor,shadowBlur,shadowOffsetX,shadowOffsetY}
+        );
         nodes.push(node);
     }
     updateNodes(){
