@@ -16,7 +16,7 @@ function defAttr(){
 export default class Arrow extends Shape{
     static single=true;
     constructor(...attrs) {
-        super(attrs,defAttr);
+        super(...attrs,defAttr);
     }
     update({ind,poly:{vertices}}){
         const len=vertices.length;

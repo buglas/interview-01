@@ -53,22 +53,51 @@ export default class Poly{
         ctx.save();
 
         /*变换*/
-        ctx.translate(position.x,position.y);
-        ctx.rotate(rotation);
-        ctx.scale(scale.x,scale.y);
+        this.transform(ctx);
 
         /*建立路径*/
         this.crtPath(ctx);
 
         /*投影*/
+        this.drawShadow(ctx);
+
+        /*描边*/
+        this.drawStroke(ctx);
+
+        /*填充*/
+        this.drawFill(ctx);
+
+        /*修改器*/
+        this.drawModifies(ctx);
+
+        ctx.restore();
+    }
+    /*变换*/
+    transform(ctx){
+        const {
+            scale,position,rotation,
+        }=this;
+        ctx.translate(position.x,position.y);
+        ctx.rotate(rotation);
+        ctx.scale(scale.x,scale.y);
+    }
+    /*绘制投影*/
+    drawShadow(ctx){
+        const {
+            shadow, shadowColor, shadowBlur, shadowOffsetX, shadowOffsetY,
+        }=this;
         if(shadow){
             ctx.shadowColor=shadowColor;
             ctx.shadowBlur=shadowBlur;
             ctx.shadowOffsetX=shadowOffsetX;
             ctx.shadowOffsetY=shadowOffsetY;
         }
-
-        /*描边*/
+    }
+    /*绘制描边*/
+    drawStroke(ctx){
+        const {
+            stroke, close, strokeStyle, lineWidth, lineCap, lineJoin, miterLimit,lineDash,lineDashOffset,
+        }=this;
         if(stroke){
             ctx.strokeStyle=strokeStyle;
             ctx.lineWidth=lineWidth;
@@ -80,20 +109,25 @@ export default class Poly{
             close&&ctx.closePath();
             ctx.stroke();
         }
-
-        /*填充*/
+    }
+    /*绘制填充*/
+    drawFill(ctx){
+        const {
+            fill, fillStyle,
+        }=this;
         if(fill){
             ctx.fillStyle=fillStyle;
             ctx.fill();
         }
-
-        /*修改器*/
+    }
+    /*绘制修改器*/
+    drawModifies(ctx){
+        const {modifiers}=this;
         modifiers.forEach(modifier=>{
             modifier.draw(ctx);
         })
-
-        ctx.restore();
     }
+
     /*绘制多边形
     *   draw(ctx,fn) 绘图，fn在创建路径拦截路径的的选择
     *   checkPointInPath(ctx,pos)测试点是否在路径中（基于未变换的数据绘制路径，让鼠标点去变换）
