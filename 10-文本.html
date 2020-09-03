@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>文本</title>
+    <style>
+        html{height: 100%}
+        body{height: 100%;margin: 0;}
+    </style>
+</head>
+<body>
+<canvas id="canvas"></canvas>
+<script type="module">
+    import Vector2 from "./jsm/Vector2.js"
+    import Text from "./jsm/shapeLib/Text.js"
+
+    const canvas=document.getElementById('canvas');
+    canvas.width=window.innerWidth;
+    canvas.height=window.innerHeight;
+
+    const ctx=canvas.getContext('2d');
+
+    const text=new Text({
+        text:'this',
+        fill:true,
+        fontSize:36,
+        orign:new Vector2(300,300)
+    })
+    console.log(text);
+    text.draw(ctx);
+
+    
+    
+</script>
+</body>
+</html>

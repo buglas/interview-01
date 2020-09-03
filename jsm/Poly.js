@@ -1,6 +1,6 @@
 import Vector2 from "./Vector2.js";
-/*多边形默认属性*/
-const defAttr={
+/*默认属性*/
+const defAttr=()=>({
     //顶点集合
     vertices:[],
 
@@ -31,25 +31,18 @@ const defAttr={
     scale:new Vector2(1,1),
     position:new Vector2(0,0),
     rotation:0,
-};
+});
 
 
 
 /*Poly 多边形*/
 export default class Poly{
-    constructor(param={}){
-        Object.assign(this,defAttr,param);
+    constructor(attr={}){
+        Object.assign(this,defAttr(),attr);
         //修改器集合：修改器统一具备draw(ctx) 接口
         this.modifiers=[]
     }
     draw(ctx){
-        const {
-            shadow, shadowColor, shadowBlur, shadowOffsetX, shadowOffsetY,
-            stroke, close, strokeStyle, lineWidth, lineCap, lineJoin, miterLimit,lineDash,lineDashOffset,
-            fill, fillStyle,
-            scale,position,rotation,
-            modifiers
-        }=this;
         ctx.save();
 
         /*变换*/
@@ -59,7 +52,7 @@ export default class Poly{
         this.crtPath(ctx);
 
         /*投影*/
-        this.drawShadow(ctx);
+        this.setShadow(ctx);
 
         /*描边*/
         this.drawStroke(ctx);
@@ -82,7 +75,7 @@ export default class Poly{
         ctx.scale(scale.x,scale.y);
     }
     /*绘制投影*/
-    drawShadow(ctx){
+    setShadow(ctx){
         const {
             shadow, shadowColor, shadowBlur, shadowOffsetX, shadowOffsetY,
         }=this;

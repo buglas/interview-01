@@ -1,5 +1,4 @@
 import ShapeLib from "../shapeLib/ShapeLib.js"
-import Vector2 from "../Vector2.js"
 /*Lattice 晶格化修改器
 * createNodes()建立节点集合
 * updateNodes()节点的更新方法，需在需要的时候手动更新
