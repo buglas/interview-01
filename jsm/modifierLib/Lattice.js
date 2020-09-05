@@ -1,7 +1,7 @@
 import ShapeLib from "../shapeLib/ShapeLib.js"
 /*Lattice 晶格化修改器
 * createNodes()建立节点集合
-* updateNodes()节点的更新方法，需在需要的时候手动更新
+* updateNodes()节点的更新方法，需在需要的时候手动更新，并对不同的节点执行不同的更新方法
 * 节点的single特性：节点静态属性single为true，且未闭合，则为true
 * createNode() 中的polyAttr 属性会覆盖节点对象的默认属性，之后还会被节点对象的自定义属性覆盖
 * polyAttr 可以是函数也可以是对象，其函数形态是避免复合对象的浅拷贝问题，比如lineDash数组对象
@@ -32,10 +32,24 @@ export default class Lattice{
         nodes.push(node);
     }
     updateNodes(){
-        const {poly,nodes}=this;
-        nodes.forEach((node,ind)=>{
-            node.update({ind,poly});
-        })
+        const {type,poly:{vertices},nodes}=this;
+        console.log('vertices',vertices);
+        switch (type) {
+            case 'Arrow':
+                const len=vertices.length;
+                nodes.forEach((node,ind)=>{
+                    console.log('node',node);
+                    const p1=vertices[ind];
+                    const p2=vertices[(ind+1)%len];
+                    node.p1=p1;
+                    node.p2=p2;
+                    node.update();
+                })
+                break;
+            default:
+                //do sth
+        }
+
     }
     draw(ctx){
         const {nodes,type}=this;

@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>旋转的矩形</title>
+    <style>
+        html{height: 100%}
+        body{height: 100%;margin: 0;}
+    </style>
+</head>
+<body>
+<canvas id="canvas"></canvas>
+<script type="module">
+    import Vector2 from "./jsm/core/Vector2.js"
+    import Text from "./jsm/shapeLib/Text.js"
+    import Poly from "./jsm/core/Poly.js"
+    import Lattice from "./jsm/modifierLib/Lattice.js"
+    import {run} from "./jsm/Tool.js"
+
+    const canvas=document.getElementById('canvas');
+    canvas.width=window.innerWidth;
+    canvas.height=window.innerHeight;
+    const ctx=canvas.getContext('2d');
+    const c=new Vector2(
+        window.innerWidth/2,
+        window.innerHeight/2
+    );
+    ctx.translate(c.x,c.y);
+    /*
+    * 定理：矩形宽高已定，可绘制其内面积最大的椭圆，和其外面积最小的椭圆。
+    * 示例：
+    * 已知：矩形宽度w=200,h=100
+    * 求1：矩形内部面积最大的椭圆
+    * 思路1：
+    *   椭圆可以被视之为被压扁的正圆，而矩形可以视之为被压扁的正方向。
+    *   以矩形宽为基准，可正常绘制正圆
+    *   获取矩形的宽高比，将椭圆上的坐标点的y值等比压缩即可
+    * 求2：矩形外部面积最小的椭圆
+    * 思路2：
+    *   此椭圆x轴向的顶点距离和y方向的顶点距离之比和矩形的宽高比一致
+    *   求得椭圆一轴之长即可绘制椭圆
+    *   可求椭圆前身正圆之半径，此半径即为最长轴
+    * */
+    const w=400;
+    const h=200;
+    const hw=w/2;
+    const hh=h/2;
+    const s=w/h;
+
+    /*矩形*/
+    ctx.strokeRect(-hw,-hh,w,h);
+
+
+    const r=Math.sqrt(hw*hw*2);
+    const n=24;
+    const radian=Math.PI*2/n;
+
+    const verticesOutRect=[];
+    const verticesInRect=[];
+
+    ctx.beginPath();
+    for(let i=0;i<n;i++){
+        const dir=radian*i;
+        const xOut=Math.cos(dir)*r;
+        const yOut=Math.sin(dir)*r/s;
+        verticesOutRect.push(new Vector2(xOut,yOut));
+
+        const xIn=Math.cos(dir)*hw;
+        const yIn=Math.sin(dir)*hw/s;
+        verticesInRect.push(new Vector2(xIn,yIn));
+    }
+
+    /*矩形之外的椭圆*/
+    const ellipseOutRect=new Poly({
+        vertices:verticesOutRect,
+        close:true,
+        stroke:true
+    })
+    ellipseOutRect.draw(ctx);
+
+    /*矩形之内的椭圆*/
+    const ellipseInRect=new Poly({
+        vertices:verticesInRect,
+        close:true,
+        stroke:true
+    })
+    ellipseInRect.draw(ctx);
+
+ /*   const a=Math.sqrt(w1*w1+h1*h1);
+    const dir=Math.atan2(h1,w1);
+    const [x1,y1]=[
+        Math.cos(dir)*w1,
+        Math.sin(dir)*w1/ratio
+    ]
+    const v=new Vector2(
+        Math.cos(dir)*w1,
+        Math.sin(dir)*w1/ratio
+    );
+    const v2=v.add(center);
+    ctx.fillRect(v2.x,v2.y,5,5);
+    const b=Math.sqrt(x1*x1+y1*y1);
+    //a/r=cos(dir)
+    const r=a/b;
+    const w2=w1*r;
+
+
+
+    ctx.strokeRect(center.x-w1,center.y-h1,w1*2,h1*2);
+
+    const seg=12;
+    const rdian=Math.PI*2/seg;
+    const vertices1=[];
+    const vertices2=[];
+    for(let i=0;i<seg;i++){
+        const rd=rdian*i;
+        const [x1,y1]=[
+            Math.cos(rd)*w1,
+            Math.sin(rd)*w1/ratio
+        ]
+        const p1=new Vector2(x1,y1).add(center);
+        vertices1.push(p1);
+
+        const [x2,y2]=[
+            Math.cos(rd)*w2,
+            Math.sin(rd)*w2/ratio
+        ]
+        const p2=new Vector2(x2,y2).add(center);
+        vertices2.push(p2);
+    }
+    const ellipse1=new Poly({
+        vertices:vertices1,
+        close:true,
+        stroke:true
+    })
+    ellipse1.draw(ctx);
+
+    const ellipse2=new Poly({
+        vertices:vertices2,
+        close:true,
+        stroke:true
+    })
+    ellipse2.draw(ctx);
+*/
+
+</script>
+</body>
+</html>

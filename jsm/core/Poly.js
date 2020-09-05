@@ -121,6 +121,14 @@ export default class Poly{
         })
     }
 
+    /*更新修改器*/
+    updateModifies(){
+        const {modifiers}=this;
+        modifiers.forEach(modifier=>{
+            modifier.updateNodes();
+        })
+    }
+
     /*绘制多边形
     *   draw(ctx,fn) 绘图，fn在创建路径拦截路径的的选择
     *   checkPointInPath(ctx,pos)测试点是否在路径中（基于未变换的数据绘制路径，让鼠标点去变换）
@@ -135,6 +143,7 @@ export default class Poly{
             ctx.lineTo(vertices[i].x,vertices[i].y);
         }
     }
+
     /*检测顶点是否在路径中*/
     checkPointInPath(ctx,{x,y}){
         ctx.save();
@@ -146,6 +155,7 @@ export default class Poly{
         ctx.restore();
         return bool;
     }
+
     /*添加修改器*/
     addModifier(modifier){
         this.modifiers.push(modifier);
@@ -153,4 +163,6 @@ export default class Poly{
         modifier.createNodes();
         modifier.updateNodes();
     }
+
+
 }

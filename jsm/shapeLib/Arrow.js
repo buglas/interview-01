@@ -1,5 +1,5 @@
-import Poly from "../Poly.js"
-import Vector2 from "../Vector2.js"
+import Poly from "../core/Poly.js"
+import Vector2 from "../core/Vector2.js"
 import Shape from "./Shape.js"
 
 function defAttr(){
@@ -18,16 +18,11 @@ export default class Arrow extends Shape{
     constructor(...attrs) {
         super(...attrs,defAttr);
     }
-    update({ind,poly:{vertices}}){
-        const len=vertices.length;
-        this.p1=vertices[ind];
-        this.p2=vertices[(ind+1)%len];
+    update(){
         const {p1,p2,a1,a2,size,arrowRadian}=this;
         const delta=p1.clone().sub(p2);
         delta.setLength(size);
         const dir=delta.angle();
-        // this.a1=delta.clone().rotate(arrowRadian).add(p2);
-        // this.a2=delta.clone().rotate(-arrowRadian).add(p2);
         a1.copy(delta.clone().rotate(arrowRadian).add(p2));
         a2.copy(delta.clone().rotate(-arrowRadian).add(p2));
     }

@@ -1,4 +1,4 @@
-import Vector2 from "./Vector2.js";
+import Vector2 from "./core/Vector2.js";
 /*获取鼠标位置*/
 const getMousePos=function(event,canvas,obj=null){
     //获取鼠标位置
@@ -36,5 +36,18 @@ function parsePoints(dom){
     }
     return points;
 }
-export {getMousePos,parsePoints};
+
+/*动画驱动*/
+function run(fn) {
+    let time=new Date();
+    !(function render(){
+        const now=new Date();
+        const diff=now-time;
+        time=now;
+        fn(diff);
+        requestAnimationFrame(render);
+    })()
+}
+
+export {getMousePos,parsePoints,run};
 

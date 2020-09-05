@@ -1,5 +1,5 @@
 /*图形基类*/
-import Poly from "../Poly.js"
+import Poly from "../core/Poly.js"
 /*
 * constructor 的super中要对默认参数深拷贝
 *   传参顺序 [attr otherAttr] defAttr
@@ -8,13 +8,14 @@ import Poly from "../Poly.js"
 *   customAttr 自定义属性，权重3
 *   otherAttr 其它属性，如父级属性，权重1
 *   defAttr 默认属性，权重2
+*
+*   update() 方法不接收任何参数
 * */
 export default class Shape extends Poly{
     constructor(...attrs){
         super(parseAttrs(attrs));
     }
     update(){}
-    crtPath(){}
 }
 function parseAttrs(attrs){
     attrs=attrs.map(attr=>parseAttr(attr))

@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>旋转的矩形</title>
+    <style>
+        html{height: 100%}
+        body{height: 100%;margin: 0;}
+    </style>
+</head>
+<body>
+<canvas id="canvas"></canvas>
+<script type="module">
+    import Vector2 from "./jsm/core/Vector2.js"
+    import Text from "./jsm/shapeLib/Text.js"
+    import Poly from "./jsm/core/Poly.js"
+    import Lattice from "./jsm/modifierLib/Lattice.js"
+    import {run} from "./jsm/Tool.js"
+    import Rect from "./jsm/shapeLib/Rect.js"
+
+    const canvas=document.getElementById('canvas');
+    canvas.width=window.innerWidth;
+    canvas.height=window.innerHeight;
+    const ctx=canvas.getContext('2d');
+    const c=new Vector2(
+        window.innerWidth/2,
+        window.innerHeight/2
+    );
+
+    const w=200;
+    const h=100;
+    const hw=w/2;
+    const hh=h/2;
+    const s=w/h;
+
+    const hw2=Math.sqrt(hw*hw*2);
+    const hh2=hw2/s;
+    const w2=hw2*2;
+    const h2=hh2*2;
+
+
+    
+    const r=200;
+    const bp=new Vector2();
+    const ep=new Vector2(r,0);
+
+    /*箭头*/
+    const line=new Poly({
+        position:c,
+        vertices:[bp,ep],
+        stroke:true
+    })
+    const latticePoint=new Lattice();
+    const latticeArrow=new Lattice({type:'Arrow'});
+    line.addModifier(latticePoint);
+    line.addModifier(latticeArrow);
+    line.draw(ctx);
+
+    /*矩形*/
+    const rect=new Rect({
+        position:c,
+        orign:'center',
+        width:w,
+        height:h,
+        stroke: true,
+    })
+
+    console.log(rect);
+    rect.draw(ctx);
+
+    const n=24;
+    const radian=Math.PI*2/n;
+
+    run(()=>{
+        ctx.clearRect(0,0,canvas.width,canvas.height);
+        ep.rotate(0.01);
+        line.updateModifies();
+        line.draw(ctx);
+
+        const dir=ep.angle();
+        const offsetX=hw2*Math.cos(dir)+c.x;
+        const offsetY=hh2*Math.sin(dir)+c.y;
+        const rectX=ep.x+offsetX;
+        const rectY=ep.y+offsetY;
+        // ctx.strokeRect(rectX,rectY,w,h);
+        rect.position=new Vector2(rectX,rectY);
+        rect.draw(ctx);
+    });
+
+    
+
+
+</script>
+</body>
+</html>

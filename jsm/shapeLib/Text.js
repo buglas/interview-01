@@ -1,4 +1,4 @@
-import Poly from "../Poly.js"
+import Poly from "../core/Poly.js"
 const defAttr=()=>({
     font:'14px arial',
     textBaseline:'alphabetic',
