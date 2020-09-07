@@ -31,6 +31,9 @@ const defAttr=()=>({
     scale:new Vector2(1,1),
     position:new Vector2(0,0),
     rotation:0,
+
+    //父级
+    parent:null
 });
 
 
@@ -161,7 +164,6 @@ export default class Poly{
         this.modifiers.push(modifier);
         modifier.poly=this;
         modifier.createNodes();
-        modifier.updateNodes();
     }
 
 

@@ -1,4 +1,3 @@
-import Poly from "../core/Poly.js"
 import Vector2 from "../core/Vector2.js"
 import Shape from "./Shape.js"
 
@@ -13,10 +12,15 @@ function defAttr(){
         arrowRadian:Math.PI/6
     }
 }
+
+/*箭头
+*   single 静态属性，是否一线一节点，默认undefined
+* */
 export default class Arrow extends Shape{
     static single=true;
     constructor(...attrs) {
         super(...attrs,defAttr);
+        this.update();
     }
     update(){
         const {p1,p2,a1,a2,size,arrowRadian}=this;

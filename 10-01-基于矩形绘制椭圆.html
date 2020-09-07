@@ -86,62 +86,6 @@
     })
     ellipseInRect.draw(ctx);
 
- /*   const a=Math.sqrt(w1*w1+h1*h1);
-    const dir=Math.atan2(h1,w1);
-    const [x1,y1]=[
-        Math.cos(dir)*w1,
-        Math.sin(dir)*w1/ratio
-    ]
-    const v=new Vector2(
-        Math.cos(dir)*w1,
-        Math.sin(dir)*w1/ratio
-    );
-    const v2=v.add(center);
-    ctx.fillRect(v2.x,v2.y,5,5);
-    const b=Math.sqrt(x1*x1+y1*y1);
-    //a/r=cos(dir)
-    const r=a/b;
-    const w2=w1*r;
-
-
-
-    ctx.strokeRect(center.x-w1,center.y-h1,w1*2,h1*2);
-
-    const seg=12;
-    const rdian=Math.PI*2/seg;
-    const vertices1=[];
-    const vertices2=[];
-    for(let i=0;i<seg;i++){
-        const rd=rdian*i;
-        const [x1,y1]=[
-            Math.cos(rd)*w1,
-            Math.sin(rd)*w1/ratio
-        ]
-        const p1=new Vector2(x1,y1).add(center);
-        vertices1.push(p1);
-
-        const [x2,y2]=[
-            Math.cos(rd)*w2,
-            Math.sin(rd)*w2/ratio
-        ]
-        const p2=new Vector2(x2,y2).add(center);
-        vertices2.push(p2);
-    }
-    const ellipse1=new Poly({
-        vertices:vertices1,
-        close:true,
-        stroke:true
-    })
-    ellipse1.draw(ctx);
-
-    const ellipse2=new Poly({
-        vertices:vertices2,
-        close:true,
-        stroke:true
-    })
-    ellipse2.draw(ctx);
-*/
-
 </script>
 </body>
 </html>

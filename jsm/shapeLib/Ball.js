@@ -3,8 +3,7 @@ import Vector2 from "../core/Vector2.js"
 import Shape from "./Shape.js"
 
 /*Ball 圆点对象
-*   single 静态属性，是否一线一点，可默认undefined
-*   具备特有属性r
+*   r半径
 * */
 
 export default class Ball extends Shape{

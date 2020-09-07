@@ -19,37 +19,39 @@ export default class Lattice{
             len-=1;
         }
         for (let i=0;i<len;i++) {
-            this.createNode(vertices[i]);
+            this.createNode(i);
         }
     }
-    createNode(vertice){
+    createNode(ind){
         const {poly,type,nodes}=this;
         const {fillStyle,strokeStyle,lineWidth,lineDash,lineDashOffset,shadowColor,shadowBlur,shadowOffsetX,shadowOffsetY}=poly;
+        const customAttr=this.getCustomAttr(ind);
         const node=new ShapeLib[type](
-            {orign:vertice},
+            customAttr,
             {fillStyle,strokeStyle,lineWidth,lineDash,lineDashOffset,shadowColor,shadowBlur,shadowOffsetX,shadowOffsetY}
         );
         nodes.push(node);
     }
-    updateNodes(){
+    getCustomAttr(ind){
         const {type,poly:{vertices},nodes}=this;
-        console.log('vertices',vertices);
+        const len=vertices.length;
+        const p1=vertices[ind];
+        const p2=vertices[(ind+1)%len];
+        const attr={orign:vertices[ind]};
         switch (type) {
             case 'Arrow':
-                const len=vertices.length;
-                nodes.forEach((node,ind)=>{
-                    console.log('node',node);
-                    const p1=vertices[ind];
-                    const p2=vertices[(ind+1)%len];
-                    node.p1=p1;
-                    node.p2=p2;
-                    node.update();
-                })
-                break;
+                attr.p1=p1;
+                attr.p2=p2;
+                break
             default:
                 //do sth
         }
-
+        return attr;
+    }
+    updateNodes(){
+        this.nodes.forEach(node=>{
+            node.update();
+        })
     }
     draw(ctx){
         const {nodes,type}=this;
