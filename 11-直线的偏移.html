@@ -2,12 +2,12 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>直线的偏移</title>
+    <title>旋转的矩形</title>
     <style>
         html{height: 100%}
         body{height: 100%;margin: 0;}
     </style>
-</head>updateNodes
+</head>
 <body>
 <canvas id="canvas"></canvas>
 <script type="module">
@@ -52,6 +52,7 @@
         stroke:true
     })
     l0.addModifier(new Lattice());
+    // l0.addModifier(new Lattice({type:'Arrow'}));
 
     const l1=new Poly({
         vertices:[bp1,ep1],
@@ -89,8 +90,6 @@
     scene.add(dir1);
     scene.add(dir2);
     scene.draw(ctx);
-
-
 </script>
 </body>
 </html>
