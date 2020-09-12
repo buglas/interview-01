@@ -1,11 +1,14 @@
 import ShapeLib from "../shapeLib/ShapeLib.js"
-/*Expand 扩展时，将原顶点深拷贝一份
-*   扩展思路，基于直线的法线扩展
+/*Expand 路径偏移，基于poly 对象扩展新的路径
+*   type 路径偏移方式
+*       normal 法线偏移，默认
+*       angle 夹角偏移
+*   d:偏移距离
 * */
-const defAttr=()=>({type:'Point',poly:null, nodes:[]});
+const defAttr=()=>({type:'normal',d:0});
 export default class Expand{
-    constructor(option) {
-        Object.assign(this,defAttr(),option);
+    constructor(attr) {
+        Object.assign(this,defAttr(),attr);
     }
 
 }
