@@ -128,7 +128,7 @@ export default class Poly{
     updateModifies(){
         const {modifiers}=this;
         modifiers.forEach(modifier=>{
-            modifier.updateNodes();
+            modifier.update();
         })
     }
 
@@ -163,7 +163,7 @@ export default class Poly{
     addModifier(modifier){
         this.modifiers.push(modifier);
         modifier.poly=this;
-        modifier.createNodes();
+        modifier.init();
     }
 
 

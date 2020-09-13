@@ -1,4 +1,5 @@
 import ShapeLib from "../shapeLib/ShapeLib.js"
+import Modifier from "./Modifier.js"
 /*Lattice 晶格化修改器
 * createNodes()建立节点集合
 * updateNodes()节点的更新方法，需在需要的时候手动更新，并对不同的节点执行不同的更新方法
@@ -7,10 +8,15 @@ import ShapeLib from "../shapeLib/ShapeLib.js"
 * polyAttr 可以是函数也可以是对象，其函数形态是避免复合对象的浅拷贝问题，比如lineDash数组对象
 * */
 const defAttr=()=>({type:'Point',poly:null, nodes:[]});
-export default class Lattice{
+export default class Lattice extends Modifier{
     constructor(attr) {
+        super();
         Object.assign(this,defAttr(),attr);
     }
+    init() {
+        this.createNodes();
+    }
+
     createNodes(){
         const {poly:{close,vertices},type,nodes,fill}=this;
         const single= ShapeLib[type].single&&!close;
@@ -42,13 +48,13 @@ export default class Lattice{
             case 'Arrow':
                 attr.p1=p1;
                 attr.p2=p2;
-                break
+                break;
             default:
                 //do sth
         }
         return attr;
     }
-    updateNodes(){
+    update(){
         this.nodes.forEach(node=>{
             node.update();
         })
