@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>边界偏移</title>
+    <title>节点标签</title>
     <style>
         html{height: 100%}
         body{height: 100%;margin: 0;}
@@ -23,19 +23,22 @@
     const ctx=canvas.getContext('2d');
     const c=new Vector2(canvas.width/2,canvas.height/2);
 
-    const d=40;
+    const d=100;
 
     const scene=new Group({
         position:c
     });
 
+
     const vertices=[
         new Vector2(0,0),
-        new Vector2(-100,-75),
-        new Vector2(100,-75)
+        new Vector2(-200,-150),
+        new Vector2(200,-150)
     ];
+
     const vertices2=[];
     const len=vertices.length;
+
     vertices.forEach((v0,i0)=>{
         const [i1,i2]=[
             (i0+1)%len,
@@ -44,25 +47,12 @@
         const v1=vertices[i1];
         const v2=vertices[i2];
 
-        const [A1,B1,C1]=getABC(v0,v1,d);
-        const [A2,B2,C2]=getABC(v1,v2,d);
-
-        const x=(B1*C2-C1*B2)/(A1*B2-A2*B1);
-        const y=(A2*C1-A1*C2)/(A1*B2-A2*B1);
-        vertices2.push(new Vector2(x,y));
-
+        const a=v1.clone().sub(v0);
+        const b=v2.clone().sub(v1).scale(-1);
+        const c=a.add(b).setLength(d).add(v1);
+        console.log(c);
+        vertices2.push(c);
     })
-    /*直线沿法线偏移后，取其一般式的A、B、C*/
-    function getABC(v1,v2,d=0,n=1){
-        const delta=v2.clone().sub(v1);
-        const [A,B]=[delta.y,-delta.x];
-        const v=new Vector2(A*n,B*n);
-        v.setLength(d);
-        const p=v1.clone().add(v);
-        const C=-(A*p.x+B*p.y);
-        return [A,B,C]
-    }
-
 
     const l0=new Poly({
         vertices,
@@ -70,6 +60,7 @@
         close:true
     })
     l0.addModifier(new Lattice());
+    l0.addModifier(new Lattice({type:'Arrow'}));
 
     const l1=new Poly({
         vertices:vertices2,
@@ -78,7 +69,6 @@
         close:true
     })
     l1.addModifier(new Lattice());
-
 
     scene.add(l0);
     scene.add(l1);
