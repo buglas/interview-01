@@ -40,7 +40,7 @@
         const [i1,i2]=[
             (i0+1)%len,
             (i0+2)%len,
-        ]
+        ];
         const v1=vertices[i1];
         const v2=vertices[i2];
 
@@ -50,8 +50,7 @@
         const x=(B1*C2-C1*B2)/(A1*B2-A2*B1);
         const y=(A2*C1-A1*C2)/(A1*B2-A2*B1);
         vertices2.push(new Vector2(x,y));
-
-    })
+    });
     /*直线沿法线偏移后，取其一般式的A、B、C*/
     function getABC(v1,v2,d=0,n=1){
         const delta=v2.clone().sub(v1);
@@ -68,7 +67,7 @@
         vertices,
         stroke:true,
         close:true
-    })
+    });
     l0.addModifier(new Lattice());
 
     const l1=new Poly({
@@ -76,7 +75,7 @@
         lineDash:[10],
         stroke:true,
         close:true
-    })
+    });
     l1.addModifier(new Lattice());
 
 
