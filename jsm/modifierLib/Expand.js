@@ -13,7 +13,8 @@ const defAttr=()=>({
     type:'normal',
     d:0,
     oldVertices:null,
-    weight:1
+    weight:1,
+    updateOther:true
 });
 export default class Expand extends Modifier{
     constructor(attr) {

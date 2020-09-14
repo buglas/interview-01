@@ -35,7 +35,7 @@
     const l0=new Poly({
         vertices,
         stroke:true,
-        // close:true,
+        close:true,
     });
     const lat=new Lattice({type:'Arrow'})
     l0.addModifier(lat);
@@ -64,15 +64,10 @@
         ctx.clearRect(0,0,canvas.width,canvas.height);
         l0.removeModifier(expand);
         l0.removeModifierById(1);
-        // console.log(l0.modifiers)
         // l0.updateModifies();
         scene.draw(ctx);
     },1000)
 
-    let arr=[{w:4},{w:2},{w:3}]
-    arr.sort((a,b)=>{
-        return a.w>b.w?1:-1
-    })
 </script>
 </body>
 </html>

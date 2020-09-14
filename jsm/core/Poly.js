@@ -162,7 +162,7 @@ export default class Poly{
         modifier.poly=this;
         modifier.init();
         /*排除当前元素进行更新*/
-        this.updateModifies(modifier);
+        modifier.updateOther&&this.updateModifies(modifier);
     }
 
     /*更新修改器*/
@@ -179,9 +179,7 @@ export default class Poly{
         const {modifiers}=this;
         const i=modifiers.indexOf(modifier);
         if(i!==-1){
-            modifiers.splice(i,1);
-            modifier.removed();
-            this.updateModifies();
+            this.removeModifierByIndex(i,modifiers,modifier);
         }
 
     }
@@ -195,12 +193,16 @@ export default class Poly{
             const modifier=modifiers[i];
             const {id}=modifier;
             if(id!==undefined&&id.toString()===idStr){
-                modifiers.splice(i,1);
-                modifier.removed();
-                this.updateModifies();
+                this.removeModifierByIndex(i,modifiers,modifier);
                 break;
             }
         }
+    }
 
+    /*基于索引位置删除修改器*/
+    removeModifierByIndex(i,modifiers,modifier){
+        modifiers.splice(i,1);
+        modifier.removed();
+        modifier.updateOther&&this.updateModifies();
     }
 }
