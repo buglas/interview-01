@@ -162,9 +162,35 @@ export default class Poly{
     /*添加修改器*/
     addModifier(modifier){
         this.modifiers.push(modifier);
+        console.log('vertices old',this.vertices);
         modifier.poly=this;
         modifier.init();
     }
 
+    /*删除修改器，基于修改器对象*/
+    removeModifier(modifier){
+        const {modifiers}=this;
+        const i=modifiers.indexOf(modifier);
+        if(i!==-1){
+            modifiers.splice(i);
+            modifier.removed();
+        }
+    }
 
+    /*删除修改器，基于修改器id*/
+    removeModifierById(id){
+        const {modifiers}=this;
+        const idStr=id.toString();
+        const len=modifiers.length;
+        for (var i=0;i<len;i++){
+            const modifier=modifiers[i];
+            console.log('-',modifier)
+            const {id}=modifier;
+
+            /*if(id!==undefined&&id.toString()===idStr){
+                modifiers.splice(i);
+                modifier.removed();
+            }*/
+        }
+    }
 }

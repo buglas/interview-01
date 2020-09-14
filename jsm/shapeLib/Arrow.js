@@ -24,6 +24,7 @@ export default class Arrow extends Shape{
     }
     update(){
         const {p1,p2,a1,a2,size,arrowRadian}=this;
+        console.log('p1,p2',p1,p2)
         const delta=p1.clone().sub(p2);
         delta.setLength(size);
         const dir=delta.angle();

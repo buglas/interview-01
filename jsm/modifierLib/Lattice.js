@@ -10,8 +10,7 @@ import Modifier from "./Modifier.js"
 const defAttr=()=>({type:'Point',poly:null, nodes:[]});
 export default class Lattice extends Modifier{
     constructor(attr) {
-        super();
-        Object.assign(this,defAttr(),attr);
+        super(Object.assign(defAttr(),attr));
     }
     init() {
         this.createNodes();
@@ -43,6 +42,7 @@ export default class Lattice extends Modifier{
         const len=vertices.length;
         const p1=vertices[ind];
         const p2=vertices[(ind+1)%len];
+        console.log('-p1,p2',p1,p2)
         const attr={orign:vertices[ind]};
         switch (type) {
             case 'Arrow':
@@ -56,6 +56,8 @@ export default class Lattice extends Modifier{
     }
     update(){
         this.nodes.forEach(node=>{
+            console.log('-----node',node)
+            console.log('on update',node.p1,node.p2)
             node.update();
         })
     }
