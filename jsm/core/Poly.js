@@ -124,13 +124,7 @@ export default class Poly{
         })
     }
 
-    /*更新修改器*/
-    updateModifies(){
-        const {modifiers}=this;
-        modifiers.forEach(modifier=>{
-            modifier.update();
-        })
-    }
+
 
     /*绘制多边形
     *   draw(ctx,fn) 绘图，fn在创建路径拦截路径的的选择
@@ -161,10 +155,23 @@ export default class Poly{
 
     /*添加修改器*/
     addModifier(modifier){
-        this.modifiers.push(modifier);
-        console.log('vertices old',this.vertices);
+        const {modifiers}=this;
+        modifiers.push(modifier);
+        modifiers.sort((a,b)=>a.weight>b.weight?1:-1);
+        /*基于修改器的权重做排序*/
         modifier.poly=this;
         modifier.init();
+        /*排除当前元素进行更新*/
+        this.updateModifies(modifier);
+    }
+
+    /*更新修改器*/
+    updateModifies(exclude=null){
+        this.modifiers.forEach(modifier=>{
+            if(exclude!==modifier){
+                modifier.update();
+            }
+        })
     }
 
     /*删除修改器，基于修改器对象*/
@@ -172,9 +179,11 @@ export default class Poly{
         const {modifiers}=this;
         const i=modifiers.indexOf(modifier);
         if(i!==-1){
-            modifiers.splice(i);
+            modifiers.splice(i,1);
             modifier.removed();
+            this.updateModifies();
         }
+
     }
 
     /*删除修改器，基于修改器id*/
@@ -182,15 +191,16 @@ export default class Poly{
         const {modifiers}=this;
         const idStr=id.toString();
         const len=modifiers.length;
-        for (var i=0;i<len;i++){
+        for (let i=0;i<len;i++){
             const modifier=modifiers[i];
-            console.log('-',modifier)
             const {id}=modifier;
-
-            /*if(id!==undefined&&id.toString()===idStr){
-                modifiers.splice(i);
+            if(id!==undefined&&id.toString()===idStr){
+                modifiers.splice(i,1);
                 modifier.removed();
-            }*/
+                this.updateModifies();
+                break;
+            }
         }
+
     }
 }

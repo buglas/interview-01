@@ -1,5 +1,3 @@
-import Poly from "../core/Poly.js"
-import Vector2 from "../core/Vector2.js"
 import Shape from "./Shape.js"
 
 /*Ball 圆点对象

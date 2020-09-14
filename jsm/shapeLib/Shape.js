@@ -15,6 +15,7 @@ export default class Shape extends Poly{
     constructor(...attrs){
         super(parseAttrs(attrs));
     }
+    init(){}
     update(){}
 }
 function parseAttrs(attrs){

@@ -7,10 +7,11 @@ import Modifier from "./Modifier.js"
 * createNode() 中的polyAttr 属性会覆盖节点对象的默认属性，之后还会被节点对象的自定义属性覆盖
 * polyAttr 可以是函数也可以是对象，其函数形态是避免复合对象的浅拷贝问题，比如lineDash数组对象
 * */
-const defAttr=()=>({type:'Point',poly:null, nodes:[]});
+const defAttr=()=>({type:'Point',poly:null, nodes:[],weight:2});
 export default class Lattice extends Modifier{
     constructor(attr) {
         super(Object.assign(defAttr(),attr));
+
     }
     init() {
         this.createNodes();
@@ -38,11 +39,10 @@ export default class Lattice extends Modifier{
         nodes.push(node);
     }
     getCustomAttr(ind){
-        const {type,poly:{vertices},nodes}=this;
+        const {type,poly:{vertices}}=this;
         const len=vertices.length;
         const p1=vertices[ind];
         const p2=vertices[(ind+1)%len];
-        console.log('-p1,p2',p1,p2)
         const attr={orign:vertices[ind]};
         switch (type) {
             case 'Arrow':
@@ -56,8 +56,6 @@ export default class Lattice extends Modifier{
     }
     update(){
         this.nodes.forEach(node=>{
-            console.log('-----node',node)
-            console.log('on update',node.p1,node.p2)
             node.update();
         })
     }
