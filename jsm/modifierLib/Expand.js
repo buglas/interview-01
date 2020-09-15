@@ -26,12 +26,16 @@ export default class Expand extends Modifier{
         this.update();
     }
     update() {
-        const {oldVertices,poly:{vertices},d}=this;
+        const {oldVertices,poly:{vertices},d,type}=this;
         const len=vertices.length;
         if(len===2){
             update1(oldVertices,vertices,d);
         }else if(len>2){
-            update2(oldVertices,vertices,d,len);
+            if(type==='normal'){
+                update2(oldVertices,vertices,d,len);
+            }else if(type==='angle'){
+                update3(oldVertices,vertices,d,len);
+            }
         }else{
             console.warn('图形扩展的顶点数不能小于2个。')
         }
@@ -64,8 +68,27 @@ function update2(oldVertices,vertices,d,len){
         const [A1,B1,C1]=getNormalExpandLineABC(v0,v1,d);
         const [A2,B2,C2]=getNormalExpandLineABC(v1,v2,d);
         const intersection=getIntersectionByABC(A1,B1,C1,A2,B2,C2);
+
         const v=vertices[(i0+1)%len];
         v.copy(intersection);
+    });
+}
+/*边界的夹角偏移*/
+function update3(oldVertices,vertices,d,len){
+    oldVertices.forEach((v0,i0)=>{
+        const [i1,i2]=[
+            (i0+1)%len,
+            (i0+2)%len,
+        ];
+        const v1=oldVertices[i1];
+        const v2=oldVertices[i2];
+
+        const a=v1.clone().sub(v0).normalize();
+        const b=v2.clone().sub(v1).scale(-1).normalize();
+        const c=a.add(b).setLength(d).add(v1);
+
+        const v=vertices[(i0+1)%len];
+        v.copy(c);
     });
 }
 

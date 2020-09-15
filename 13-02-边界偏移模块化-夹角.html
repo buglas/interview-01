@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>节点标签</title>
+    <title>边界偏移模块化</title>
     <style>
         html{height: 100%}
         body{height: 100%;margin: 0;}
@@ -15,6 +15,7 @@
     import Group from "./jsm/core/Group.js"
     import Poly from "./jsm/core/Poly.js"
     import Lattice from "./jsm/modifierLib/Lattice.js"
+    import Expand from "./jsm/modifierLib/Expand.js";
 
     const canvas=document.getElementById('canvas');
     canvas.width=window.innerWidth;
@@ -22,55 +23,33 @@
     const ctx=canvas.getContext('2d');
     const c=new Vector2(canvas.width/2,canvas.height/2);
 
-    const d=100;
-
     const scene=new Group({
         position:c
     });
 
-
     const vertices=[
-        new Vector2(0,0),
-        new Vector2(-200,-150),
+        new Vector2(0,-100),
+        new Vector2(0,-150),
         new Vector2(200,-150)
     ];
-
-    const vertices2=[];
-    const len=vertices.length;
-
-    vertices.forEach((v0,i0)=>{
-        const [i1,i2]=[
-            (i0+1)%len,
-            (i0+2)%len,
-        ]
-        const v1=vertices[i1];
-        const v2=vertices[i2];
-
-        const a=v1.clone().sub(v0);
-        const b=v2.clone().sub(v1).scale(-1);
-        const c=a.add(b).setLength(d).add(v1);
-        console.log(c);
-        vertices2.push(c);
-    })
-
     const l0=new Poly({
         vertices,
         stroke:true,
-        close:true
-    })
-    l0.addModifier(new Lattice());
-    l0.addModifier(new Lattice({type:'Arrow'}));
-
-    const l1=new Poly({
-        vertices:vertices2,
-        lineDash:[10],
-        stroke:true,
-        close:true
-    })
-    l1.addModifier(new Lattice());
+        close:true,
+    });
+    const lat=new Lattice({type:'Arrow'})
+    l0.addModifier(lat);
 
     scene.add(l0);
-    scene.add(l1);
+
+    scene.draw(ctx);
+
+    const expand=new Expand({
+        type:'angle',
+        d:100,
+    });
+    l0.addModifier(expand);
+
     scene.draw(ctx);
 
 
