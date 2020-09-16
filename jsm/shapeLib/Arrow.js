@@ -1,21 +1,27 @@
 import Vector2 from "../core/Vector2.js"
 import Shape from "./Shape.js"
 
+/*箭头-晶格化修改器的节点
+*   single 静态属性，是否一线一节点，默认undefined
+*   v0 起点
+*   vF 结束点
+*   a1|a2 箭头点
+*   size 箭头尺寸
+*   arrowRadian 箭头夹角
+* */
+
 function defAttr(){
     return {
-        p1:new Vector2(),
-        p2:new Vector2(),
+        v0:new Vector2(),
+        vF:new Vector2(),
         a1:new Vector2(),
         a2:new Vector2(),
         size:24,
-        stroke:true,
-        arrowRadian:Math.PI/6
+        arrowRadian:Math.PI/6,
+        stroke:true
     }
 }
 
-/*箭头
-*   single 静态属性，是否一线一节点，默认undefined
-* */
 export default class Arrow extends Shape{
     static single=true;
     constructor(...attrs) {
@@ -23,18 +29,18 @@ export default class Arrow extends Shape{
         this.update();
     }
     update(){
-        const {p1,p2,a1,a2,size,arrowRadian}=this;
-        const delta=p1.clone().sub(p2);
+        const {v0,vF,a1,a2,size,arrowRadian}=this;
+        const delta=v0.clone().sub(vF);
         delta.setLength(size);
-        a1.copy(delta.clone().rotate(arrowRadian).add(p2));
-        a2.copy(delta.clone().rotate(-arrowRadian).add(p2));
+        a1.copy(delta.clone().rotate(arrowRadian).add(vF));
+        a2.copy(delta.clone().rotate(-arrowRadian).add(vF));
     }
     crtPath(ctx){
-        const {p1,p2,a1,a2}=this;
+        const {vF,a1,a2}=this;
         ctx.beginPath();
         ctx.moveTo(a1.x,a1.y);
-        ctx.lineTo(p2.x,p2.y);
+        ctx.lineTo(vF.x,vF.y);
         ctx.moveTo(a2.x,a2.y);
-        ctx.lineTo(p2.x,p2.y);
+        ctx.lineTo(vF.x,vF.y);
     }
 }

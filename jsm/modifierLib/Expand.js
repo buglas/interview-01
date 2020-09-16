@@ -1,5 +1,6 @@
 import Vector2 from "../core/Vector2.js"
 import Modifier from "./Modifier.js"
+import {getIntersectionByABC,getNormalExpandLineABC} from "../core/Math2.js"
 /*Expand 路径偏移，修改目标对象的vertices，并存储一份原始数据
 *   type 路径偏移方式
 *       normal 法线偏移，默认
@@ -57,73 +58,50 @@ function update1(oldVertices,vertices,d){
     ep1.copy(ep2);
 }
 /*边界的法线偏移*/
-function update2(oldVertices,vertices,d,len){
-    oldVertices.forEach((v0,i0)=>{
-        const [i1,i2]=[
-            (i0+1)%len,
-            (i0+2)%len,
-        ];
-        const v1=oldVertices[i1];
-        const v2=oldVertices[i2];
-        const [A1,B1,C1]=getNormalExpandLineABC(v0,v1,d);
-        const [A2,B2,C2]=getNormalExpandLineABC(v1,v2,d);
-        const intersection=getIntersectionByABC(A1,B1,C1,A2,B2,C2);
-
-        const v=vertices[(i0+1)%len];
-        v.copy(intersection);
+function update2(oldVertices,vertices,d){
+    ergodic(oldVertices,vertices,(vB,v0,vF)=>{
+        const [A1,B1,C1]=getNormalExpandLineABC(vB,v0,d);
+        const [A2,B2,C2]=getNormalExpandLineABC(v0,vF,d);
+        return getIntersectionByABC(A1,B1,C1,A2,B2,C2);
     });
 }
 /*边界的夹角偏移*/
-function update3(oldVertices,vertices,d,len){
-    oldVertices.forEach((v0,i0)=>{
-        const [i1,i2]=[
-            (i0+1)%len,
-            (i0+2)%len,
-        ];
-        const v1=oldVertices[i1];
-        const v2=oldVertices[i2];
-
-        const a=v1.clone().sub(v0).normalize();
-        const b=v2.clone().sub(v1).scale(-1).normalize();
-        const c=a.add(b).setLength(d).add(v1);
-
-        const v=vertices[(i0+1)%len];
-        v.copy(c);
+function update3(oldVertices,vertices,d){
+    ergodic(oldVertices,vertices,(vB,v0,vF)=>{
+        const a=v0.clone().sub(vB).normalize();
+        const b=vF.clone().sub(v0).scale(-1).normalize();
+        return a.add(b).setLength(d).add(v0);
     });
 }
-
-
-
+/*遍历初始顶点集合,暴露点位的计算接口，更新点位*/
+function ergodic(oldVertices,vertices,fn) {
+    const len=oldVertices.length;
+    oldVertices.forEach((v0,i0)=>{
+        const [iB,iF]=[
+            (len+i0-1)%len,
+            (len+i0+1)%len,
+        ];
+        const vB=oldVertices[iB];
+        const vF=oldVertices[iF];
+        const p=fn(vB,v0,vF);
+        const v=vertices[i0];
+        v.copy(p);
+    });
+}
 
 /*让直线基于法线偏移*/
 function getLineMoveByNormal(bp0,ep0,d){
     const delta=ep0.clone().sub(bp0);
     const A1=delta.y;
     const B1=-delta.x;
-    const v1=new Vector2(A1,B1);
-    v1.setLength(d);
+    const vB=new Vector2(A1,B1);
+    vB.setLength(d);
     return [
-        bp0.clone().add(v1),
-        ep0.clone().add(v1)
+        bp0.clone().add(vB),
+        ep0.clone().add(vB)
     ]
 }
 
-/*已知两条直线的一般式，取其交点*/
-function getIntersectionByABC(A1,B1,C1,A2,B2,C2){
-    const x=(B1*C2-C1*B2)/(A1*B2-A2*B1);
-    const y=(A2*C1-A1*C2)/(A1*B2-A2*B1);
-    return new Vector2(x,y);
-}
 
-/*
-* 基于v1、v2两点获取直线，让直线沿其法线方向偏移d，返回此直线一般式中的A、B、C
-* */
-function getNormalExpandLineABC(v1,v2,d=0){
-    const delta=v2.clone().sub(v1);
-    const [A,B]=[delta.y,-delta.x];
-    const v=new Vector2(A,B);
-    v.setLength(d);
-    const p=v1.clone().add(v);
-    const C=-(A*p.x+B*p.y);
-    return [A,B,C]
-}
+
+

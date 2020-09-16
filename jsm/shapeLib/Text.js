@@ -1,6 +1,6 @@
 import Poly from "../core/Poly.js"
+import Shape from "./Shape.js"
 const defAttr=()=>({
-    font:'14px arial',
     textBaseline:'alphabetic',
     textAlign:'start',
     text:'',
@@ -14,9 +14,9 @@ const defAttr=()=>({
 
 })
 /*Text 文本*/
-export default class Text extends Poly{
-    constructor(attr={}){
-        super(Object.assign(defAttr(),attr));
+export default class Text extends Shape{
+    constructor(...attrs){
+        super(...attrs,defAttr);
     }
     draw(ctx){
         ctx.save();
@@ -49,9 +49,20 @@ export default class Text extends Poly{
             textBaseline,textAlign
         }=this;
         ctx.font=`${fontStyle} ${fontVariant} ${fontWeight} ${fontSize}px ${lineHeight} ${fontFamily}`;
-        console.log(ctx.font);
         ctx.textBaseline=textBaseline;
         ctx.textAlign=textAlign;
+    }
+
+    /*获取文本宽度*/
+    getWidth(){
+        const {
+            text,
+            fontStyle,fontVariant,fontWeight,fontSize,lineHeight,fontFamily,
+        }=this;
+        const canvas=document.createElement('canvas');
+        const ctx=canvas.getContext('2d');
+        ctx.font=`${fontStyle} ${fontVariant} ${fontWeight} ${fontSize}px ${lineHeight} ${fontFamily}`;
+        return ctx.measureText(text).width;
     }
 
     /*绘制描边*/

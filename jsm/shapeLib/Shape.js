@@ -1,8 +1,8 @@
 /*图形基类*/
 import Poly from "../core/Poly.js"
 /*
-* constructor 的super中要对默认参数深拷贝
-*   传参顺序 [attr otherAttr] defAttr
+* Shape 图形基类，接口对象，属性拼接
+*   constructor 的super中要对默认参数深拷贝
 *   传参顺序 customAttr otherAttr defAttr
 *   合并顺序 otherAttr defAttr customAttr
 *   customAttr 自定义属性，权重3
@@ -33,7 +33,9 @@ function parseAttrs(attrs){
             break;
         default:
             const [customAttr]=attrs.splice(0,1);
-            attrAll= Object.assign(...attrs,customAttr);
+            const [otherAttr]=attrs.splice(0,1);
+            const defAttrs=attrs.reverse();
+            attrAll= Object.assign(otherAttr,...defAttrs,customAttr);
     }
     return attrAll;
 }

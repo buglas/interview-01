@@ -1,63 +1,233 @@
 import ShapeLib from "../shapeLib/ShapeLib.js"
 import Modifier from "./Modifier.js"
+import Vector2 from "../core/Vector2.js"
 /*Lattice 晶格化修改器
+* type 晶格节点类型
+*   Point 圆点
+*   Arrow 箭头
+*       p1 起点
+*       p2 终点
+*   Label 文本标签，需对当前边界做扩展
+*       v0 标签基点
+*       dir 偏移方向
+* nodes 初始化时，建立对节点集合
 * createNodes()建立节点集合
 * updateNodes()节点的更新方法，需在需要的时候手动更新，并对不同的节点执行不同的更新方法
 * 节点的奇偶性：节点静态属性single为true，且未闭合，则为true
-* createNode() 中的polyAttr 属性会覆盖节点对象的默认属性，之后还会被节点对象的自定义属性覆盖
-* polyAttr 可以是函数也可以是对象，其函数形态是避免复合对象的浅拷贝问题，比如lineDash数组对象
+*
+* Text 特定属性
+*   label:[],标签集合
+*   d：标签偏移距离
 * */
-const defAttr=()=>({type:'Point',poly:null, nodes:[],weight:2});
+const defAttr=()=>({
+    type:'Point',
+    nodes:[],
+    weight:2,
+    //适用于Text文本
+    labels:[],
+    d:20
+});
+const otherKeys=['fillStyle','strokeStyle','lineWidth','lineDash','lineDashOffset','shadowColor','shadowBlur','shadowOffsetX','shadowOffsetY'];
+const otherFontKeys=['textBaseline','textAlign','text','maxWidth','fontStyle','fontVariant','fontWeight','fontSize','lineHeight','fontFamily'];
 export default class Lattice extends Modifier{
     constructor(attr) {
         super(Object.assign(defAttr(),attr));
-
     }
     init() {
         this.createNodes();
     }
-
     createNodes(){
-        const {poly:{close,vertices},type,nodes,fill}=this;
+        const {type,crtLabel2,crtLabel3,crtNodes}=this;
+        if(type==='Label'){
+            const len=this.poly.vertices.length;
+            const labelOtherKeys=[...otherKeys,...otherFontKeys];
+            if(len>2){
+                const ergodic=this.ergodic(labelOtherKeys,crtLabel3.bind(this));
+                ergodic();
+            }else if(len===2){
+                const ergodic=this.ergodic(labelOtherKeys,crtLabel2.bind(this));
+                ergodic();
+            }
+        }else{
+            const ergodic=this.ergodic(otherKeys,crtNodes.bind(this));
+            if(type==='Arrow'){
+                ergodic(({v0,vF,i0})=>{
+                    return {v0,vF,i0}
+                })
+            }else{
+                ergodic(({v0,i0})=>{
+                    return {orign:v0,i0}
+                })
+            }
+        }
+    }
+    ergodic(otherKeys,crtNodeFn){
+        const {poly}=this;
+        const otherAttr={modifier:this};
+        otherKeys.forEach(key=>{
+            otherAttr[key]=poly[key];
+        })
+        return (parseCustomAttr=null)=>{
+            crtNodeFn(otherAttr,parseCustomAttr);
+        }
+    }
+    crtLabel2(otherAttr){
+        const crtNode=this.crtNode(otherAttr);
+        this.ergodicLabel2(({i0,v0,dir})=>{
+            crtNode({i0,v0,dir});
+        });
+    }
+    crtLabel3(otherAttr){
+        const {poly:{vertices},d}=this;
+        const crtNode=this.crtNode(otherAttr);
+        const len=vertices.length;
+        /*vertices.forEach((ele,i0)=>{
+            const {v0,dir}=this.getLabel3Dt({v0:ele,i0,vertices,len,d});
+            crtNode({i0,v0,dir});
+        })*/
+        this.ergodicLabel3((attr1,attr2)=>{
+            this.crtBreakPoint((dt)=>{
+                crtNode(dt);
+            },...attr1);
+            this.crtBreakPoint((dt)=>{
+                crtNode(dt);
+            },...attr2);
+        },({i,vertices,len,d})=>{
+            const i0=i;
+            const {v0,dir}=this.getLabel3Dt({v0:vertices[i],i0,vertices,len,d});
+            crtNode({i0,v0,dir});
+
+        });
+    }
+    crtNodes(otherAttr,parseCustomAttr){
+        const {poly,type}=this;
+        const {close,vertices}=poly;
+        const crtNode=this.crtNode(otherAttr);
         const single= ShapeLib[type].single&&!close;
         let len=vertices.length;
-        if(single){
-            len-=1;
-        }
-        for (let i=0;i<len;i++) {
-            this.createNode(i);
+        let n=single?len-1:len;
+        for (let i0=0;i0<n;i0++) {
+            const [iB,iF]=[
+                (len+i0-1)%len,
+                (len+i0+1)%len,
+            ];
+            const vB=vertices[iB];
+            const v0=vertices[i0];
+            const vF=vertices[iF];
+            const customAttr=parseCustomAttr({iB,i0,iF,vB,v0,vF,n});
+            crtNode(customAttr);
         }
     }
-    createNode(ind){
-        const {poly,type,nodes}=this;
-        const {fillStyle,strokeStyle,lineWidth,lineDash,lineDashOffset,shadowColor,shadowBlur,shadowOffsetX,shadowOffsetY}=poly;
-        const customAttr=this.getCustomAttr(ind);
-        const node=new ShapeLib[type](
-            customAttr,
-            {fillStyle,strokeStyle,lineWidth,lineDash,lineDashOffset,shadowColor,shadowBlur,shadowOffsetX,shadowOffsetY}
-        );
-        nodes.push(node);
-    }
-    getCustomAttr(ind){
-        const {type,poly:{vertices}}=this;
-        const len=vertices.length;
-        const p1=vertices[ind];
-        const p2=vertices[(ind+1)%len];
-        const attr={orign:vertices[ind]};
-        switch (type) {
-            case 'Arrow':
-                attr.p1=p1;
-                attr.p2=p2;
-                break;
-            default:
-                //do sth
+    crtNode(otherAttr){
+        const {type,nodes}=this;
+        return (customAttr)=>{
+            const node=new ShapeLib[type](
+                customAttr,
+                otherAttr
+            );
+            nodes[customAttr.i0]=node;
         }
-        return attr;
     }
     update(){
-        this.nodes.forEach(node=>{
+        const {type,nodes,poly:{vertices}}=this;
+        if(type==='Label'){
+            const len=vertices.length;
+            if(len===3){
+                this.updateLabel3();
+            }else if(len===2){
+                this.updateLabel2();
+            }
+        }else{
+            nodes.forEach(node=>{
+                node.update();
+            })
+        }
+
+    }
+    updateLabel2(){
+        const {nodes}=this;
+        this.ergodicLabel2(({i0,v0,dir})=>{
+            const node=nodes[i0];
+            node.v0=v0;
+            node.dir=dir;
             node.update();
+        });
+    }
+    ergodicLabel2(fn){
+        const {vs,dir}=this.getLabel2Dt();
+        vs.forEach((v0,i0)=>{
+            fn({i0,v0,dir});
         })
+    }
+    ergodicLabel3(fn1,fn2){
+        const {nodes,d,poly:{vertices,close}}=this;
+        const len=vertices.length;
+        let start=0;
+        let n=len;
+        if(!close){
+            start=1;
+            n=len-1;
+            fn1([0,0],[len-2,1])
+        }
+        for(let i=start;i<n;i++){
+            fn2({i,vertices,len,d,nodes});
+
+        }
+    }
+    updateLabel3(){
+        this.ergodicLabel3((attr1,attr2)=>{
+            this.updateBreakPoint(...attr1);
+            this.updateBreakPoint(...attr2);
+        },({i,vertices,len,d,nodes})=>{
+            const node=nodes[i];
+            const {i0}=node;
+            const {v0,dir}=this.getLabel3Dt({i0,vertices,len,d});
+            node.v0.copy(v0);
+            node.dir=dir;
+            node.update();
+        });
+    }
+    updateBreakPoint(i0,i){
+        const {poly:{vertices},nodes}=this;
+        const {vs,dir}=this.getLabel2Dt([vertices[i0],vertices[i0+1]]);
+        const curI=i0+i;
+        const node=nodes[curI];
+        node.v0.copy(vs[i]);
+        node.dir=dir;
+        node.update();
+    }
+    crtBreakPoint(fn,i0,i){
+        const {poly:{vertices}}=this;
+        const {vs,dir}=this.getLabel2Dt([vertices[i0],vertices[i0+1]]);
+        const curI=i0+i;
+        fn({i0:curI,v0:vs[i],dir});
+    }
+    getLabel2Dt(vertices=this.poly.vertices){
+        const {d}=this;
+        const [v0,vF]=vertices;
+        const delta=v0.clone().sub(vF);
+        const [A,B]=[-delta.y,delta.x];
+        const v=new Vector2(A,B).setLength(d);
+        const c1=v0.clone().add(v);
+        const c2=vF.clone().add(v);
+        const dir=v.angle();
+        return {vs:[c1,c2],dir};
+    }
+    getLabel3Dt({i0,vertices,len,d}){
+        const [iB,iF]=[
+            (len+i0-1)%len,
+            (len+i0+1)%len,
+        ];
+        const vB=vertices[iB];
+        const v0=vertices[i0];
+        const vF=vertices[iF];
+
+        const a=v0.clone().sub(vB).normalize();
+        const b=vF.clone().sub(v0).scale(-1).normalize();
+        const v=a.add(b).setLength(d);
+        const c=v0.clone().add(v);
+        const dir=v.angle();
+        return {v0:c,dir}
     }
     draw(ctx){
         const {nodes,type}=this;

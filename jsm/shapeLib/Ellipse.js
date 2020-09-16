@@ -2,7 +2,7 @@ import Poly from "../core/Poly.js"
 import Vector2 from "../core/Vector2.js"
 import Shape from "./Shape.js"
 
-/*Ellipse 椭圆对象
+/*Ellipse 椭圆对象-普通图形|晶格化修改器节点
 *   segNum 段数，默认24
 *   r1半径1
 *   r2半径2

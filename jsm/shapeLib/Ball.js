@@ -1,6 +1,6 @@
 import Shape from "./Shape.js"
 
-/*Ball 圆点对象
+/*Ball 圆点对象-普通图形|晶格化修改器节点
 *   r半径
 * */
 

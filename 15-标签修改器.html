@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>边界偏移模块化</title>
+    <title>标签修改器</title>
     <style>
         html{height: 100%}
         body{height: 100%;margin: 0;}
@@ -13,6 +13,7 @@
 <script type="module">
     import Vector2 from "./jsm/core/Vector2.js"
     import Group from "./jsm/core/Group.js"
+    import Text from "./jsm/shapeLib/Text.js"
     import Poly from "./jsm/core/Poly.js"
     import Lattice from "./jsm/modifierLib/Lattice.js"
     import Expand from "./jsm/modifierLib/Expand.js";
@@ -28,43 +29,34 @@
     });
 
     const vertices=[
-        new Vector2(-150,-200),
-        new Vector2(0,0),
-        new Vector2(-150,200)
+        new Vector2(0,-200),
+        new Vector2(-300,100),
+        new Vector2(-300,-200)
     ];
     const l0=new Poly({
         vertices,
         stroke:true,
-        // close:true,
+        // close:true
     });
-    const lat=new Lattice({type:'Arrow'})
-    l0.addModifier(lat);
-    // l0.updateModifies();
-
+    l0.addModifier(new Lattice());
+    l0.addModifier(new Lattice({type:'Arrow'}));
+    const label=new Lattice({
+        type:'Label',
+        labels:[
+            '0,0',
+            '-300,-200',
+            '300,-100'
+        ]
+    });
+    l0.addModifier(label);
     scene.add(l0);
-
-    scene.draw(ctx);
-
-    const expand=new Expand({
-        id:1,
-        d:20,
-    });
-    l0.addModifier(expand);
-    /*l0.addModifier(new Expand({
-        id:1,
-        d:50,
-    }));*/
-    // l0.updateModifies();
-    // lat.update();
-    // expand.update();
-
     scene.draw(ctx);
 
     setTimeout(()=>{
         ctx.clearRect(0,0,canvas.width,canvas.height);
-        l0.removeModifier(expand);
-        l0.removeModifierById(1);
-        // l0.updateModifies();
+        vertices[0].x=-200;
+        label.labels[0]='-200,-200'
+        l0.updateModifies();
         scene.draw(ctx);
     },1000)
 
