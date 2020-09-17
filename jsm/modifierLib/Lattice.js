@@ -37,7 +37,7 @@ export default class Lattice extends Modifier{
         this.createNodes();
     }
     createNodes(){
-        const {type,crtLabel2,crtLabel3,crtNodes}=this;
+        const {type,crtLabel1,crtLabel2,crtLabel3,crtNodes}=this;
         if(type==='Label'){
             const len=this.poly.vertices.length;
             const labelOtherKeys=[...otherKeys,...otherFontKeys];
@@ -46,6 +46,9 @@ export default class Lattice extends Modifier{
                 ergodic();
             }else if(len===2){
                 const ergodic=this.ergodic(labelOtherKeys,crtLabel2.bind(this));
+                ergodic();
+            }else if(len===1){
+                const ergodic=this.ergodic(labelOtherKeys,crtLabel1.bind(this));
                 ergodic();
             }
         }else{
@@ -67,24 +70,21 @@ export default class Lattice extends Modifier{
         otherKeys.forEach(key=>{
             otherAttr[key]=poly[key];
         })
+        const crtNode=this.crtNode(otherAttr);
         return (parseCustomAttr=null)=>{
-            crtNodeFn(otherAttr,parseCustomAttr);
+            crtNodeFn(crtNode,parseCustomAttr);
         }
     }
-    crtLabel2(otherAttr){
-        const crtNode=this.crtNode(otherAttr);
+    crtLabel1(crtNode){
+        const {v0,dir}=this.getLabel1Dt();
+        crtNode({i0:0,v0,dir});
+    }
+    crtLabel2(crtNode){
         this.ergodicLabel2(({i0,v0,dir})=>{
             crtNode({i0,v0,dir});
         });
     }
-    crtLabel3(otherAttr){
-        const {poly:{vertices},d}=this;
-        const crtNode=this.crtNode(otherAttr);
-        const len=vertices.length;
-        /*vertices.forEach((ele,i0)=>{
-            const {v0,dir}=this.getLabel3Dt({v0:ele,i0,vertices,len,d});
-            crtNode({i0,v0,dir});
-        })*/
+    crtLabel3(crtNode){
         this.ergodicLabel3((attr1,attr2)=>{
             this.crtBreakPoint((dt)=>{
                 crtNode(dt);
@@ -96,13 +96,11 @@ export default class Lattice extends Modifier{
             const i0=i;
             const {v0,dir}=this.getLabel3Dt({v0:vertices[i],i0,vertices,len,d});
             crtNode({i0,v0,dir});
-
         });
     }
-    crtNodes(otherAttr,parseCustomAttr){
+    crtNodes(crtNode,parseCustomAttr){
         const {poly,type}=this;
         const {close,vertices}=poly;
-        const crtNode=this.crtNode(otherAttr);
         const single= ShapeLib[type].single&&!close;
         let len=vertices.length;
         let n=single?len-1:len;
@@ -121,21 +119,22 @@ export default class Lattice extends Modifier{
     crtNode(otherAttr){
         const {type,nodes}=this;
         return (customAttr)=>{
-            const node=new ShapeLib[type](
+            nodes[customAttr.i0]=new ShapeLib[type](
                 customAttr,
                 otherAttr
             );
-            nodes[customAttr.i0]=node;
         }
     }
     update(){
         const {type,nodes,poly:{vertices}}=this;
         if(type==='Label'){
             const len=vertices.length;
-            if(len===3){
+            if(len>2){
                 this.updateLabel3();
             }else if(len===2){
                 this.updateLabel2();
+            }else if(len===1){
+                this.updateLabel1();
             }
         }else{
             nodes.forEach(node=>{
@@ -143,6 +142,15 @@ export default class Lattice extends Modifier{
             })
         }
 
+    }
+
+    updateLabel1(){
+        const {nodes}=this;
+        const [node]=nodes;
+        const {v0,dir}=this.getLabel1Dt();
+        node.dir=dir;
+        node.v0.copy(v0);
+        node.update();
     }
     updateLabel2(){
         const {nodes}=this;
@@ -201,6 +209,14 @@ export default class Lattice extends Modifier{
         const {vs,dir}=this.getLabel2Dt([vertices[i0],vertices[i0+1]]);
         const curI=i0+i;
         fn({i0:curI,v0:vs[i],dir});
+    }
+    getLabel1Dt(){
+        const {poly:{vertices},d}=this;
+        const v0=vertices[0];
+        return {
+            v0:new Vector2(v0.x,v0.y-d),
+            dir:-Math.PI/2
+        }
     }
     getLabel2Dt(vertices=this.poly.vertices){
         const {d}=this;

@@ -30,8 +30,8 @@
 
     const vertices=[
         new Vector2(0,-200),
-        new Vector2(-300,100),
-        new Vector2(-300,-200)
+        // new Vector2(-300,100),
+        // new Vector2(-300,-200)
     ];
     const l0=new Poly({
         vertices,
@@ -39,7 +39,7 @@
         // close:true
     });
     l0.addModifier(new Lattice());
-    l0.addModifier(new Lattice({type:'Arrow'}));
+    // l0.addModifier(new Lattice({type:'Arrow'}));
     const label=new Lattice({
         type:'Label',
         labels:[
