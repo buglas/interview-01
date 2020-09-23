@@ -90,7 +90,7 @@
     run((diff)=>{
         ctx.clearRect(0,0,canvas.width,canvas.height);
         ep.rotate(radian*diff);
-        line.updateModifies();
+        line.update();
 
         const dir=ep.angle();
         const offsetX=hw2*Math.cos(dir);

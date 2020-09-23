@@ -32,6 +32,7 @@ const otherFontKeys=['textBaseline','textAlign','text','maxWidth','fontStyle','f
 export default class Lattice extends Modifier{
     constructor(attr) {
         super(Object.assign(defAttr(),attr));
+        this.attr=attr;
     }
     init() {
         this.createNodes();
@@ -93,6 +94,7 @@ export default class Lattice extends Modifier{
                 crtNode(dt);
             },...attr2);
         },({i,vertices,len,d})=>{
+            console.log(i);
             const i0=i;
             const {v0,dir}=this.getLabel3Dt({v0:vertices[i],i0,vertices,len,d});
             crtNode({i0,v0,dir});
@@ -118,10 +120,12 @@ export default class Lattice extends Modifier{
     }
     crtNode(otherAttr){
         const {type,nodes}=this;
+
         return (customAttr)=>{
             nodes[customAttr.i0]=new ShapeLib[type](
                 customAttr,
-                otherAttr
+                otherAttr,
+                this.attr
             );
         }
     }
@@ -240,7 +244,13 @@ export default class Lattice extends Modifier{
 
         const a=v0.clone().sub(vB).normalize();
         const b=vF.clone().sub(v0).scale(-1).normalize();
-        const v=a.add(b).setLength(d);
+        const aAddb=a.add(b);
+        let v=null;
+        if(aAddb.length()===0){
+            v=new Vector2(-b.y,b.x).setLength(d);
+        }else{
+            v=aAddb.setLength(d);
+        }
         const c=v0.clone().add(v);
         const dir=v.angle();
         return {v0:c,dir}

@@ -42,9 +42,14 @@ export default class Group{
         ctx.translate(position.x,position.y);
         ctx.rotate(rotation);
         ctx.scale(scale.x,scale.y);
-        children.forEach(obj=>{
+        children&&children.forEach(obj=>{
             obj.draw(ctx);
         })
         ctx.restore();
+    }
+    update(){
+        this.children.forEach(obj=>{
+            obj.update();
+        })
     }
 }

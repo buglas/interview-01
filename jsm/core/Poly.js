@@ -162,11 +162,11 @@ export default class Poly{
         modifier.poly=this;
         modifier.init();
         /*排除当前元素进行更新*/
-        modifier.updateOther&&this.updateModifies(modifier);
+        modifier.updateOther&&this.update(modifier);
     }
 
     /*更新修改器*/
-    updateModifies(exclude=null){
+    update(exclude=null){
         this.modifiers.forEach(modifier=>{
             if(exclude!==modifier){
                 modifier.update();
@@ -203,6 +203,6 @@ export default class Poly{
     removeModifierByIndex(i,modifiers,modifier){
         modifiers.splice(i,1);
         modifier.removed();
-        modifier.updateOther&&this.updateModifies();
+        modifier.updateOther&&this.update();
     }
 }
