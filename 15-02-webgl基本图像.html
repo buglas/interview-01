@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>标签修改器</title>
+    <style>
+        html{height: 100%}
+        body{height: 100%;margin: 0;}
+    </style>
+</head>
+<body>
+<canvas id="canvas"></canvas>
+<script type="module">
+    import Vector2 from "./jsm/core/Vector2.js"
+    import Group from "./jsm/core/Group.js"
+    import Text from "./jsm/shapeLib/Text.js"
+    import Poly from "./jsm/core/Poly.js"
+    import Lattice from "./jsm/modifierLib/Lattice.js"
+    import Expand from "./jsm/modifierLib/Expand.js";
+
+    const canvas=document.getElementById('canvas');
+    canvas.width=window.innerWidth;
+    canvas.height=window.innerHeight;
+    const ctx=canvas.getContext('2d');
+    const c=new Vector2(canvas.width/2,canvas.height/2);
+
+    const scene=new Group({
+        position:new Vector2(100,100)
+    });
+
+    const vertices=[
+        new Vector2(0,0),
+        new Vector2(70,100),
+        new Vector2(150,0),
+        new Vector2(220,100),
+        new Vector2(300,0),
+        new Vector2(370,100),
+    ];
+    const strokeStyles=[
+        'orange',
+        'red',
+        'green',
+        'blue',
+    ]
+    /*POINTS*/
+    /*{
+        function crtLine(x,y,labels){
+            const vertices=[
+                new Vector2(x,y),
+            ];
+            const l0=new Poly({
+                vertices,
+            });
+            l0.addModifier(new Lattice());
+            const label=new Lattice({
+                type:'Label',
+                fontSize:18,
+                labels
+            });
+            l0.addModifier(label);
+            scene.add(l0);
+        }
+        crtLine(0,0,['v0']);
+        crtLine(70,100,['v1']);
+        crtLine(150,0,['v2']);
+        crtLine(220,100,['v3']);
+        crtLine(300,0,['v4']);
+        crtLine(370,100,['v5']);
+    }*/
+
+    /*LINES*/
+    /*{
+        function crtLine(n,labels){
+            const x=150*n;
+            const vertices=[
+                new Vector2(x,0),
+                new Vector2(x+70,100)
+            ];
+            const l0=new Poly({
+                vertices,
+                stroke:true,
+            });
+            l0.addModifier(new Lattice());
+            l0.addModifier(new Lattice({type:'Arrow'}));
+            const label=new Lattice({
+                type:'Label',
+                fontSize:18,
+                labels
+            });
+            l0.addModifier(label);
+            scene.add(l0);
+        }
+        crtLine(0,['v0','v1']);
+        crtLine(1,['v2','v3']);
+        crtLine(2,['v4','v5']);
+    }*/
+
+    /*LINES_STRIP */
+    /*{
+        const l0=new Poly({
+            vertices,
+            stroke:true,
+        });
+        l0.addModifier(new Lattice());
+        l0.addModifier(new Lattice({type:'Arrow'}));
+        const label=new Lattice({
+            type:'Label',
+            fontSize:18,
+            labels:['v0','v1','v2','v3','v4','v5']
+        });
+        l0.addModifier(label);
+        scene.add(l0);
+    }*/
+    /*LINE_LOOP*/
+    /*{
+        const l0=new Poly({
+            vertices,
+            stroke:true,
+            close:true,
+        });
+        l0.addModifier(new Lattice());
+        l0.addModifier(new Lattice({type:'Arrow'}));
+        const label=new Lattice({
+            type:'Label',
+            fontSize:18,
+            labels:['v0','v1','v2','v3','v4','v5']
+        });
+        l0.addModifier(label);
+        scene.add(l0);
+    }*/
+
+    /*TRIANGLES */
+    {
+        function crtTriangle(vertices,labels){
+            const l0=new Poly({
+                vertices,
+                fill:true,
+                stroke:true,
+                fillStyle:'rgba(0,0,0,0.05)',
+                close:true,
+            });
+            l0.addModifier(new Lattice({
+                fillStyle:'#000'
+            }));
+            l0.addModifier(new Lattice({
+                type:'Arrow',
+            }));
+            const label=new Lattice({
+                type:'Label',
+                fillStyle:'#000',
+                fontSize:18,
+                labels
+            });
+            l0.addModifier(label);
+            scene.add(l0);
+        }
+        crtTriangle(
+            [
+                new Vector2(0,0),
+                new Vector2(70,100),
+                new Vector2(150,0),
+            ],
+            ['v0','v1','v2']
+        );
+        crtTriangle(
+            [
+                new Vector2(220,100),
+                new Vector2(370,100),
+                new Vector2(300,0),
+            ],
+            ['v3','v4','v5']
+        );
+    }
+
+    /*TRIANGLES_STRIP */
+    /*{
+        function crtTriangle(vertices,strokeStyle){
+            const l0=new Poly({
+                vertices,
+                fill:true,
+                stroke:true,
+                fillStyle:'rgba(0,0,0,0.05)',
+                strokeStyle,
+                close:true,
+            });
+            l0.addModifier(new Lattice({
+                fillStyle:'#000'
+            }));
+            l0.addModifier(new Lattice({
+                type:'Arrow',
+            }));
+            const label=new Lattice({
+                type:'Label',
+                fillStyle:'#000',
+                fontSize:18,
+            });
+            scene.add(l0);
+        }
+        const len=vertices.length;
+        for (let i=2;i<len;i++){
+            const [i0,i1,i2]=[i-2,i-1,i]
+            crtTriangle(
+                [
+                    vertices[i0],
+                    vertices[i1],
+                    vertices[i2],
+                ],
+                strokeStyles[i0]
+            );
+        }
+        const l0=new Poly({
+            vertices,
+            close:true
+        });
+        const label=new Lattice({
+            type:'Label',
+            fontSize:18,
+            labels:['v0','v1','v2','v3','v4','v5']
+        });
+        l0.addModifier(label);
+        scene.add(l0);
+    }*/
+
+    /*TRIANGLES_FAN */
+    /*{
+        scene.position=c;
+        function crtTriangle(vertices,strokeStyle='#00acec'){
+            const l0=new Poly({
+                vertices,
+                fill:true,
+                stroke:true,
+                fillStyle:'rgba(0,0,0,0.05)',
+                close:true,
+                strokeStyle
+            });
+            l0.addModifier(new Lattice({
+                fillStyle:'#000'
+            }));
+            l0.addModifier(new Lattice({
+                type:'Arrow',
+            }));
+            const label=new Lattice({
+                type:'Label',
+                fillStyle:'#000',
+                fontSize:18,
+            });
+            scene.add(l0);
+        }
+
+        const vertices=[
+            new Vector2(0,30),
+            new Vector2(120,0),
+            new Vector2(100,-70),
+            new Vector2(0,-100),
+            new Vector2(-100,-70),
+            new Vector2(-120,0),
+        ];
+
+        const len=vertices.length;
+        for (let i=2;i<len;i++){
+            const [i0,i1,i2]=[0,i-1,i]
+            crtTriangle(
+                [
+                    vertices[i0],
+                    vertices[i1],
+                    vertices[i2],
+                ],
+                strokeStyles[i2-2]
+            );
+        }
+
+        const l0=new Poly({
+            vertices,
+            close:true
+        });
+        const label=new Lattice({
+            type:'Label',
+            fontSize:18,
+            labels:['v0','v1','v2','v3','v4','v5']
+        });
+        l0.addModifier(label);
+        scene.add(l0);
+    }*/
+
+    scene.draw(ctx);
+
+
+</script>
+</body>
+</html>

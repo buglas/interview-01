@@ -94,7 +94,6 @@ export default class Lattice extends Modifier{
                 crtNode(dt);
             },...attr2);
         },({i,vertices,len,d})=>{
-            console.log(i);
             const i0=i;
             const {v0,dir}=this.getLabel3Dt({v0:vertices[i],i0,vertices,len,d});
             crtNode({i0,v0,dir});
