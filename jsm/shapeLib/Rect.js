@@ -3,42 +3,50 @@ import Vector2 from "../core/Vector2.js"
 import Shape from "./Shape.js"
 
 /*Rect 矩形对象-普通图形|晶格化修改器节点
-*   orign 定原点,可为center，基点在中心
+*   align 对齐方式，默认左上角lt，可为center
+*       lt 左上角,默认
+*       center 居中
 *   size 尺寸
+*   min 左上点
+*   max 右下点
 * */
 
 export default class Rect extends Shape{
     constructor(...attrs) {
         super(...attrs,{
+            align:'lt',
             size:new Vector2(),
             min:new Vector2(),
+            max:new Vector2(),
             close:true
         });
         this.update();
     }
     update() {
-        const {min,size:{x:w,y:h}}=this;
-        const {x:l,y:t}=this.getMin();
+        const {min:{x:minX,y:minY},max:{x:maxX,y:maxY}}=this.setBound();
         this.vertices=[
-            new Vector2(-l,-t),
-            new Vector2(w-l,-t),
-            new Vector2(w-l,h-t),
-            new Vector2(-l,h-t),
+            new Vector2(minX,minY),
+            new Vector2(maxX,minY),
+            new Vector2(maxX,maxY),
+            new Vector2(minX,maxY),
         ]
-        min.x=l;
-        min.y=t;
     }
-    getMin(){
-        const {min,orign,size:{x:w,y:h}}=this;
+    /*设置编辑*/
+    setBound(){
+        const {align,min,max,orign:{x,y},size:{x:w,y:h}}=this;
         let l=0;
         let t=0;
-        if(orign==='center'){
-            l=w/2;
-            t=h/2;
+        if(align==='center'){
+            l=x-w/2;
+            t=y-h/2;
         }else {
-            l=orign.x;
-            t=orign.y;
+            l=x;
+            t=y;
         }
-        return new Vector2(l,t);
+        min.x=l;
+        min.y=t;
+        max.x=l+w;
+        max.y=t+h;
+        return {min,max}
     }
 }

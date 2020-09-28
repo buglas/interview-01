@@ -32,11 +32,13 @@ const defAttr=()=>({
     position:new Vector2(0,0),
     rotation:0,
 
+    //合成相关
+    globalAlpha:1,
+    globalCompositeOperation:'source-over',
+
     //父级
     parent:null
 });
-
-
 
 /*Poly 多边形*/
 export default class Poly{
@@ -47,9 +49,15 @@ export default class Poly{
     }
     draw(ctx){
         ctx.save();
-
+        this.drawPoly(ctx);
+        ctx.restore();
+    }
+    drawPoly(ctx){
         /*变换*/
         this.transform(ctx);
+
+        /*合成*/
+        this.composite(ctx);
 
         /*建立路径*/
         this.crtPath(ctx);
@@ -65,8 +73,6 @@ export default class Poly{
 
         /*修改器*/
         this.drawModifies(ctx);
-
-        ctx.restore();
     }
     /*变换*/
     transform(ctx){
@@ -77,6 +83,16 @@ export default class Poly{
         ctx.rotate(rotation);
         ctx.scale(scale.x,scale.y);
     }
+
+    /*合成*/
+    composite(ctx){
+        const {
+            globalAlpha,globalCompositeOperation,
+        }=this;
+        ctx.globalAlpha=globalAlpha;
+        ctx.globalCompositeOperation=globalCompositeOperation;
+    }
+
     /*绘制投影*/
     setShadow(ctx){
         const {
