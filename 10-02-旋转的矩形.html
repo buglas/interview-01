@@ -52,12 +52,12 @@
 
     /*矩形*/
     const rect=new Rect({
-        O:'center',
-        width:w,
-        height:h,
+        orign:'center',
+        size:new Vector2(w,h),
         stroke: true,
     })
     rect.addModifier(new Lattice());
+    console.log(rect);
 
     /*椭圆*/
     const ellipseInRect=new Ellipse({
