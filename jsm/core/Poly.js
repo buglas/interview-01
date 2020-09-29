@@ -36,6 +36,9 @@ const defAttr=()=>({
     globalAlpha:1,
     globalCompositeOperation:'source-over',
 
+    //可见性
+    visible:true,
+
     //父级
     parent:null
 });
@@ -48,6 +51,7 @@ export default class Poly{
         this.modifiers=[]
     }
     draw(ctx){
+        if(!this.visible){return}
         ctx.save();
         this.drawPoly(ctx);
         ctx.restore();
@@ -197,7 +201,6 @@ export default class Poly{
         if(i!==-1){
             this.removeModifierByIndex(i,modifiers,modifier);
         }
-
     }
 
     /*删除修改器，基于修改器id*/

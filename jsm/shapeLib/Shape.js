@@ -35,6 +35,9 @@ function parseAttrs(attrs){
             const [customAttr]=attrs.splice(0,1);
             const [otherAttr]=attrs.splice(0,1);
             const defAttrs=attrs.reverse();
+            console.log('otherAttr',otherAttr);
+            console.log('defAttrs',defAttrs);
+            console.log('customAttr',customAttr);
             attrAll= Object.assign(otherAttr,...defAttrs,customAttr);
     }
     return attrAll;

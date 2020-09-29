@@ -48,6 +48,59 @@ function run(fn) {
         requestAnimationFrame(render);
     })()
 }
+/*按照时间间隔运行动画
+* [
+*   {
+*       space 时间间隔，默认0
+*       delay 时间延迟，默认0
+*       time 计时器
+*       fn 行为
+*
+*   }
+* ]
+* */
+const defAttr=()=>({
+    animations:[],
+    fn:()=>{}
+})
+class SupRun{
+    constructor(attr){
+        Object.assign(this,defAttr(),attr);
+    }
+    add(animal){
+        this.children.push(animal)
+    }
+    start(){
+        this.animations.forEach(ani=>{
+            ani.space!==undefined||(ani.space=0);
+            ani.delay!==undefined||(ani.delay=0);
+            ani.time=ani.delay;
+            // console.log(ani);
+        })
+        this.run();
+    }
+    run(time=0){
+        const {animations,fn}=this;
+        animations.forEach(ani=>{
+            const diff=time-ani.time;
+            // console.log('time',time);
+            // console.log('diff',diff);
+            if(diff>ani.space){
+                ani.time=time;
+                ani.fn();
+            }
+        })
+        fn();
+        requestAnimationFrame(this.run.bind(this));
+    }
+    remove(animation){
+        const {animations}=this;
+        const i=animations.indexOf(animation);
+        if(i!==-1){
+            animations.splice(i,1);
+        }
+    }
+}
 
-export {getMousePos,parsePoints,run};
+export {getMousePos,parsePoints,run,SupRun};
 

@@ -1,6 +1,6 @@
 //向量对象
 export default class Vector2{
-    constructor(x=0,y=0){
+    constructor(x=0,y=x){
         this.x=x;
         this.y=y;
     }
