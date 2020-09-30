@@ -9,7 +9,7 @@ import ImgObj from '../jsm/imgLib/ImgObj.js'
 * */
 const defAttr=()=>({
     time:0,
-    space:40000*Math.random()+1000,
+    space:4000*Math.random()+1000,
     twinkling:true,
     twinkleSpace:500*Math.random()+200,
     twinkleTime:0,
