@@ -1,4 +1,4 @@
-import Vector2 from "./core/Vector2.js";
+import Vector2 from "../core/Vector2.js";
 /*获取鼠标位置*/
 const getMousePos=function(event,canvas,obj=null){
     //获取鼠标位置

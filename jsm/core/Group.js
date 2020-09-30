@@ -1,10 +1,8 @@
 import Vector2 from "./Vector2.js"
+import BaseGroup from "./BaseGroup.js"
 
 /*默认属性*/
 const defAttr=()=>({
-    //父子级
-    parent:null,
-    children:[],
     //变换相关
     scale:new Vector2(1,1),
     position:new Vector2(0,0),
@@ -12,26 +10,9 @@ const defAttr=()=>({
 });
 
 /*Group 数组*/
-export default class Group{
+export default class Group extends BaseGroup{
     constructor(attr={}){
-        Object.assign(this,defAttr(),attr);
-    }
-    add(obj){
-        const {children}=this;
-        children.push(obj);
-        obj.parent=this;
-    }
-    unshift(obj){
-        const {children}=this;
-        children.unshift(obj);
-        obj.parent=this;
-    }
-    remove(obj){
-        const {children}=this;
-        const index = children.indexOf(obj);
-        if (index!==-1) {
-            children.splice(index, 1);
-        }
+        super(Object.assign(defAttr(),attr));
     }
     draw(ctx){
         const {children}=this;

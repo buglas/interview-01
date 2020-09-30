@@ -95,7 +95,7 @@
         crtLine(2,['v4','v5']);
     }*/
 
-    /*LINES_STRIP */
+    /*LINE_STRIP */
     /*{
         const l0=new Poly({
             vertices,
@@ -111,6 +111,7 @@
         l0.addModifier(label);
         scene.add(l0);
     }*/
+
     /*LINE_LOOP*/
     /*{
         const l0=new Poly({
@@ -130,7 +131,7 @@
     }*/
 
     /*TRIANGLES */
-    {
+    /*{
         function crtTriangle(vertices,labels){
             const l0=new Poly({
                 vertices,
@@ -170,10 +171,10 @@
             ],
             ['v3','v4','v5']
         );
-    }
+    }*/
 
-    /*TRIANGLES_STRIP */
-    /*{
+    /*TRIANGLE_STRIP */
+    {
         function crtTriangle(vertices,strokeStyle){
             const l0=new Poly({
                 vertices,
@@ -198,14 +199,18 @@
         }
         const len=vertices.length;
         for (let i=2;i<len;i++){
-            const [i0,i1,i2]=[i-2,i-1,i]
+            const i2=i;
+            let [i0,i1]=[i-2,i-1];
+            if(i%2){
+                [i0,i1]=[i1,i0];
+            }
             crtTriangle(
                 [
                     vertices[i0],
                     vertices[i1],
                     vertices[i2],
                 ],
-                strokeStyles[i0]
+                strokeStyles[i-2]
             );
         }
         const l0=new Poly({
@@ -219,9 +224,9 @@
         });
         l0.addModifier(label);
         scene.add(l0);
-    }*/
+    }
 
-    /*TRIANGLES_FAN */
+    /*TRIANGLE_FAN */
     /*{
         scene.position=c;
         function crtTriangle(vertices,strokeStyle='#00acec'){

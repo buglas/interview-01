@@ -15,7 +15,7 @@ const defAttr=()=>({
     twinkleTime:0,
 })
 export default class Star extends ImgObj{
-    constructor(attr){
+    constructor(attr={}){
         super(Object.assign(attr,defAttr()));
         this.init();
     }
