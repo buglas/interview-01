@@ -1,7 +1,11 @@
 import ImgObj from '../jsm/imgLib/ImgObj.js'
 
-/*默认属性
-*   space 闪烁随机范围
+/*星星
+* 抽离补间动画基类
+* 时间轨，具备时间总长度，可裁剪，伸缩
+* 关键帧集合[]
+* 循环 yoyo
+* 抽离插值算法
 * */
 const defAttr=()=>({
     time:0,
