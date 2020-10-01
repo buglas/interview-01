@@ -46,12 +46,10 @@
         fontSize:18
     }));
     scene.add(l0);
+
     scene.draw(ctx);
 
     canvas.addEventListener('mousemove',function(event){
-        /*const cssPos=getMousePos(event,canvas);
-        mp.x=cssPos.x-canvas.width/2;
-        mp.y=cssPos.y-canvas.height/2;*/
         const pos=getMousePos(event,canvas,scene);
         mp.copy(pos);
         render();
