@@ -1,6 +1,6 @@
 import Vector2 from "../core/Vector2.js";
 /*获取鼠标位置*/
-const getMousePos=function(event,canvas,obj=null){
+/*const getMousePos=function(event,canvas,obj=null){
     //获取鼠标位置
     const {clientX,clientY}=event;
     //获取canvas 边界位置
@@ -16,7 +16,41 @@ const getMousePos=function(event,canvas,obj=null){
         mousePos.divide(scale);
     }
     return mousePos;
+};*/
+
+const getMousePos=function(event,canvas,obj=null){
+    //获取鼠标位置
+    const {clientX,clientY}=event;
+    //获取canvas 边界位置
+    const {top,left}=canvas.getBoundingClientRect();
+    //计算鼠标在canvas 中的位置
+    const x=clientX-left;
+    const y=clientY-top;
+    const mousePos=new Vector2(x,y);
+    obj&&setPosInBottomObj(mousePos,obj);
+    return mousePos;
 };
+/*将父级中的坐标点放入n级子坐标系*/
+function setPosInBottomObj(p1,p2){
+    const worlds=[p2];
+    let {parent}=p2;
+    while(parent){
+        worlds.unshift(parent);
+        parent=parent.parent;
+    }
+    worlds.forEach(p=>{
+        setPosInSun(p1,p);
+    })
+    return p1;
+}
+/*将父级中的坐标点放入下一级坐标系*/
+function setPosInSun(p1,p2){
+    const {position,scale,rotation}=p2;
+    p1.sub(position);
+    p1.rotate(-rotation);
+    p1.divide(scale);
+    return p1;
+}
 
 /*解析顶点*/
 function parsePoints(dom){
@@ -102,5 +136,5 @@ class SupRun{
     }
 }
 
-export {getMousePos,parsePoints,run,SupRun};
+export {getMousePos,setPosInBottomObj,parsePoints,run,SupRun};
 

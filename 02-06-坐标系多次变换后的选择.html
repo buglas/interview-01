@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>坐标系变换后的选择</title>
+    <style>
+        html{height: 100%}
+        body{height: 100%;margin: 0;}
+    </style>
+</head>
+<body>
+    <canvas id="canvas"></canvas>
+    <script type="module">
+        import Vector2 from "./jsm/core/Vector2.js";
+        import Poly from "./jsm/core/Poly.js";
+        import {getMousePos,setPosInBottomObj} from "./jsm/utils/Tool.js";
+        import Group from "./jsm/core/Group.js"
+
+        const canvas=document.getElementById('canvas');
+        canvas.width=window.innerWidth;
+        canvas.height=window.innerHeight;
+        const ctx=canvas.getContext('2d');
+
+        const poly=new Poly({
+            position:new Vector2(300,400),
+            rotation:Math.PI/4,
+            scale:new Vector2(0.7,0.7),
+            stroke:true,
+            close:true,
+            crtPath:function(ctx){
+                ctx.beginPath();
+                ctx.moveTo(0,0);
+                ctx.bezierCurveTo(-200,-50,-180,-300,0,-200);
+                ctx.bezierCurveTo(180,-300,200,-50,0,0);
+            }
+        });
+
+        const box=new Group({
+            position:new Vector2(100,100),
+            rotation:Math.PI/12,
+            scale:new Vector2(0.8,0.8),
+        });
+        box.add(poly);
+
+        box.draw(ctx);
+
+        let hover=false;
+
+        // const {x,y}=setPosInBottomObj(new Vector2(400,500),poly);
+
+
+
+        /*鼠标移动*/
+        canvas.addEventListener('mousemove',mousemoveFn);
+        function mousemoveFn(event){
+            const {x,y}=getMousePos(event,canvas,poly);
+            poly.crtPath(ctx);
+            const bool=ctx.isPointInPath(x,y);
+            if(hover!==bool){
+                poly.fill=bool;
+                ctx.clearRect(0,0,canvas.width,canvas.height);
+                box.draw(ctx);
+                hover=bool;
+            }
+        }
+    </script>
+</body>
+</html>
