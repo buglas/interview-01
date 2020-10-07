@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>视图变换</title>
+    <style>
+        html{height: 100%}
+        body{height: 100%;margin: 0;}
+    </style>
+</head>
+<body>
+<canvas id="canvas1"></canvas>
+<canvas id="canvas2"></canvas>
+<script type="module">
+    import Vector2 from "./jsm/core/Vector2.js"
+    import Group from "./jsm/core/Group.js"
+    import Poly from "./jsm/core/Poly.js"
+    import Lattice from "./jsm/modifierLib/Lattice.js"
+    import {getMousePos,setPosToBottom,setPosToTop} from "./jsm/utils/Tool.js";
+    import Point from "./jsm/shapeLib/Point.js"
+    import Ball from "./jsm/shapeLib/Ball.js"
+
+    const canvas1=document.getElementById('canvas1');
+    canvas1.width=window.innerWidth;
+    canvas1.height=window.innerHeight;
+    const ctx1=canvas1.getContext('2d');
+    const c1=new Vector2(canvas1.width/2,canvas1.height/2);
+
+    const scene=new Group();
+
+
+
+</script>
+</body>
+</html>

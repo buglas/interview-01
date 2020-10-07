@@ -13,7 +13,7 @@
     <script type="module">
         import Vector2 from "./jsm/core/Vector2.js";
         import Poly from "./jsm/core/Poly.js";
-        import {getMousePos,setPosInBottomObj} from "./jsm/utils/Tool.js";
+        import {getMousePos,setPosToBottom} from "./jsm/utils/Tool.js";
         import Group from "./jsm/core/Group.js"
 
         const canvas=document.getElementById('canvas');
@@ -42,13 +42,18 @@
         });
         box.add(poly);
 
-        box.draw(ctx);
+        const box2=new Group({
+            position:new Vector2(100,100),
+            rotation:Math.PI/12,
+            scale:new Vector2(0.8,0.8),
+        });
+        box2.add(box);
+
+        box2.draw(ctx);
 
         let hover=false;
 
-        // const {x,y}=setPosInBottomObj(new Vector2(400,500),poly);
-
-
+        // setPosToBottom(new Vector2(400,400),poly);
 
         /*鼠标移动*/
         canvas.addEventListener('mousemove',mousemoveFn);
@@ -59,7 +64,7 @@
             if(hover!==bool){
                 poly.fill=bool;
                 ctx.clearRect(0,0,canvas.width,canvas.height);
-                box.draw(ctx);
+                box2.draw(ctx);
                 hover=bool;
             }
         }

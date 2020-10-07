@@ -1,23 +1,5 @@
 import Vector2 from "../core/Vector2.js";
 /*获取鼠标位置*/
-/*const getMousePos=function(event,canvas,obj=null){
-    //获取鼠标位置
-    const {clientX,clientY}=event;
-    //获取canvas 边界位置
-    const {top,left}=canvas.getBoundingClientRect();
-    //计算鼠标在canvas 中的位置
-    const x=clientX-left;
-    const y=clientY-top;
-    const mousePos=new Vector2(x,y);
-    if(obj){
-        const {position,scale,rotation}=obj;
-        mousePos.sub(position);
-        mousePos.rotate(-rotation);
-        mousePos.divide(scale);
-    }
-    return mousePos;
-};*/
-
 const getMousePos=function(event,canvas,obj=null){
     //获取鼠标位置
     const {clientX,clientY}=event;
@@ -27,29 +9,46 @@ const getMousePos=function(event,canvas,obj=null){
     const x=clientX-left;
     const y=clientY-top;
     const mousePos=new Vector2(x,y);
-    obj&&setPosInBottomObj(mousePos,obj);
+    obj&&setPosToBottom(mousePos,obj,null);
     return mousePos;
 };
-/*将父级中的坐标点放入n级子坐标系*/
-function setPosInBottomObj(p1,p2){
-    const worlds=[p2];
-    let {parent}=p2;
-    while(parent){
+/*将坐标点从某个父级坐标系放入某个子坐标系*/
+function setPosToBottom(p,bottom,top=null){
+    const worlds=[bottom];
+    let {parent}=bottom;
+    while(parent&&parent!==top){
         worlds.unshift(parent);
         parent=parent.parent;
     }
-    worlds.forEach(p=>{
-        setPosInSun(p1,p);
+    worlds.forEach(w=>{
+        setPosToSun(p,w);
     })
-    return p1;
+    return p;
+}
+/*将坐标点从某个子级坐标系放入某个父坐标系*/
+function setPosToTop(p,bottom,top=bottom){
+    setPosToParent(p,bottom);
+    let {parent}=bottom;
+    if(parent&&parent!==top){
+        setPosToTop(p,parent,top)
+    }
+    return p;
 }
 /*将父级中的坐标点放入下一级坐标系*/
-function setPosInSun(p1,p2){
-    const {position,scale,rotation}=p2;
-    p1.sub(position);
-    p1.rotate(-rotation);
-    p1.divide(scale);
-    return p1;
+function setPosToSun(p,world){
+    const {position,scale,rotation}=world;
+    p.sub(position);
+    p.rotate(-rotation);
+    p.divide(scale);
+    return p;
+}
+/*将子级中的坐标点放入上一级坐标系*/
+function setPosToParent(p,world){
+    const {position,scale,rotation}=world;
+    p.scaleVector(scale);
+    p.rotate(rotation);
+    p.add(position);
+    return p;
 }
 
 /*解析顶点*/
@@ -109,7 +108,6 @@ class SupRun{
             ani.space!==undefined||(ani.space=0);
             ani.delay!==undefined||(ani.delay=0);
             ani.time=ani.delay;
-            // console.log(ani);
         })
         this.run();
     }
@@ -117,8 +115,6 @@ class SupRun{
         const {animations,fn}=this;
         animations.forEach(ani=>{
             const diff=time-ani.time;
-            // console.log('time',time);
-            // console.log('diff',diff);
             if(diff>ani.space){
                 ani.time=time;
                 ani.fn();
@@ -136,5 +132,5 @@ class SupRun{
     }
 }
 
-export {getMousePos,setPosInBottomObj,parsePoints,run,SupRun};
+export {getMousePos,setPosToBottom,setPosToTop,parsePoints,run,SupRun};
 

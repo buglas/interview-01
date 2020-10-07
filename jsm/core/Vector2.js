@@ -162,12 +162,6 @@ export default class Vector2{
         this.y = Math.min( this.y, v.y );
         return this;
     }
-    //向量乘法+数乘，返回向量
-    scale(x=1,y=x){
-        this.x*=x;
-        this.y*=y;
-        return this;
-    }
     //向量的乘法，返回数字
     multiply( v ) {
         return this.x *v.x+this.y *v.y;
@@ -183,15 +177,6 @@ export default class Vector2{
         this.y = - this.y;
         return this;
     }
-    //计算世界外的一个点位，在一个被变换了的世界中的位置
-    setPosFromWorld(obj){
-        const {position,scale,rotation}=obj;
-        this.sub(position);
-        this.rotate(-rotation);
-        this.divide(scale);
-        return this;
-    }
-
     //基于某一点旋转
     rotateAround(center, angle){
         const c = Math.cos( angle ), s = Math.sin( angle );
@@ -208,6 +193,16 @@ export default class Vector2{
         this.x = x * c - y * s;
         this.y = x * s + y * c;
         return this;
+    }
+    //向量数乘，返回向量
+    scale(x=1,y=x){
+        this.x*=x;
+        this.y*=y;
+        return this;
+    }
+    //向量分量相乘，返回向量
+    scaleVector({x,y}){
+        return this.scale(x,y);
     }
     //减法
     sub(v){
