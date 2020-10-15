@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>影视后期</title>
+</head>
+<body>
+<script type="module">
+    import Compose from "../../jsm/animation/Compose.js"
+    import Track from "../../jsm/animation/Track"
+
+    /*合成*/
+    const comp=new Compose({
+        start:0,
+        duration:5000
+    });
+    /*轨道*/
+    const track=new Track({
+        start:0,
+        duration:5000
+    })
+    comp.add(track);
+    !(function render(now=0) {
+        comp.run(now);
+        requestAnimationFrame(render);
+    })()
+
+
+</script>
+</body>
+</html>

@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,user-scalable=no">
+    <title>中秋节</title>
+    <style>
+        *{user-select: none;}
+        html,body{height: 100%}
+        body{
+            margin: 0;
+            overflow: hidden;
+        }
+        h1{
+            position: absolute;
+            color: #cdd2ff;
+            top:30px;
+            left:50px;
+            line-height: 60px;
+            text-align: left;
+        }
+        /*容器，包含所有图片*/
+        #wrapper{
+            position: relative;
+            height: 100%;
+            text-align: center;
+            /*background: linear-gradient(
+                    180deg,
+                    #050b25,
+                    #34219f 49%,
+                    #a83fe5 74%,
+                    #fff089 100%
+            );*/
+        }
+        #wrapper *{
+            opacity: 1;
+        }
+        /*繁星*/
+        
+        /*满月*/
+        #moon{
+            position: absolute;
+            left: 50%;
+            transform: translateX(-30%);
+            bottom: -30px;
+        }
+        /*天安门*/
+        #tianAnMen{
+            position: absolute;
+            left: 50%;
+            bottom: 0;
+            transform: translateX(-50%);
+            width: 100%;
+        }
+        /*树*/
+        .tree{
+            position: absolute;
+            width: 20%;
+            bottom: 0;
+
+        }
+        #treeLeft{
+            left: 0;
+            transform: scaleX(-1);
+        }
+        #treeRight{
+            right: 0;
+        }
+        /*梅花*/
+        #meiHua{
+            position: absolute;
+            right: 0;
+            top:0;
+        }
+        /*自适应宽度*/
+        @media (min-width: 1440px) {
+            #tianAnMen{
+                width: auto;
+            }
+            .tree{
+                width: auto;
+            }
+        }
+    </style>
+</head>
+<body>
+<!--容器-->
+<div id="wrapper">
+    <h1>
+        愿：<br>
+        大家繁荣富强<br>
+        小家团团圆圆<br>
+    </h1>
+    <!--繁星-->
+    <canvas id="star"></canvas>
+    <!--满月-->
+    <img id="moon" src="../../images/moon.png" draggable="false">
+    <!--天安门-->
+    <img id="tianAnMen" src="../../images/tianAnMen.png" draggable="false">
+    <!--枫树-->
+    <img id="treeLeft" class="tree" src="../../images/tree.png" draggable="false">
+    <img id="treeRight" class="tree" src="../../images/tree.png" draggable="false">
+    <!--梅花-->
+    <img id="meiHua" src="../../images/meiHua.png" draggable="false">
+</div>
+<!--canvas 图像源-->
+<div id="originImg">
+    <!--星星-->
+    <img class="star" src="../../images/star1.png" id="latte" alt="">
+
+</div>
+
+<script type="module">
+    import Group from '../../jsm/core/Group.js'
+    import Vector2 from '../../jsm/core/Vector2.js'
+    import Rect from '../../jsm/shapeLib/Rect.js'
+    import Stars from '../../actualObjs/Stars.js'
+
+    const starImg=document.querySelector('.star');
+    const starCanvas=document.getElementById('star');
+    const starCtx=starCanvas.getContext('2d');
+    /*星空视图*/
+    const starScene=new Group();
+
+    /*星空背景-渐变对象*/
+    let startGr=null;
+    const starBack=new Rect({
+        fill:true,
+    });
+    starScene.add(starBack);
+
+    let stars=new Stars();
+    starScene.add(stars);
+
+
+    /*所有资源加载成功后，再绘图*/
+    window.addEventListener('load',function(){
+        loadFn();
+    });
+    /*自适应窗口*/
+    window.addEventListener('resize',function(){
+        update();
+    });
+
+    function loadFn(){
+        update();
+        !(function render(time=0){
+            stars.run(time);
+            starScene.draw(starCtx);
+            requestAnimationFrame(render)
+        })()
+    }
+
+    function update(){
+        let [width,height]=[wrapper.clientWidth,wrapper.clientHeight];
+        starCanvas.width=width;
+        starCanvas.height=height;
+        startGr=starCtx.createLinearGradient(
+            0,0,
+            0,height
+        )
+        startGr.addColorStop(0,'#050b25');
+        startGr.addColorStop(0.49,'#34219f');
+        startGr.addColorStop(0.74,'#a83fe5');
+        startGr.addColorStop(1,'#fff089');
+        starBack.size=new Vector2(width,height);
+        starBack.fillStyle=startGr;
+        starBack.update();
+
+        stars.layer=[
+            {
+                image:starImg,
+                num:width/14,
+                size:30,
+                alpha:0.7,
+                ratio:0.8
+            },
+            {
+                image:starImg,
+                num:width/20,
+                size:50,
+                alpha:0.3,
+                ratio:0.5
+            },
+            {
+                image:starImg,
+                num:5,
+                size:200,
+                alpha:1,
+                ratio:0.4
+            }
+        ]
+        stars.size=new Vector2(width,height);
+        stars.init();
+    }
+
+    starScene.draw(starCtx);
+
+
+
+
+
+
+
+
+
+</script>
+</body>
+</html>

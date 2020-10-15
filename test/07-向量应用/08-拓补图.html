@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>拓补图</title>
+    <style>
+        html{height: 100%}
+        body{height: 100%;margin: 0;}
+    </style>
+</head>
+<body>
+<canvas id="canvas"></canvas>
+<script type="module">
+    import Vector2 from "../../jsm/core/Vector2.js"
+    import {getMousePos} from "../../jsm/utils/Tool.js";
+
+    class Node{
+        constructor(pos,text,pattern){
+            this.pos=pos;
+            this.width=50;
+            this.height=25;
+            this.text=text;
+            this.pattern=pattern;
+        }
+        draw(ctx){
+            const {pos:{x,y},width,height,text,pattern}=this;
+            const [rectX,rectY]=[
+                x-width/2,
+                y-height/2,
+            ]
+            ctx.save();
+            ctx.translate(rectX,rectY);
+            ctx.fillStyle=pattern;
+            ctx.fillRect(0,0,width,height);
+            ctx.font='18px arail';
+            ctx.textAlign='center';
+            ctx.fillStyle='#000';
+            ctx.textBaseline='top';
+            ctx.fillText(text,width/2,height+10);
+            ctx.restore();
+        }
+    }
+    class Line{
+        constructor(p1,p2){
+            this.p1=p1;
+            this.p2=p2;
+        }
+        draw(ctx){
+            const {p1,p2}=this;
+            ctx.save();
+            ctx.beginPath();
+            ctx.moveTo(p1.x,p1.y);
+            ctx.lineTo(p2.x,p2.y);
+            ctx.stroke();
+            ctx.restore();
+        }
+    }
+
+    const canvas=document.getElementById('canvas');
+    canvas.width=window.innerWidth;
+    canvas.height=window.innerHeight;
+    const ctx=canvas.getContext('2d');
+
+
+
+    const vertices=[
+        new Vector2(300,100),
+        new Vector2(400,300),
+        new Vector2(200,300),
+        new Vector2(600,300),
+        new Vector2(540,450)
+    ]
+    const nodes=[
+        {name:'A',ind:0},
+        {name:'B',ind:1},
+        {name:'C',ind:2},
+        {name:'D',ind:3},
+        {name:'C',ind:4}
+    ];
+    const lines=[
+        [0,1],
+        [1,2],
+        [2,0],
+        [1,3],
+        [1,4],
+    ];
+    let mousePos=null;
+    let dragStart=null;
+    let dragDist=new Vector2();
+    
+    let rate=1;
+    let averageRate=1;
+    const minAverage=0.2;
+    const maxAverage=2;
+    
+    
+
+    const backImg=new Image();
+    backImg.src='./images/bjt.png';
+    let pattern=null;
+    backImg.onload=function(){
+        pattern=ctx.createPattern(backImg,'repeat');
+        render();
+    }
+    
+    canvas.addEventListener('mousewheel',function(event){
+        mousePos=getMousePos(event,canvas);
+        rate=event.wheelDelta>0?1.1:0.9;
+        averageRate*=rate;
+        if(averageRate<minAverage){
+            averageRate=minAverage;
+        }else if(averageRate>maxAverage){
+            averageRate=maxAverage;
+        }else{
+            scale();
+            render();
+        }
+    })
+
+
+    canvas.addEventListener('mousedown',function(event){
+        console.log(event.button);
+        mousePos=getMousePos(event,canvas);
+        switch (event.button) {
+            case 0:
+                dragStart=mousePos.clone();
+                break;
+            case 1:
+                rate=1/averageRate;
+                averageRate=1;
+                scale();
+                render();
+                break;
+        }
+    })
+
+    canvas.addEventListener('mousemove',function(event){
+        console.log(event.button);
+        mousePos=getMousePos(event,canvas);
+        switch (event.button) {
+            case 0:
+                if(dragStart){
+                    dragDist=mousePos.clone().sub(dragStart);
+                    dragStart=mousePos.clone();
+                    move();
+                    render();
+                }
+                break;
+        }
+    })
+
+    canvas.addEventListener('mouseup',function(event){
+        switch (event.button) {
+            case 0:
+                if(dragStart){
+                    dragDist=new Vector2();
+                    dragStart=null;
+                }
+                break;
+        }
+    })
+
+    /*位移*/
+    function move(){
+        vertices.forEach(ele=>{
+            ele.add(dragDist);
+        })
+    }
+
+    /*缩放*/
+    function scale(){
+        vertices.forEach(ele=>{
+            ele.copy(
+                mousePos.clone().lerp(ele,rate)
+            )
+        })
+    }
+
+    function render(){
+        ctx.clearRect(0,0,canvas.width,canvas.height);
+        lines.forEach(([i0,i1])=>{
+            const line=new Line(vertices[i0],vertices[i1]);
+            line.draw(ctx);
+        })
+        nodes.forEach((ele,ind)=>{
+            const node=new Node(vertices[ind],ele.name,pattern);
+            node.draw(ctx);
+        })
+    }
+</script>
+</body>
+</html>

@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>圆的切点</title>
+    <style>
+        html{height: 100%}
+        body{height: 100%;margin: 0;}
+    </style>
+</head>
+<body>
+<canvas id="canvas"></canvas>
+<script type="module">
+
+    import Vector2 from "../../jsm/core/Vector2.js"
+    import Poly from "../../jsm/core/Poly.js"
+    import Lattice from "../../jsm/modifierLib/Lattice.js"
+    import Ball from "../../jsm/shapeLib/Ball.js"
+
+    const canvas=document.getElementById('canvas');
+    canvas.width=window.innerWidth;
+    canvas.height=window.innerHeight;
+
+    const ctx=canvas.getContext('2d');
+
+    /*直线l 的起点和终点*/
+    const S=new Vector2(200,200);
+    const E=new Vector2(400,300);
+    /*const S=new Vector2(200,300);
+    const E=new Vector2(400,200);*/
+    /*const E=new Vector2(200,200);
+    const S=new Vector2(400,300);*/
+
+    /*点P*/
+    // const P=new Vector2(600,50);
+    const P=new Vector2(200,50);
+
+    /*垂点P0*/
+    const P0=new Vector2();
+
+    /*过P点做垂线垂直直线l 于点P2*/
+    const P2=new Vector2(P.x,0);
+
+    /*直线l的A、B、C*/
+    const dta=E.clone().sub(S);
+    const k=dta.y/dta.x;
+    const b=E.y-E.x*k;
+
+    P2.y=k*P.x+b;
+
+    const A=dta.y;
+    const B=-dta.x;
+    const C=dta.x*S.y-dta.y*S.x;
+
+    /*距离*/
+    const d=(A*P.x+B*P.y+C)/Math.sqrt(A*A+B*B);
+
+    /*P点到P2点的距离*/
+    const PP2=P.clone().sub(P2).length();
+
+    /*用三角函数计算P0E的长度*/
+    const P2P0=Math.sqrt(PP2*PP2-d*d);
+    console.log('P2P0',P2P0);
+
+    /*利用三角函数，计算P0点*/
+    const dir=S.angleTo(E);
+    const x=Math.cos(dir)*P2P0;
+    const y=Math.sin(dir)*P2P0;
+    // const l1=P.x*Math.cos(dir);
+    // const l2=E.x*Math.cos(dir);
+    let n1=k>0?1:-1;
+    let n2=P.y>P2.y?-1:1;
+    let n3=dta.x>0?1:-1;
+    let n=n1*n2*n3;
+    P0.x=P2.x+x*n;
+    P0.y=P2.y+y*n;
+    console.log('x,y',x,y);
+
+    ctx.fillRect(P.x,P.y,10,10);
+    ctx.fillRect(P0.x,P0.y,10,10);
+
+    /*直线l*/
+    const l=new Poly({
+        vertices:[S,E],
+        stroke:true,
+    })
+
+    /*晶格化修改器*/
+    const lattice=new Lattice();
+
+    /*将修改器应用于poly*/
+    l.addModifier(lattice);
+
+    /*绘图*/
+    l.draw(ctx);
+
+
+</script>
+</body>
+</html>

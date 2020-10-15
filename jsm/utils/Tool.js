@@ -1,17 +1,24 @@
 import Vector2 from "../core/Vector2.js";
 /*获取鼠标位置*/
+const getTouchPos=function(event,canvas,obj=null){
+    const {pageX,pageY}=event.changedTouches[0];
+    return getPos(canvas,pageX,pageY,obj);
+};
+/*获取触摸点位置*/
 const getMousePos=function(event,canvas,obj=null){
-    //获取鼠标位置
     const {clientX,clientY}=event;
+    return getPos(canvas,clientX,clientY,obj);
+};
+function getPos(canvas,px,py,obj){
     //获取canvas 边界位置
     const {top,left}=canvas.getBoundingClientRect();
     //计算鼠标在canvas 中的位置
-    const x=clientX-left;
-    const y=clientY-top;
+    const x=px-left;
+    const y=py-top;
     const mousePos=new Vector2(x,y);
     obj&&setPosToBottom(mousePos,obj,null);
     return mousePos;
-};
+}
 /*将坐标点从某个父级坐标系放入某个子坐标系*/
 function setPosToBottom(p,bottom,top=null){
     const worlds=[bottom];
@@ -132,5 +139,5 @@ class SupRun{
     }
 }
 
-export {getMousePos,setPosToBottom,setPosToTop,parsePoints,run,SupRun};
+export {getMousePos,getTouchPos,setPosToBottom,setPosToTop,parsePoints,run,SupRun};
 

@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,user-scalable=no">
+    <title>弹性动画</title>
+    <style>
+        html{height: 100%}
+        body{height: 100%;margin: 0;}
+    </style>
+</head>
+<body>
+<canvas id="canvas"></canvas>
+<script type="module">
+    import Vector2 from "../../jsm/core/Vector2.js"
+    import {getMousePos,getTouchPos,run} from "../../jsm/utils/Tool.js";
+    import Ball from "../../jsm/shapeLib/Ball.js"
+
+    const [winW,winH]=[window.innerWidth,window.innerHeight];
+    const canvas=document.getElementById('canvas');
+    const ctx=canvas.getContext('2d');
+    const ratio=window.devicePixelRatio;
+    canvas.width=winW*ratio;
+    canvas.height=winH*ratio;
+    ctx.scale(ratio,ratio);
+    canvas.style.width=winW+'px';
+    canvas.style.height=winH+'px';
+
+    const r=Math.min(winW/20,30);
+    const [top,bottom,left,right]=[
+        r,
+        winH-r,
+        r,
+        winW-r
+    ]
+    const ball=new Ball({
+        r,
+        fill:true,
+        actColor:'#007fec',
+        hoverColor:'#53cdec',
+        outColor:'#666',
+        fillStyle:'#666',
+        act:function(){
+            this.fillStyle=this.actColor;
+        },
+        hover:function(){
+            this.fillStyle=this.hoverColor;
+        },
+        out:function(){
+            this.fillStyle=this.outColor;
+        },
+    })
+
+    ball.orign.copy({x:winW/2,y:winH-ball.r})
+    ball.draw(ctx);
+    console.log(ball);
+
+
+    let dragging=false;
+    let objOver=null;
+    const targetPos=new Vector2();
+    const mousePos=new Vector2();
+    const delta=new Vector2();
+
+    /*
+    * inertia 惯性
+    * acceleration 加速度
+    * friction 阻力
+    * velocity 速度
+    * */
+    const inertia=0.03;
+    const friction=0.991;
+    const bounce=1;
+    const velocity=new Vector2();
+    const acceleration=new Vector2(0,0);
+    const gravity=0.5;
+
+    function updatePos(diff){
+        if(dragging){
+            delta.copy(targetPos.clone().sub(ball.orign));
+        }
+        acceleration.copy(delta.scale(inertia));
+        velocity.add(acceleration).scale(friction);
+        velocity.y+=gravity;
+        ball.orign.add(velocity);
+
+        //碰撞检测
+        const {orign:{x,y},r,orign}=ball;
+        if(x<left){
+            orign.x=r;
+            velocity.x*=-bounce;
+        }
+        if(x>right){
+            orign.x=right;
+            velocity.x*=-bounce;
+        }
+
+        if(y<top){
+            orign.y=r;
+            velocity.y*=-bounce;
+        }
+        if(y>bottom){
+            orign.y=bottom;
+            velocity.y*=-bounce;
+        }
+    }
+    run((diff)=>{
+        ctx.clearRect(0,0,winW,winH);
+        updatePos(diff);
+        ball.draw(ctx);
+    });
+
+    function mousedownFn(event){
+        if(objOver){
+            dragging=true;
+            ball.act();
+            targetPos.copy(mousePos);
+        }
+    }
+    function mousemoveFn(event){
+        if(dragging){
+            targetPos.copy(mousePos);
+        }else{
+            hoverObj();
+        }
+    }
+    function mouseupFn(event){
+        if(dragging){
+            hoverObj();
+            dragging=false;
+        }
+    }
+
+    canvas.addEventListener('mousedown',mousedownFn)
+    canvas.addEventListener('mousemove',(event)=>{
+        mousePos.copy(getMousePos(event,canvas));
+        mousemoveFn(event);
+    })
+    canvas.addEventListener('mouseup',mouseupFn)
+
+    /*触摸事件*/
+    canvas.addEventListener('touchstart',(event)=>{
+        mousePos.copy(getTouchPos(event,canvas));
+        mousemoveFn(event);
+        mousedownFn(event);
+    })
+    canvas.addEventListener('touchmove',function(event){
+        event.preventDefault();
+        console.log(1);
+        mousePos.copy(getTouchPos(event,canvas));
+        mousemoveFn(event);
+    });
+    canvas.addEventListener('touchend',mouseupFn)
+
+    function hoverObj() {
+        const hovered=ball.isPointInPath(ctx,mousePos);
+        if(hovered){
+            objOver=ball;
+            objOver.hover();
+        }else if (objOver) {
+            objOver.out();
+            objOver=null;
+        }
+    }
+
+
+
+
+</script>
+</body>
+</html>

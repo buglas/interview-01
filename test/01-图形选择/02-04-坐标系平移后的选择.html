@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>坐标系平移后的选择</title>
+    <style>
+        html{height: 100%}
+        body{height: 100%;margin: 0;}
+    </style>
+</head>
+<body>
+    <canvas id="canvas"></canvas>
+    <script type="module">
+        import Vector2 from "../../jsm/core/Vector2.js";
+        import Poly from "../../jsm/core/Poly.js";
+        import {getMousePos} from "../../jsm/utils/Tool.js";
+
+        const canvas=document.getElementById('canvas');
+        canvas.width=window.innerWidth;
+        canvas.height=window.innerHeight;
+        const ctx=canvas.getContext('2d');
+
+        const poly=new Poly({
+            position:new Vector2(300,400),
+            stroke:true,
+            close:true,
+            crtPath:function(ctx){
+                ctx.beginPath();
+                ctx.moveTo(0,0);
+                ctx.bezierCurveTo(-200,-50,-180,-300,0,-200);
+                ctx.bezierCurveTo(180,-300,200,-50,0,0);
+            }
+        });
+        poly.draw(ctx);
+
+        /*鼠标是否划上路径*/
+        let hover=false;
+
+        /*鼠标移动*/
+        canvas.addEventListener('mousemove',mousemoveFn);
+        function mousemoveFn(event){
+            const mousePos=getMousePos(event,canvas);
+            poly.crtPath(ctx);
+            const [nx,ny]=[
+                mousePos.x-poly.position.x,
+                mousePos.y-poly.position.y
+            ];
+            const bool=ctx.isPointInPath(nx,ny);
+            if(hover!==bool){
+                poly.fill=bool;
+                ctx.clearRect(0,0,canvas.width,canvas.height);
+                poly.draw(ctx);
+                hover=bool;
+            }
+        }
+
+
+    </script>
+</body>
+</html>

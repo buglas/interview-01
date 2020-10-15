@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>标签修改器</title>
+    <style>
+        html{height: 100%}
+        body{height: 100%;margin: 0;}
+    </style>
+</head>
+<body>
+<canvas id="canvas"></canvas>
+<script type="module">
+    import Vector2 from "../../jsm/core/Vector2.js"
+    import Group from "../../jsm/core/Group.js"
+    import Text from "../../jsm/shapeLib/Text.js"
+    import Poly from "../../jsm/core/Poly.js"
+    import Lattice from "../../jsm/modifierLib/Lattice.js"
+    import Expand from "../../jsm/modifierLib/Expand.js";
+
+    const canvas=document.getElementById('canvas');
+    canvas.width=window.innerWidth;
+    canvas.height=window.innerHeight;
+    const ctx=canvas.getContext('2d');
+    const c=new Vector2(canvas.width/2,canvas.height/2);
+
+    const scene=new Group({
+        position:c
+    });
+
+    const vertices=[
+        new Vector2(0,-200),
+        new Vector2(-300,100),
+        // new Vector2(-300,-200)
+    ];
+    const l0=new Poly({
+        vertices,
+        stroke:true,
+        // close:true
+    });
+    l0.addModifier(new Lattice());
+    // l0.addModifier(new Lattice({type:'Arrow'}));
+    const label=new Lattice({
+        type:'Label',
+        labels:[
+            '0,0',
+            '-300,-200',
+            '300,-100'
+        ]
+    });
+    l0.addModifier(label);
+    scene.add(l0);
+    scene.draw(ctx);
+
+    setTimeout(()=>{
+        ctx.clearRect(0,0,canvas.width,canvas.height);
+        vertices[0].x=-200;
+        label.labels[0]='-200,-200'
+        l0.update();
+        scene.draw(ctx);
+    },1000)
+
+</script>
+</body>
+</html>

@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>视图变换</title>
+    <style>
+        html{height: 100%}
+        body{height: 100%;margin: 0;}
+    </style>
+</head>
+<body>
+<canvas id="canvas"></canvas>
+<script type="module">
+    import Vector2 from "../../jsm/core/Vector2.js"
+    import Group from "../../jsm/core/Group.js"
+    import Poly from "../../jsm/core/Poly.js"
+    import Lattice from "../../jsm/modifierLib/Lattice.js"
+    import {getMousePos} from "../../jsm/utils/Tool.js";
+
+    const canvas=document.getElementById('canvas');
+    canvas.width=window.innerWidth;
+    canvas.height=window.innerHeight;
+    const ctx=canvas.getContext('2d');
+    const c=new Vector2(canvas.width/2,canvas.height/2);
+
+    //鼠标是否在平移视图
+    let drag=false;
+
+    const scene=new Group({
+        position:c
+    });
+
+    const p1=new Vector2(200,-150);
+    const mp=new Vector2(0,0);
+
+    const vertices=[mp,p1];
+    const l0=new Poly({
+        vertices,
+        stroke:true,
+    });
+    l0.addModifier(new Lattice());
+    l0.addModifier(new Lattice({type:'Arrow'}));
+    l0.addModifier(new Lattice({
+        type:'Label',
+        labels:[
+            'M(mx,my)',
+            'A(ax,ay)'
+        ],
+        fontSize:18
+    }));
+    scene.add(l0);
+    scene.draw(ctx);
+
+    canvas.addEventListener('mousedown',function(event){
+        console.log('down',event);
+        const {button}=event;
+        if(button===1){
+            drag=true;
+        }
+    })
+    canvas.addEventListener('mouseup',function(event){
+        console.log('up',event);
+        const {button}=event;
+        if(button===1){
+            drag=false;
+        }
+    })
+    canvas.addEventListener('mousemove',function(event){
+        const pos=getMousePos(event,canvas,scene);
+        if(drag){
+            const delta=pos.clone().sub(mp);
+            p1.add(delta);
+        }
+        mp.copy(pos);
+        render();
+
+    })
+    canvas.addEventListener('mousewheel',function(event){
+        const rate=event.wheelDelta>0?1.1:0.9;
+        scale(mp,vertices,rate);
+        render();
+    })
+
+
+
+    function scale(mousePos,vertices,rate){
+        vertices.forEach(vertice=>{
+            const delta=vertice.clone().sub(mousePos);
+            vertice.copy(mousePos.clone().add(delta.scale(rate)));
+        })
+    }
+    function render(){
+        scene.update();
+        ctx.clearRect(0,0,canvas.width,canvas.height);
+        scene.draw(ctx);
+    }
+
+</script>
+</body>
+</html>

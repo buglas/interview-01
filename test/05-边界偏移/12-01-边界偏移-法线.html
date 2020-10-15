@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>边界偏移</title>
+    <style>
+        html{height: 100%}
+        body{height: 100%;margin: 0;}
+    </style>
+</head>
+<body>
+<canvas id="canvas"></canvas>
+<script type="module">
+    import Vector2 from "../../jsm/core/Vector2.js"
+    import Text from "../../jsm/shapeLib/Text.js"
+    import Group from "../../jsm/core/Group.js"
+    import Poly from "../../jsm/core/Poly.js"
+    import Lattice from "../../jsm/modifierLib/Lattice.js"
+
+    const canvas=document.getElementById('canvas');
+    canvas.width=window.innerWidth;
+    canvas.height=window.innerHeight;
+    const ctx=canvas.getContext('2d');
+    const c=new Vector2(canvas.width/2,canvas.height/2);
+
+    const d=40;
+
+    const scene=new Group({
+        position:c
+    });
+
+    const vertices=[
+        new Vector2(0,0),
+        new Vector2(-100,-75),
+        new Vector2(100,-75)
+    ];
+    const vertices2=[];
+    const len=vertices.length;
+    vertices.forEach((v0,i0)=>{
+        const [i1,i2]=[
+            (i0+1)%len,
+            (i0+2)%len,
+        ];
+        const v1=vertices[i1];
+        const v2=vertices[i2];
+
+        const [A1,B1,C1]=getABC(v0,v1,d);
+        const [A2,B2,C2]=getABC(v1,v2,d);
+
+        const x=(B1*C2-C1*B2)/(A1*B2-A2*B1);
+        const y=(A2*C1-A1*C2)/(A1*B2-A2*B1);
+        vertices2.push(new Vector2(x,y));
+    });
+    /*直线沿法线偏移后，取其一般式的A、B、C*/
+    function getABC(v1,v2,d=0,n=1){
+        const delta=v2.clone().sub(v1);
+        const [A,B]=[delta.y,-delta.x];
+        const v=new Vector2(A*n,B*n);
+        v.setLength(d);
+        const p=v1.clone().add(v);
+        const C=-(A*p.x+B*p.y);
+        return [A,B,C]
+    }
+
+
+    const l0=new Poly({
+        vertices,
+        stroke:true,
+        close:true
+    });
+    l0.addModifier(new Lattice());
+
+    const l1=new Poly({
+        vertices:vertices2,
+        lineDash:[10],
+        stroke:true,
+        close:true
+    });
+    l1.addModifier(new Lattice());
+
+
+    scene.add(l0);
+    scene.add(l1);
+    scene.draw(ctx);
+
+
+</script>
+</body>
+</html>

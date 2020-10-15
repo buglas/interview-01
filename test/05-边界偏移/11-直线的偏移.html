@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>旋转的矩形</title>
+    <style>
+        html{height: 100%}
+        body{height: 100%;margin: 0;}
+    </style>
+</head>
+<body>
+<canvas id="canvas"></canvas>
+<script type="module">
+    import Vector2 from "../../jsm/core/Vector2.js"
+    import Text from "../../jsm/shapeLib/Text.js"
+    import Group from "../../jsm/core/Group.js"
+    import Poly from "../../jsm/core/Poly.js"
+    import Lattice from "../../jsm/modifierLib/Lattice.js"
+
+    const canvas=document.getElementById('canvas');
+    canvas.width=window.innerWidth;
+    canvas.height=window.innerHeight;
+    const ctx=canvas.getContext('2d');
+    const c=new Vector2(canvas.width/2,canvas.height/2);
+
+    const scene=new Group({
+        position:c
+    });
+
+    const bp0=new Vector2();
+    const ep0=new Vector2(200,-150);
+
+    const delta=ep0.clone().sub(bp0);
+    const A1=delta.y;
+    const B1=-delta.x;
+
+    const v1=new Vector2(A1,B1);
+    const v2=new Vector2(-A1,-B1);
+
+    const d=100;
+    v1.setLength(d);
+    v2.setLength(d);
+
+    const bp1=bp0.clone().add(v1);
+    const ep1=ep0.clone().add(v1);
+
+    const bp2=bp0.clone().add(v2);
+    const ep2=ep0.clone().add(v2);
+
+    const l0=new Poly({
+        vertices:[bp0,ep0],
+        stroke:true
+    })
+    l0.addModifier(new Lattice());
+    // l0.addModifier(new Lattice({type:'Arrow'}));
+
+    const l1=new Poly({
+        vertices:[bp1,ep1],
+        lineDash:[5],
+        stroke:true
+    })
+    l1.addModifier(new Lattice());
+
+    const l2=new Poly({
+        vertices:[bp2,ep2],
+        lineDash:[5],
+        stroke:true
+    })
+    l2.addModifier(new Lattice());
+
+    const cp=bp0.clone().lerp(ep0,0.5);
+
+    const dir1=new Poly({
+        vertices:[cp,v1.clone().add(cp)],
+        lineDash:[5],
+        stroke:true
+    })
+    dir1.addModifier(new Lattice({type:'Arrow'}));
+
+    const dir2=new Poly({
+        vertices:[cp,v2.clone().add(cp)],
+        lineDash:[5],
+        stroke:true
+    })
+    dir2.addModifier(new Lattice({type:'Arrow'}));
+
+    scene.add(l0);
+    scene.add(l1);
+    scene.add(l2);
+    scene.add(dir1);
+    scene.add(dir2);
+    scene.draw(ctx);
+</script>
+</body>
+</html>
