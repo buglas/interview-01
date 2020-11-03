@@ -17,5 +17,16 @@ function transform(ctx){
         trs[ele](ctx,this);
     }
 }
-export {transform};
+/*合成*/
+function alphaComposite(ctx){
+    const {
+        globalAlpha,globalAlpha2,
+        parent,children
+    }=this;
+    const a=parent?parent.globalAlpha2*globalAlpha:globalAlpha;
+    this.globalAlpha2=a;
+    ctx.globalAlpha=a;
+}
+
+export {transform,alphaComposite};
 

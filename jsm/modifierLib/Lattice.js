@@ -260,7 +260,7 @@ export default class Lattice extends Modifier{
             node.update();
         })
     }
-    draw(ctx){
+    drawModifier(ctx){
         const {nodes,type}=this;
         nodes.forEach(node=>{
             node.draw(ctx);

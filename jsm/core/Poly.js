@@ -1,5 +1,5 @@
 import Vector2 from "./Vector2.js"
-import {transform} from '../utils/ShapeTool.js'
+import {transform,alphaComposite} from '../utils/PolyTool.js'
 
 
 /*默认属性*/
@@ -39,6 +39,7 @@ const defAttr=()=>({
 
     //合成相关
     globalAlpha:1,
+    globalAlpha2:1,
     globalCompositeOperation:'source-over',
 
     //可见性
@@ -61,17 +62,21 @@ export default class Poly{
         this.drawPoly(ctx);
         ctx.restore();
     }
+
     drawPoly(ctx){
         /*变换*/
-        transform.call(this,ctx);
+        this.transform(ctx);
 
-        /*合成*/
-        this.composite(ctx);
+        /*透明度合成*/
+        this.alphaComposite(ctx);
+
+        /*全局合成*/
+        this.globalComposite(ctx);
 
         /*建立路径*/
         this.crtPath(ctx);
 
-        /*投影*/
+        /* 投影 */
         this.setShadow(ctx);
 
         /*描边*/
@@ -83,31 +88,20 @@ export default class Poly{
         /*修改器*/
         this.drawModifies(ctx);
     }
+
     /*变换*/
     transform(ctx){
-        const {
-            scale,position,rotation,
-        }=this;
-        ctx.translate(position.x,position.y);
-        ctx.rotate(rotation);
-        ctx.scale(scale.x,scale.y);
+        transform.call(this,ctx);
     }
 
-    /*合成*/
-    composite(ctx){
-        const {
-            globalAlpha,globalCompositeOperation,
-        }=this;
-        let {parent}=this;
-        // ctx.globalAlpha=parent ? parent.globalAlpha * globalAlpha : globalAlpha;
-        let a=globalAlpha;
-        while(parent){
-            const pa=parent.globalAlpha||1;
-            a*=pa;
-            parent=parent.parent;
-        }
-        ctx.globalAlpha=a;
-        ctx.globalCompositeOperation=globalCompositeOperation;
+    /*透明的合成*/
+    alphaComposite(ctx){
+        alphaComposite.call(this,ctx);
+    }
+
+    /*全局合成*/
+    globalComposite(ctx){
+        ctx.globalCompositeOperation=this.globalCompositeOperation;
     }
 
     /*绘制投影*/
@@ -122,6 +116,7 @@ export default class Poly{
             ctx.shadowOffsetY=shadowOffsetY;
         }
     }
+
     /*绘制描边*/
     drawStroke(ctx){
         const {
@@ -156,8 +151,6 @@ export default class Poly{
             modifier.draw(ctx);
         })
     }
-
-
 
     /*绘制多边形
     *   draw(ctx,fn) 绘图，fn在创建路径拦截路径的的选择
@@ -238,7 +231,7 @@ export default class Poly{
         modifier.updateOther&&this.update();
     }
 
-    //拷贝顶点集合
+    /*拷贝顶点集合*/
     copyVertices(vs){
         const {vertices}=this;
         vs.forEach((v,i)=>{

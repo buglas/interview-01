@@ -18,16 +18,47 @@
 *
 *
 * */
+import Vector2 from "../core/Vector2.js"
+import {transform,alphaComposite} from '../utils/PolyTool.js'
+
 const defAttr=()=>({
     weight:0,
     poly:null,
     updateOther:false,
+
+    //父级
+    parent:null,
+
+    //图形原点
+    orign:new Vector2(0,0),
+    //变换相关
+    scale:new Vector2(1,1),
+    position:new Vector2(0,0),
+    rotation:0,
+    //变换顺序
+    sorf:'trs',
+
+    //合成相关
+    //合成相关
+    globalAlpha:1,
+    globalAlpha2:1,
+    globalCompositeOperation:'source-over',
+
 });
 export default class Modifier{
     constructor(attr){
         Object.assign(this,defAttr(),attr);
     }
     init(){}
+    update(){}
     removed(){}
-    draw(){}
+    draw(ctx){
+        /*变换*/
+        transform.call(this,ctx);
+        /*合成*/
+        alphaComposite.call(this,ctx);
+        /*绘图*/
+        this.drawModifier(ctx);
+    }
+    drawModifier(){}
 }

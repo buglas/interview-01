@@ -1,5 +1,6 @@
 import Poly from "../core/Poly.js"
 import Shape from "./Shape.js"
+
 const defAttr=()=>({
     textBaseline:'alphabetic',
     textAlign:'start',
@@ -24,8 +25,11 @@ export default class Text extends Shape{
         /*变换*/
         this.transform(ctx);
 
-        /*合成*/
-        this.composite(ctx);
+        /*透明度合成*/
+        this.alphaComposite(ctx);
+
+        /*全局合成*/
+        this.globalComposite(ctx);
 
         /*文字样式*/
         this.setText(ctx);
