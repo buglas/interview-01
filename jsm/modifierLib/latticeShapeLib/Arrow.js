@@ -1,5 +1,5 @@
-import Vector2 from "../core/Vector2.js"
-import Shape from "./Shape.js"
+import Vector2 from "../../core/Vector2.js"
+import Shape from "../../shapeLib/Shape.js"
 
 /*箭头-晶格化修改器的节点
 *   single 静态属性，是否一线一节点，默认undefined
@@ -29,7 +29,8 @@ export default class Arrow extends Shape{
         this.update();
     }
     update(){
-        const {v0,vF,a1,a2,size,arrowRadian}=this;
+        const {v0,vF,a1,a2,arrowRadian,parent}=this;
+        const {size}=parent;
         const delta=v0.clone().sub(vF);
         delta.setLength(size);
         a1.copy(delta.clone().rotate(arrowRadian).add(vF));

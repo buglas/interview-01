@@ -1,6 +1,6 @@
-import Vector2 from "../core/Vector2.js"
-import Text from "./Text.js"
-import {getNormalExpandLineABC} from "../core/Math2.js"
+import Vector2 from "../../core/Vector2.js"
+import Text from "../../shapeLib/Text.js"
+import {getNormalExpandLineABC} from "../../core/Math2.js"
 
 /*箭头-晶格化修改器的节点
 *   single 静态属性，是否一线一节点，默认undefined
@@ -17,7 +17,7 @@ export default class Label extends Text{
         this.update();
     }
     update() {
-        const {i0,dir,fontSize,v0,orign,modifier: {labels}} = this;
+        const {i0,dir,fontSize,v0,orign,parent:{labels}} = this;
         this.text = labels[i0];
         const w=this.getWidth();
         const vo=getVo(dir,w,fontSize);

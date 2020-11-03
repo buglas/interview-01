@@ -16,9 +16,10 @@
     import Poly from "../../jsm/core/Poly.js"
     import Lattice from "../../jsm/modifierLib/Lattice.js"
     import {getMousePos,setPosToBottom,setPosToTop} from "../../jsm/utils/Tool.js";
-    import Point from "../../jsm/shapeLib/Point.js"
+    import Point from "../../jsm/modifierLib/latticeShapeLib/Point.js"
     import Ball from "../../jsm/shapeLib/Ball.js"
     import Axis from "../../jsm/helperLib/Axis.js"
+    import Rect from "../../jsm/shapeLib/Rect.js"
 
     const canvas=document.getElementById('canvas');
     const [w,h]=[window.innerWidth,window.innerHeight];
@@ -26,26 +27,67 @@
     canvas.height=h;
     const ctx=canvas.getContext('2d');
     const c=new Vector2(w,h);
-    const scene=new Group({
-        position:new Vector2(100,h-200)
-    });
-    
-    const sceneAxis=new Axis({
-        size:500,
-        x:'x1',
-        y:'y1',
-        o:'o1',
-    });
-    scene.add(sceneAxis);
-    scene.draw(ctx);
-    
-    
+    {
+        const scene=new Group({
+            position:new Vector2(200,300)
+        });
+        const group=new Group();
+        scene.add(group);
 
-    /*sceneAxis.position.y+=100;
-    ctx.clearRect(0,0,w,h);
-    sceneAxis.update();
-    scene.draw(ctx);*/
+        const axis=new Axis({
+            size:200
+        })
 
+        const rect=new Rect({
+            size: new Vector2(100,100),
+            position:new Vector2(0,-100),
+            stroke:true
+        })
+
+        group.add(rect);
+        group.add(axis);
+
+        scene.draw(ctx);
+
+        group.position.y+=300;
+        group.globalAlpha=0.3;
+        scene.draw(ctx);
+
+        group.rotation=Math.PI/12;
+        group.globalAlpha=1;
+        scene.draw(ctx);
+    }
+
+    {
+        const scene=new Group({position:new Vector2(600,300)});
+
+        const group=new Group({
+            sorf:'rts',
+        });
+        scene.add(group);
+
+        const axis=new Axis({
+            size:200
+        })
+
+        const rect=new Rect({
+            size: new Vector2(100,100),
+            position:new Vector2(0,-100),
+            stroke:true
+        })
+
+        group.add(rect);
+        group.add(axis);
+        group.globalAlpha=0.3;
+        scene.draw(ctx);
+
+        group.rotation=Math.PI/24;
+        group.globalAlpha=1;
+        scene.draw(ctx);
+
+        group.position.y+=300;
+        scene.draw(ctx);
+    }
 </script>
 </body>
 </html>

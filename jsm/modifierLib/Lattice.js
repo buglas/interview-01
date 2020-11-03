@@ -1,12 +1,13 @@
-import ShapeLib from "../shapeLib/ShapeLib.js"
+import LatticeShapeLib from "./latticeShapeLib/latticeShapeLib.js"
 import Modifier from "./Modifier.js"
 import Vector2 from "../core/Vector2.js"
 /*Lattice 晶格化修改器
 * type 晶格节点类型
 *   Point 圆点
 *   Arrow 箭头
-*       p1 起点
-*       p2 终点
+*       size 箭头大小
+*       v0 起点
+*       vF 终点
 *   Label 文本标签，需对当前边界做扩展
 *       v0 标签基点
 *       dir 偏移方向
@@ -23,6 +24,8 @@ const defAttr=()=>({
     type:'Point',
     nodes:[],
     weight:2,
+    //箭头
+    size:24,
     //适用于Text文本
     labels:[],
     d:20
@@ -40,7 +43,7 @@ export default class Lattice extends Modifier{
     createNodes(){
         const {type,crtLabel1,crtLabel2,crtLabel3,crtNodes}=this;
         if(type==='Label'){
-            const len=this.poly.vertices.length;
+            const len=this.parent.vertices.length;
             const labelOtherKeys=[...otherKeys,...otherFontKeys];
             if(len>2){
                 const ergodic=this.ergodic(labelOtherKeys,crtLabel3.bind(this));
@@ -66,10 +69,10 @@ export default class Lattice extends Modifier{
         }
     }
     ergodic(otherKeys,crtNodeFn){
-        const {poly}=this;
-        const otherAttr={modifier:this};
+        const {parent}=this;
+        const otherAttr={parent:this};
         otherKeys.forEach(key=>{
-            otherAttr[key]=poly[key];
+            otherAttr[key]=parent[key];
         })
         const crtNode=this.crtNode(otherAttr);
         return (parseCustomAttr=null)=>{
@@ -100,9 +103,9 @@ export default class Lattice extends Modifier{
         });
     }
     crtNodes(crtNode,parseCustomAttr){
-        const {poly,type}=this;
-        const {close,vertices}=poly;
-        const single= ShapeLib[type].single&&!close;
+        const {parent,type}=this;
+        const {close,vertices}=parent;
+        const single= LatticeShapeLib[type].single&&!close;
         let len=vertices.length;
         let n=single?len-1:len;
         for (let i0=0;i0<n;i0++) {
@@ -121,7 +124,7 @@ export default class Lattice extends Modifier{
         const {type,nodes}=this;
 
         return (customAttr)=>{
-            nodes[customAttr.i0]=new ShapeLib[type](
+            nodes[customAttr.i0]=new LatticeShapeLib[type](
                 customAttr,
                 otherAttr,
                 this.attr
@@ -129,7 +132,7 @@ export default class Lattice extends Modifier{
         }
     }
     update(){
-        const {type,nodes,poly:{vertices}}=this;
+        const {type,nodes,parent:{vertices}}=this;
         if(type==='Label'){
             const len=vertices.length;
             if(len>2){
@@ -140,11 +143,8 @@ export default class Lattice extends Modifier{
                 this.updateLabel1();
             }
         }else{
-            nodes.forEach(node=>{
-                node.update();
-            })
+            this.forNodes();
         }
-
     }
 
     updateLabel1(){
@@ -171,7 +171,7 @@ export default class Lattice extends Modifier{
         })
     }
     ergodicLabel3(fn1,fn2){
-        const {nodes,d,poly:{vertices,close}}=this;
+        const {nodes,d,parent:{vertices,close}}=this;
         const len=vertices.length;
         let start=0;
         let n=len;
@@ -199,7 +199,7 @@ export default class Lattice extends Modifier{
         });
     }
     updateBreakPoint(i0,i){
-        const {poly:{vertices},nodes}=this;
+        const {parent:{vertices},nodes}=this;
         const {vs,dir}=this.getLabel2Dt([vertices[i0],vertices[i0+1]]);
         const curI=i0+i;
         const node=nodes[curI];
@@ -208,20 +208,20 @@ export default class Lattice extends Modifier{
         node.update();
     }
     crtBreakPoint(fn,i0,i){
-        const {poly:{vertices}}=this;
+        const {parent:{vertices}}=this;
         const {vs,dir}=this.getLabel2Dt([vertices[i0],vertices[i0+1]]);
         const curI=i0+i;
         fn({i0:curI,v0:vs[i],dir});
     }
     getLabel1Dt(){
-        const {poly:{vertices},d}=this;
+        const {parent:{vertices},d}=this;
         const v0=vertices[0];
         return {
             v0:new Vector2(v0.x,v0.y-d),
             dir:-Math.PI/2
         }
     }
-    getLabel2Dt(vertices=this.poly.vertices){
+    getLabel2Dt(vertices=this.parent.vertices){
         const {d}=this;
         const [v0,vF]=vertices;
         const delta=v0.clone().sub(vF);
@@ -253,6 +253,12 @@ export default class Lattice extends Modifier{
         const c=v0.clone().add(v);
         const dir=v.angle();
         return {v0:c,dir}
+    }
+    forNodes(fn=null){
+        this.nodes.forEach(node=>{
+            fn&&fn(node);
+            node.update();
+        })
     }
     draw(ctx){
         const {nodes,type}=this;

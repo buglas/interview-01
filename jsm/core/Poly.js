@@ -1,4 +1,7 @@
-import Vector2 from "./Vector2.js";
+import Vector2 from "./Vector2.js"
+import {transform} from '../utils/ShapeTool.js'
+
+
 /*默认属性*/
 const defAttr=()=>({
     //顶点集合
@@ -31,6 +34,8 @@ const defAttr=()=>({
     scale:new Vector2(1,1),
     position:new Vector2(0,0),
     rotation:0,
+    //变换顺序
+    sorf:'trs',
 
     //合成相关
     globalAlpha:1,
@@ -58,7 +63,7 @@ export default class Poly{
     }
     drawPoly(ctx){
         /*变换*/
-        this.transform(ctx);
+        transform.call(this,ctx);
 
         /*合成*/
         this.composite(ctx);
@@ -93,7 +98,15 @@ export default class Poly{
         const {
             globalAlpha,globalCompositeOperation,
         }=this;
-        ctx.globalAlpha=globalAlpha;
+        let {parent}=this;
+        // ctx.globalAlpha=parent ? parent.globalAlpha * globalAlpha : globalAlpha;
+        let a=globalAlpha;
+        while(parent){
+            const pa=parent.globalAlpha||1;
+            a*=pa;
+            parent=parent.parent;
+        }
+        ctx.globalAlpha=a;
         ctx.globalCompositeOperation=globalCompositeOperation;
     }
 
@@ -179,7 +192,7 @@ export default class Poly{
         modifiers.push(modifier);
         modifiers.sort((a,b)=>a.weight>b.weight?1:-1);
         /*基于修改器的权重做排序*/
-        modifier.poly=this;
+        modifier.parent=this;
         modifier.init();
         /*排除当前元素进行更新*/
         modifier.updateOther&&this.update(modifier);
@@ -223,5 +236,18 @@ export default class Poly{
         modifiers.splice(i,1);
         modifier.removed();
         modifier.updateOther&&this.update();
+    }
+
+    //拷贝顶点集合
+    copyVertices(vs){
+        const {vertices}=this;
+        vs.forEach((v,i)=>{
+            const curV=vertices[i];
+            if(curV){
+                curV.copy(v);
+            }else{
+                vertices[i]=v;
+            }
+        })
     }
 }

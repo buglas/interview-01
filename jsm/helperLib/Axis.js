@@ -6,11 +6,13 @@ import Text from "../shapeLib/Text.js"
 
 const defAttr=()=>({
     size:200,
+    arrowSize:18,
+    fontSize:18,
     offset:48,
-    labelOffset:24,
+    labelOffset:18,
     x:'x',
     y:'y',
-    o:'0',
+    o:'',
 })
 
 export default class Axis extends Group{
@@ -21,14 +23,15 @@ export default class Axis extends Group{
 
     init(){
         this.children=[];
-        const {size,offset,labelOffset,x,y,o,children}=this;
-        this.crtAxis(xvs(size,offset,labelOffset,x));
-        this.crtAxis(yvs(size,offset,labelOffset,y));
+        const {size,offset,labelOffset,x,y,o,fontSize,children}=this;
+        const [xLen,yLen]=getMutAttr(size);
+        this.crtAxis(xvs(xLen,offset,labelOffset,x));
+        this.crtAxis(yvs(yLen,offset,labelOffset,y));
         const label=new Text({
             orign:new Vector2(-labelOffset,labelOffset),
             text:o,
             fill:true,
-            fontSize:24,
+            fontSize,
             textAlign:'right',
             textBaseline:'top'
         });
@@ -38,39 +41,46 @@ export default class Axis extends Group{
     update(){
         const {size,offset,labelOffset,x,y,o,children}=this;
         const [xAxis,xLabel,yAxis,yLabel,oLabel]=children;
-        updateAxis(xAxis,xLabel,xvs(size,offset,labelOffset,x));
-        updateAxis(yAxis,yLabel,yvs(size,offset,labelOffset,y));
+        const [xLen,yLen]=getMutAttr(size);
+        this.updateAxis(xAxis,xLabel,xvs(xLen,offset,labelOffset,x));
+        this.updateAxis(yAxis,yLabel,yvs(yLen,offset,labelOffset,y));
         oLabel.orign.copy(new Vector2(-labelOffset,labelOffset));
         oLabel.text=o;
     }
 
     crtAxis({vertices,orign,text}){
+        const {fontSize,arrowSize}=this;
         const axis=new Poly({
             vertices,
             stroke:true
         });
         axis.addModifier(new Lattice({
             type:'Arrow',
+            size:arrowSize
         }))
         const label=new Text({
             orign,
             text,
             fill:true,
-            fontSize:24,
+            fontSize,
             textAlign:'right',
             textBaseline:'top'
         });
         this.add(axis);
         this.add(label);
     }
+
+    updateAxis(axis,label,{vertices,orign,text}){
+        const {arrowSize}=this;
+        axis.copyVertices(vertices);
+        console.log(axis.modifiers[0]);
+        axis.modifiers[0].size=arrowSize;
+        axis.update();
+        label.orign=orign;
+        label.text=text;
+    }
 }
 
-function updateAxis(axis,label,{vertices,orign,text}){
-    axis.vertices=vertices;
-    axis.update();
-    label.orign=orign;
-    label.text=text;
-}
 
 function xvs(size,offset=20,labelOffset,text){
     return {
@@ -94,7 +104,14 @@ function yvs(size,offset=20,labelOffset,text){
     };
 }
 
-
+function getMutAttr(val){
+    let x=val;
+    let y=val;
+    if(typeof val === 'object'){
+        [x,y=x]=val;
+    }
+    return [x,y];
+}
 
 
 

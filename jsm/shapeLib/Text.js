@@ -24,6 +24,9 @@ export default class Text extends Shape{
         /*变换*/
         this.transform(ctx);
 
+        /*合成*/
+        this.composite(ctx);
+
         /*文字样式*/
         this.setText(ctx);
 

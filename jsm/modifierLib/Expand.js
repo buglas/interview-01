@@ -23,11 +23,11 @@ export default class Expand extends Modifier{
 
     }
     init() {
-        this.oldVertices=this.poly.vertices.map(v=>v.clone());
+        this.oldVertices=this.parent.vertices.map(v=>v.clone());
         this.update();
     }
     update() {
-        const {oldVertices,poly:{vertices},d,type}=this;
+        const {oldVertices,parent:{vertices},d,type}=this;
         const len=vertices.length;
         if(len===2){
             update1(oldVertices,vertices,d);
@@ -42,7 +42,7 @@ export default class Expand extends Modifier{
         }
     }
     removed(){
-        const {oldVertices,poly:{vertices}}=this;
+        const {oldVertices,parent:{vertices}}=this;
         vertices.forEach((vertice,ind)=>{
             vertice.copy(oldVertices[ind]);
         })

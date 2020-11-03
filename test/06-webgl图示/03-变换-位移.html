@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>标签修改器</title>
+    <style>
+        html{height: 100%}
+        body{height: 100%;margin: 0;}
+    </style>
+</head>
+<body>
+<canvas id="canvas"></canvas>
+<script type="module">
+    import Vector2 from "../../jsm/core/Vector2.js"
+    import Group from "../../jsm/core/Group.js"
+    import Text from "../../jsm/shapeLib/Text.js"
+    import Poly from "../../jsm/core/Poly.js"
+    import Lattice from "../../jsm/modifierLib/Lattice.js"
+    import Expand from "../../jsm/modifierLib/Expand.js";
+    import Axis from "../../jsm/helperLib/Axis.js"
+
+    const canvas=document.getElementById('canvas');
+    canvas.width=window.innerWidth;
+    canvas.height=window.innerHeight;
+    const ctx=canvas.getContext('2d');
+    const c=new Vector2(canvas.width/4,canvas.height*0.7);
+
+    const scene=new Group({
+        position:c
+    });
+
+
+    const vertices=[
+        new Vector2(0,-70),
+        new Vector2(-70,70),
+        new Vector2(70,70),
+    ];
+    const p1=vertices[2].clone();
+    const labels=['','','p(x,y,z)'];
+    const strokeStyles=[
+        '#00acec',
+        'red',
+        'green',
+        'blue',
+    ]
+    function crtTriangle([i0,i1,i2],ssi){
+        const l0=new Poly({
+            vertices:[
+                vertices[i0],
+                vertices[i1],
+                vertices[i2],
+            ],
+            fill:true,
+            stroke:true,
+            strokeStyle:strokeStyles[ssi],
+            fillStyle:'rgba(0,0,0,0.05)',
+            close:true,
+        });
+        l0.addModifier(new Lattice({
+            fillStyle:'#000'
+        }));
+        l0.addModifier(new Lattice({
+            type:'Arrow',
+        }));
+        l0.addModifier(new Lattice({
+            type:'Label',
+            fontSize:18,
+            fillStyle:'#000',
+            labels
+        }));
+        scene.add(l0);
+    }
+
+    /*TRIANGLE_STRIP三角带*/
+    crtTriangle([0,1,2,],0);
+    scene.draw(ctx);
+
+    vertices.forEach(ele=>{
+        ele.add({x:140,y:-140});
+    })
+    labels[2]=['p\'(x\',y\',z\')'];
+    scene.update();
+
+    const line=new Poly({
+        vertices:[p1,vertices[2]],
+        stroke: true,
+    })
+    line.addModifier(new Lattice());
+    line.addModifier(new Lattice({
+        type:'Arrow',
+    }));
+    scene.unshift(line);
+
+    const sceneAxis=new Axis({
+        size:[400,350],
+        position: new Vector2(-120,120)
+    });
+    scene.add(sceneAxis);
+
+    /*sceneAxis.size=[400];
+    sceneAxis.arrowSize=50;
+    sceneAxis.update();*/
+
+    scene.draw(ctx);
+</script>
+</body>
+</html>
