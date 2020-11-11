@@ -15,9 +15,7 @@
     import Group from "../../jsm/core/Group.js"
     import Poly from "../../jsm/core/Poly.js"
     import Lattice from "../../jsm/modifierLib/Lattice.js"
-    import {getMousePos,setPosToBottom,setPosToTop} from "../../jsm/utils/Tool.js";
-    import Point from "../../jsm/modifierLib/latticeShapeLib/Point.js"
-    import Ball from "../../jsm/shapeLib/Ball.js"
+    import {getMousePos} from "../../jsm/utils/Tool.js";
 
     const canvas=document.getElementById('canvas');
     canvas.width=window.innerWidth;
@@ -29,39 +27,13 @@
     let drag=false;
 
     const scene=new Group({
-        position:c,
+        position:c
     });
 
-    //参照
-    const p1=new Vector2(100,-50);
-    //变换点
-    const p2=p1.clone();
-    //鼠标点
+    const p1=new Vector2(200,-150);
     const mp=new Vector2(0,0);
 
-    const A=new Ball({
-        position:p1,
-        stroke:true,
-        r:20,
-        lineWidth:3,
-        lineDash:[5]
-    });
-    const box=new Group({
-        position:new Vector2(100,100),
-        scale:new Vector2(0.5,0.5),
-        rotation:Math.PI/2
-    });
-    box.add(A);
-
-    const box2=new Group({
-        position:new Vector2(-100,100)
-    });
-    box2.add(box);
-    scene.add(box2);
-
-    setPosToTop(p2,box,scene);
-
-    const vertices=[mp,p2];
+    const vertices=[mp,p1];
     const l0=new Poly({
         vertices,
         stroke:true,
@@ -77,9 +49,7 @@
         fontSize:18
     }));
     scene.add(l0);
-
     scene.draw(ctx);
-
 
     canvas.addEventListener('mousedown',function(event){
         console.log('down',event);
@@ -96,37 +66,29 @@
         }
     })
     canvas.addEventListener('mousemove',function(event){
-        const mousePos=getMousePos(event,canvas,scene);
+        const pos=getMousePos(event,canvas,scene);
         if(drag){
-            move(mousePos,p2);
+            const delta=pos.clone().sub(mp);
+            p1.add(delta);
         }
-        mp.copy(mousePos);
+        mp.copy(pos);
         render();
-    })
 
+    })
     canvas.addEventListener('mousewheel',function(event){
         const rate=event.wheelDelta>0?1.1:0.9;
-        scale(rate);
+        scale(mp,vertices,rate);
         render();
     })
 
-    function move(mousePos){
-        const delta=mousePos.clone().sub(mp);
-        p2.add(delta);
-        updateBottomPos();
-    }
 
-    function scale(rate){
-        const delta=p2.clone().sub(mp);
-        p2.copy(mp.clone().add(delta.scale(rate)));
-        updateBottomPos();
-    }
 
-    function updateBottomPos(){
-        p1.copy(setPosToBottom(p2.clone(),box,scene));
-        A.update();
+    function scale(mousePos,vertices,rate){
+        vertices.forEach(vertice=>{
+            const delta=vertice.clone().sub(mousePos);
+            vertice.copy(mousePos.clone().add(delta.multiplyScalar(rate)));
+        })
     }
-
     function render(){
         scene.update();
         ctx.clearRect(0,0,canvas.width,canvas.height);

@@ -40,7 +40,7 @@ export default class Vector2{
     //将向量长度限定在极值的闭区间中
     clampLength(min, max){
         const length = this.length();
-        return this.divideScalar( length || 1 ).scale( Math.max( min, Math.min( max, length ) ) );
+        return this.divideScalar( length || 1 ).multiplyScalar( Math.max( min, Math.min( max, length ) ) );
     }
     //向量拷贝
     copy(v){
@@ -102,13 +102,13 @@ export default class Vector2{
         this.y /= v.y;
         return this;
     }
-    //点积
+    //向量点积，数量积，內积
     dot( v ) {
         return this.x * v.x + this.y * v.y ;
     }
     //等比例切割向量，设置向量长度为当前长度的1/scalar
     divideScalar(scalar){
-        return this.scale( 1 / scalar );
+        return this.multiplyScalar( 1 / scalar );
     }
     //是否相等
     equal(v){
@@ -162,9 +162,17 @@ export default class Vector2{
         this.y = Math.min( this.y, v.y );
         return this;
     }
-    //向量的乘法，返回数字
+    //向量的乘法，返回向量
     multiply( v ) {
-        return this.x *v.x+this.y *v.y;
+        this.x *=v.x
+        this.y *=v.y;
+        return this;
+    }
+    //数乘
+    multiplyScalar(s){
+        this.x *=s;
+        this.y *=s;
+        return this;
     }
     //向量归一
     normalize(){
@@ -199,10 +207,6 @@ export default class Vector2{
         this.x*=x;
         this.y*=y;
         return this;
-    }
-    //向量分量相乘，返回向量
-    scaleVector({x,y}){
-        return this.scale(x,y);
     }
     //减法
     sub(v){

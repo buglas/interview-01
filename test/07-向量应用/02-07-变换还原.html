@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>视图变换</title>
+    <style>
+        html{height: 100%}
+        body{height: 100%;margin: 0;}
+    </style>
+</head>
+<body>
+<canvas id="canvas"></canvas>
+<script type="module">
+    import Vector2 from "../../jsm/core/Vector2.js"
+    import Group from "../../jsm/core/Group.js"
+    import Poly from "../../jsm/core/Poly.js"
+    import Lattice from "../../jsm/modifierLib/Lattice.js"
+    import {getMousePos,setPosToBottom,setPosToTop} from "../../jsm/utils/Tool.js";
+    import Point from "../../jsm/modifierLib/latticeShapeLib/Point.js"
+    import Ball from "../../jsm/shapeLib/Ball.js"
+    import Axis from "../../jsm/helperLib/Axis.js"
+    import Rect from "../../jsm/shapeLib/Rect.js"
+
+    const canvas=document.getElementById('canvas');
+    const [w,h]=[window.innerWidth,window.innerHeight];
+    canvas.width=3000;
+    canvas.height=h;
+    const ctx=canvas.getContext('2d');
+
+    /*正向变换*/
+    {
+        const scene=new Group({
+            position:new Vector2(100,300)
+        });
+        const group=new Group();
+        scene.add(group);
+
+        const axis=new Axis({
+            size:200
+        })
+
+        const rect=new Rect({
+            size: new Vector2(100,100),
+            position:new Vector2(0,-100),
+            stroke:true
+        })
+
+        group.add(rect);
+        group.add(axis);
+
+        scene.draw(ctx);
+
+        //位移
+        group.position.x+=300;
+        group.globalAlpha=0.1;
+        scene.draw(ctx);
+
+        //旋转
+        group.rotation=Math.PI/12;
+        group.globalAlpha=0.5;
+        scene.draw(ctx);
+
+        //缩放
+        group.scale=new Vector2(1.3,1.3);
+        group.globalAlpha=1;
+        scene.draw(ctx);
+    }
+
+    /*逆向变换*/
+    {
+        const scene=new Group({
+            position:new Vector2(100,700)
+        });
+        const group=new Group();
+        scene.add(group);
+
+        const axis=new Axis({
+            size:200
+        })
+
+        const rect=new Rect({
+            size: new Vector2(100,100),
+            position:new Vector2(0,-100),
+            stroke:true
+        })
+
+        group.add(rect);
+        group.add(axis);
+        // scene.draw(ctx);
+
+        /*正向变换*/
+        //位移
+        group.position.x+=300;
+        group.globalAlpha=0.1;
+        // scene.draw(ctx);
+
+        //旋转
+        group.rotation=Math.PI/12;
+        group.globalAlpha=0.5;
+        // scene.draw(ctx);
+
+        //缩放
+        group.scale=new Vector2(1.3,1.3);
+        group.globalAlpha=0.1;
+        scene.draw(ctx);
+
+
+        /*逆向变换*/
+        //缩放
+        group.scale.divide({x:1.3,y:1.3});
+        group.globalAlpha=0.5;
+        scene.draw(ctx);
+
+        //旋转
+        group.rotation-=Math.PI/12;
+        group.globalAlpha=1;
+        scene.draw(ctx);
+
+        //位移
+        group.position.x-=300;
+        group.globalAlpha=1;
+        scene.draw(ctx);
+
+
+
+
+    }
+
+
+</script>
+</body>
+</html>

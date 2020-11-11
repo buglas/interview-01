@@ -62,7 +62,7 @@
     function scale(mousePos,vertices,rate){
         vertices.forEach(vertice=>{
             const delta=vertice.clone().sub(mousePos);
-            vertice.copy(mousePos.clone().add(delta.scale(rate)));
+            vertice.copy(mousePos.clone().add(delta.multiplyScalar(rate)));
         })
     }
     function render(){

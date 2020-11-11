@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>视图变换</title>
+    <style>
+        html{height: 100%}
+        body{height: 100%;margin: 0;}
+    </style>
+</head>
+<body>
+<canvas id="canvas"></canvas>
+<script type="module">
+    import Vector2 from "../../jsm/core/Vector2.js"
+    import Group from "../../jsm/core/Group.js"
+    import Poly from "../../jsm/core/Poly.js"
+    import Lattice from "../../jsm/modifierLib/Lattice.js"
+    import {getMousePos,setPosToBottom,setPosToTop} from "../../jsm/utils/Tool.js";
+    import Point from "../../jsm/modifierLib/latticeShapeLib/Point.js"
+    import Ball from "../../jsm/shapeLib/Ball.js"
+    import Axis from "../../jsm/helperLib/Axis.js"
+    import Rect from "../../jsm/shapeLib/Rect.js"
+
+    const canvas=document.getElementById('canvas');
+    const [w,h]=[window.innerWidth,window.innerHeight];
+    canvas.width=3000;
+    canvas.height=h;
+    const ctx=canvas.getContext('2d');
+
+    /*正向变换*/
+    {
+        const scene=new Group({
+            position:new Vector2(300,700)
+        });
+
+        /*scene坐标系*/
+        const axisO1=new Axis({
+            size:600,
+            o:'o1'
+        })
+        scene.add(axisO1);
+
+        /*点M*/
+        const pm=new Vector2(50,-50);
+        const M=new Poly({
+            vertices:[pm],
+            fill:true,
+            fillStyle:'#00acec'
+        })
+        M.addModifier(new Lattice());
+        M.addModifier(new Lattice({
+            type:'Label',
+            labels:[
+                'M(pm)',
+            ],
+            fontSize:18,
+            d:5
+        }));
+        scene.add(M);
+
+
+        /*盒子*/
+        const [pg,rg,sg]=[
+            new Vector2(80,-120),
+            Math.PI/12,
+            new Vector2(1.3,1.3)
+        ];
+        const group=new Group({
+            position:pg,
+            rotation:rg,
+            scale:sg
+        });
+        scene.add(group);
+        const axis=new Axis({
+            size:200,
+            o:'o2'
+        })
+        const rect=new Rect({
+            size: new Vector2(100,100),
+            position:new Vector2(0,-100),
+            stroke:true
+        })
+        group.add(rect);
+        group.add(axis);
+
+        /*点A*/
+        const pa=new Vector2(50,-50);
+        const A=new Poly({
+            vertices:[pa],
+            stroke:true,
+        })
+        A.addModifier(new Lattice());
+        A.addModifier(new Lattice({
+            type:'Label',
+            labels:[
+                'A(pa)',
+            ],
+            fontSize:18,
+            d:10
+        }));
+        group.add(A);
+
+        /*在scene中的A点*/
+        const pAinS=pa.clone();
+        pAinS.multiply(sg);
+        pAinS.rotate(rg);
+        pAinS.add(pg);
+
+        const aInS=new Ball({
+            position:pAinS,
+            stroke:true,
+            strokeStyle:'blue',
+            r:10,
+            lineWidth:2
+        })
+        scene.add(aInS);
+
+        /*变换后端M点*/
+        const [tm2,rm2,sm2]=[
+            new Vector2(300,0),
+            0,
+            new Vector2(1,1)
+        ];
+        /*M点在scene中的位移量*/
+        const pmt=new Vector2(200,0);
+        /*M点在scene中的位置*/
+        const M2=new Ball({
+            position:pm.clone().add(pmt),
+            fill:true
+        })
+        scene.add(M2);
+
+        /*在scene中的同步位的A对象*/
+        const pAinS2=pAinS.clone().add(pmt);
+        const aInS2=new Ball({
+            position:pAinS2,
+            stroke:true,
+            strokeStyle:'red',
+            r:10,
+            lineWidth:2
+        })
+        scene.add(aInS2);
+
+        /*将scene中同步的A置入box中*/
+        const pa2=pAinS2.clone();
+        pa2.sub(pg);
+        pa2.rotate(-rg);
+        pa2.divide(sg);
+        const A2=new Ball({
+            position:pa2,
+            fill:true,
+            fillStyle:'green'
+        })
+        group.add(A2);
+
+        /*const [ta2,ra2,sa2]=[
+            tm2.clone().add(pg),
+            rm2+rg,
+            sm2.clone().multiply(sg)
+        ]*/
+        /*const [ta2,ra2,sa2]=[
+            tm2.clone().sub(pg),
+            rm2-rg,
+            sm2.clone().multiply(sg)
+        ]
+        const A2=new Ball({
+            position:A.position.clone().add(ta2),
+            rotation:A.rotation+ra2,
+            scale:A.scale.clone().multiply(sa2),
+            fill:true,
+            fillStyle:'red'
+        })
+        group.add(A2);*/
+
+        scene.draw(ctx);
+    }
+
+
+
+</script>
+</body>
+</html>

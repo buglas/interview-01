@@ -52,7 +52,7 @@ function setPosToSun(p,world){
 /*将子级中的坐标点放入上一级坐标系*/
 function setPosToParent(p,world){
     const {position,scale,rotation}=world;
-    p.scaleVector(scale);
+    p.multiply(scale);
     p.rotate(rotation);
     p.add(position);
     return p;

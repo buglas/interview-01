@@ -6,24 +6,36 @@
     <style>
         html{height: 100%}
         body{height: 100%;margin: 0;}
+        #rect{
+            height: 10px;
+            width: 10px;
+            background-color: #103989;
+            position: absolute;
+            left: 100px;
+            top:100px;
+        }
+
     </style>
 </head>
 <body>
+<!--<div id="rect"></div>-->
 <canvas id="canvas"></canvas>
 <script type="module">
     import Vector2 from "../../jsm/core/Vector2.js"
     import Group from "../../jsm/core/Group.js"
     import Poly from "../../jsm/core/Poly.js"
-    import Ball from "../../jsm/shapeLib/Ball.js"
     import Lattice from "../../jsm/modifierLib/Lattice.js"
-    import {getMousePos} from "../../jsm/utils/Tool.js";
+    import {getMousePos,setPosToBottom,setPosToTop} from "../../jsm/utils/Tool.js";
     import Point from "../../jsm/modifierLib/latticeShapeLib/Point.js"
+    import Ball from "../../jsm/shapeLib/Ball.js"
+    import Axis from "../../jsm/helperLib/Axis.js"
+    import Rect from "../../jsm/shapeLib/Rect.js"
 
     const canvas=document.getElementById('canvas');
-    canvas.width=window.innerWidth;
-    canvas.height=window.innerHeight;
+    const [w,h]=[window.innerWidth,window.innerHeight];
+    canvas.width=w;
+    canvas.height=h;
     const ctx=canvas.getContext('2d');
-    const c=new Vector2(canvas.width/2,canvas.height/2);
 
     //鼠标是否在平移视图
     let drag=false;
@@ -32,14 +44,53 @@
     //鼠标是否划上了旋转轨
     let hoverBall=false;
 
+    /*正向变换*/
     const scene=new Group({
-        position:c
+        position:new Vector2(300,700),
+        rotation:Math.PI/12,
+        scale:new Vector2(0.7,0.7)
     });
 
-    const p1=new Vector2(200,-150);
-    const mp=new Vector2(0,0);
+    /*scene坐标系*/
+    const axisO1=new Axis({
+        size:600,
+        o:'o1'
+    })
+    scene.add(axisO1);
 
-    const vertices=[mp,p1];
+    /*点A*/
+    const pa=new Vector2(200,-200);
+    const A=new Poly({
+        vertices:[pa],
+        stroke:true,
+    })
+    A.addModifier(new Lattice());
+    A.addModifier(new Lattice({
+        type:'Label',
+        labels:[
+            'A',
+        ],
+        fontSize:18
+    }));
+    scene.add(A);
+
+    /*圆*/
+    const ball=new Ball({
+        r:70,
+        stroke:true,
+        lineDash:[20],
+        lineWidth:5,
+        strokeStyle:'rgba(0,0,0,0.2)'
+    });
+    scene.add(ball);
+
+    /*鼠标点位*/
+    const mp=new Vector2();
+    /*鼠标点弧度*/
+    let mr=0;
+
+    /*线*/
+    const vertices=[mp,scene.position];
     const l0=new Poly({
         vertices,
         stroke:true,
@@ -49,47 +100,27 @@
     l0.addModifier(new Lattice({
         type:'Label',
         labels:[
-            'M(mx,my)',
-            'A(ax,ay)'
+            'M',
+            ''
         ],
         fontSize:18
     }));
-    scene.add(l0);
+    l0.draw(ctx);
 
-    const ball=new Ball({
-        r:70,
-        vertices:[new Vector2()],
-        stroke:true,
-        lineDash:[20],
-        lineWidth:5,
-        strokeStyle:'rgba(0,0,0,0.2)'
-    });
-    ball.addModifier(new Lattice());
-    ball.addModifier(new Lattice({
-        type:'Label',
-        fontSize:18,
-        d:7,
-        labels:['O']
-    }));
-    scene.add(ball);
-
-    scene.draw(ctx);
 
     canvas.addEventListener('mousedown',function(event){
-        console.log('down',event);
         const {button}=event;
         if(button===1){
             drag=true;
         }
         if(button===0){
-            const distance=mp.length()-ball.r;
             if(hoverBall){
                 rotating=true;
+                mr=mp.clone().sub(scene.position).angle();
             }
         }
     })
     canvas.addEventListener('mouseup',function(event){
-        console.log('up',event);
         const {button}=event;
         if(button===1&&drag){
             drag=false;
@@ -102,46 +133,46 @@
         }
     })
     canvas.addEventListener('mousemove',function(event){
-        const pos=getMousePos(event,canvas,scene);
-
-        const distance=mp.length()-ball.r;
+        const pos=getMousePos(event,canvas);
+        const posInScene=getMousePos(event,canvas,scene);
+        const distance=posInScene.length()-ball.r;
         if(Math.abs(distance)<30){
             actBall();
         }else if(!rotating){
             unactBall();
         }
-
         if(drag){
-            const delta=pos.clone().sub(mp);
-            p1.add(delta);
+            translate(pos);
         }
         if(rotating){
             rotate(pos);
         }
         mp.copy(pos);
         render();
-
     })
     canvas.addEventListener('mousewheel',function(event){
         const rate=event.wheelDelta>0?1.1:0.9;
-        scale(mp,vertices,rate);
+        scale(mp,scene,rate);
         render();
     })
 
-
-
-    function scale(mousePos,vertices,rate){
-        vertices.forEach(vertice=>{
-            const delta=vertice.clone().sub(mousePos);
-            vertice.copy(mousePos.clone().add(delta.scale(rate)));
-        })
+    function scale(mousePos,scene,rate){
+        const {position,scale}=scene;
+        const delta=position.clone().sub(mousePos);
+        position.copy(mousePos.clone().add(delta.multiplyScalar(rate)));
+        scale.copy(
+            scene.scale.multiplyScalar(rate)
+        );
     }
-
-    function rotate(curPos) {
-        const angle=curPos.angle()-mp.angle();
-        p1.rotate(angle);
+    function rotate(pos) {
+        const endAngle=pos.clone().sub(scene.position).angle();
+        scene.rotation+=endAngle-mr;
+        mr=endAngle;
     }
-
+    function translate(pos){
+        const delta=pos.clone().sub(mp);
+        scene.position.add(delta);
+    }
     function actBall(){
         canvas.style.cursor='pointer';
         hoverBall=true;
@@ -153,11 +184,17 @@
         ball.strokeStyle='rgba(0,0,0,0.2)';
     }
 
+    /*渲染方法*/
     function render(){
+        l0.update();
         scene.update();
         ctx.clearRect(0,0,canvas.width,canvas.height);
+        l0.draw(ctx);
         scene.draw(ctx);
     }
+
+
+
 
 </script>
 </body>

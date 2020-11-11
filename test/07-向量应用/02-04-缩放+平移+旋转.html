@@ -14,8 +14,10 @@
     import Vector2 from "../../jsm/core/Vector2.js"
     import Group from "../../jsm/core/Group.js"
     import Poly from "../../jsm/core/Poly.js"
+    import Ball from "../../jsm/shapeLib/Ball.js"
     import Lattice from "../../jsm/modifierLib/Lattice.js"
     import {getMousePos} from "../../jsm/utils/Tool.js";
+    import Point from "../../jsm/modifierLib/latticeShapeLib/Point.js"
 
     const canvas=document.getElementById('canvas');
     canvas.width=window.innerWidth;
@@ -25,6 +27,10 @@
 
     //鼠标是否在平移视图
     let drag=false;
+    //鼠标是否在旋转视图
+    let rotating=false;
+    //鼠标是否划上了旋转轨
+    let hoverBall=false;
 
     const scene=new Group({
         position:c
@@ -49,6 +55,24 @@
         fontSize:18
     }));
     scene.add(l0);
+
+    const ball=new Ball({
+        r:70,
+        vertices:[new Vector2()],
+        stroke:true,
+        lineDash:[20],
+        lineWidth:5,
+        strokeStyle:'rgba(0,0,0,0.2)'
+    });
+    ball.addModifier(new Lattice());
+    ball.addModifier(new Lattice({
+        type:'Label',
+        fontSize:18,
+        d:7,
+        labels:['O']
+    }));
+    scene.add(ball);
+
     scene.draw(ctx);
 
     canvas.addEventListener('mousedown',function(event){
@@ -57,19 +81,39 @@
         if(button===1){
             drag=true;
         }
+        if(button===0){
+            if(hoverBall){
+                rotating=true;
+            }
+        }
     })
     canvas.addEventListener('mouseup',function(event){
         console.log('up',event);
         const {button}=event;
-        if(button===1){
+        if(button===1&&drag){
             drag=false;
+        }
+        if(button===0&&hoverBall){
+            rotating=false;
+            if(!rotating){
+                unactBall();
+            }
         }
     })
     canvas.addEventListener('mousemove',function(event){
         const pos=getMousePos(event,canvas,scene);
+        const distance=mp.length()-ball.r;
+        if(Math.abs(distance)<30){
+            actBall();
+        }else if(!rotating){
+            unactBall();
+        }
         if(drag){
             const delta=pos.clone().sub(mp);
             p1.add(delta);
+        }
+        if(rotating){
+            rotate(pos);
         }
         mp.copy(pos);
         render();
@@ -81,14 +125,28 @@
         render();
     })
 
-
-
     function scale(mousePos,vertices,rate){
         vertices.forEach(vertice=>{
             const delta=vertice.clone().sub(mousePos);
-            vertice.copy(mousePos.clone().add(delta.scale(rate)));
+            vertice.copy(mousePos.clone().add(delta.multiplyScalar(rate)));
         })
     }
+    function rotate(curPos) {
+        const angle=curPos.angle()-mp.angle();
+        p1.rotate(angle);
+    }
+
+    function actBall(){
+        canvas.style.cursor='pointer';
+        hoverBall=true;
+        ball.strokeStyle='rgba(255,0,0,.3)';
+    }
+    function unactBall(){
+        canvas.style.cursor='default';
+        hoverBall=true;
+        ball.strokeStyle='rgba(0,0,0,0.2)';
+    }
+
     function render(){
         scene.update();
         ctx.clearRect(0,0,canvas.width,canvas.height);

@@ -52,7 +52,7 @@
 
         /*插值公式*/
         function inter2(t,p0,p1,p2){
-            return (p0.clone().scale((1-t)*(1-t))).add(p1.clone().scale(2*t*(1-t))).add(p2.clone().scale(t*t));
+            return (p0.clone().multiplyScalar((1-t)*(1-t))).add(p1.clone().multiplyScalar(2*t*(1-t))).add(p2.clone().multiplyScalar(t*t));
         }
 
 

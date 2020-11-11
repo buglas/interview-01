@@ -47,7 +47,7 @@
         const v2=vertices[i2];
 
         const a=v1.clone().sub(v0).normalize();
-        const b=v2.clone().sub(v1).scale(-1).normalize();
+        const b=v2.clone().sub(v1).multiplyScalar(-1).normalize();
         const c=a.add(b).setLength(d).add(v1);
         vertices2.push(c);
     })

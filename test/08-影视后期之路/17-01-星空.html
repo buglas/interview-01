@@ -151,7 +151,7 @@
         const pixelRatio=window.devicePixelRatio;
         starCanvas.width=width*pixelRatio;
         starCanvas.height=height*pixelRatio;
-        starCtx.scale(pixelRatio,pixelRatio);
+        starCtx.multiplyScalar(pixelRatio,pixelRatio);
         starCanvas.style.width=width+'px';
         starCanvas.style.height=height+'px';
 

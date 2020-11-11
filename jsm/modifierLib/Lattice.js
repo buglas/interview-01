@@ -242,7 +242,7 @@ export default class Lattice extends Modifier{
         const vF=vertices[iF];
 
         const a=v0.clone().sub(vB).normalize();
-        const b=vF.clone().sub(v0).scale(-1).normalize();
+        const b=vF.clone().sub(v0).multiplyScalar(-1).normalize();
         const aAddb=a.add(b);
         let v=null;
         if(aAddb.length()===0){

@@ -51,7 +51,7 @@
 
         /*线性插值公式*/
         function inter1(t,p0,p1){
-            return p0.clone().add(p1.clone().sub(p0).scale(t));
+            return p0.clone().add(p1.clone().sub(p0).multiplyScalar(t));
         }
 
 

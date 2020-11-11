@@ -79,8 +79,8 @@
         if(dragging){
             delta.copy(targetPos.clone().sub(ball.orign));
         }
-        acceleration.copy(delta.scale(inertia));
-        velocity.add(acceleration).scale(friction);
+        acceleration.copy(delta.multiplyScalar(inertia));
+        velocity.add(acceleration).multiplyScalar(friction);
         velocity.y+=gravity;
         ball.orign.add(velocity);
 

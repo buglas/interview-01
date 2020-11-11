@@ -69,7 +69,7 @@ function update2(oldVertices,vertices,d){
 function update3(oldVertices,vertices,d){
     ergodic(oldVertices,vertices,(vB,v0,vF)=>{
         const a=v0.clone().sub(vB).normalize();
-        const b=vF.clone().sub(v0).scale(-1).normalize();
+        const b=vF.clone().sub(v0).multiplyScalar(-1).normalize();
         return a.add(b).setLength(d).add(v0);
     });
 }
