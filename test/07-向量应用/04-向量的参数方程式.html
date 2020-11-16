@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>视图变换</title>
+    <style>
+        html{height: 100%}
+        body{height: 100%;margin: 0;}
+    </style>
+</head>
+<body>
+<!--<div id="rect"></div>-->
+<canvas id="canvas"></canvas>
+<script type="module">
+    import Vector2 from "../../jsm/core/Vector2.js"
+    import Group from "../../jsm/core/Group.js"
+    import Poly from "../../jsm/core/Poly.js"
+    import Lattice from "../../jsm/modifierLib/Lattice.js"
+    import {getMousePos,setPosToBottom,setPosToTop} from "../../jsm/utils/Tool.js";
+    import Point from "../../jsm/modifierLib/latticeShapeLib/Point.js"
+    import Ball from "../../jsm/shapeLib/Ball.js"
+    import Axis from "../../jsm/helperLib/Axis.js"
+    import Rect from "../../jsm/shapeLib/Rect.js"
+
+    const canvas=document.getElementById('canvas');
+    const [w,h]=[window.innerWidth,window.innerHeight];
+    canvas.width=w;
+    canvas.height=h;
+    const ctx=canvas.getContext('2d');
+    const scene=new Group({
+        position:new Vector2(w/2,h/2)
+    });
+
+    {
+        const e1=new Vector2(50,-200);
+        const e2=new Vector2(200,-50);
+
+        // const t=0.5;
+        const t=1.5;
+
+        function getP(){
+            return e1.clone().multiplyScalar(1-t)
+                .add(
+                    e2.clone().multiplyScalar(t)
+                )
+        }
+
+        const OA=new Poly({
+            vertices:[new Vector2(),e1],
+            stroke:true,
+        })
+        OA.addModifier(new Lattice());
+        OA.addModifier(new Lattice({type:'Arrow'}));
+        OA.addModifier(new Lattice({
+            type:'Label',
+            labels:['O','e1']
+        }));
+        scene.add(OA);
+
+        const OB=new Poly({
+            vertices:[new Vector2(),e2],
+            stroke:true,
+        })
+        OB.addModifier(new Lattice());
+        OB.addModifier(new Lattice({
+            type:'Label',
+            labels:['','e2']
+        }));
+        OB.addModifier(new Lattice({type:'Arrow'}));
+        scene.add(OB);
+
+        const OP=new Poly({
+            vertices:[new Vector2(),getP()],
+            stroke:true,
+        })
+        OP.addModifier(new Lattice());
+        OP.addModifier(new Lattice({
+            type:'Label',
+            labels:['','P'],
+            stroke:true,
+            lineWidth:20,
+            strokeStyle:'#fff'
+        }));
+        OP.addModifier(new Lattice({type:'Arrow'}));
+        scene.add(OP);
+
+        const line=new Poly({
+            vertices:[e1,getP()],
+            stroke:true,
+            lineDash:[3],
+            globalAlpha:0.5
+        })
+        line.addModifier(new Lattice({type:'Arrow'}));
+        scene.unshift(line);
+    }
+
+    scene.draw(ctx);
+
+
+</script>
+</body>
+</html>

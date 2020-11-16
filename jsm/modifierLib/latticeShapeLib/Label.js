@@ -2,18 +2,11 @@ import Vector2 from "../../core/Vector2.js"
 import Text from "../../shapeLib/Text.js"
 import {getNormalExpandLineABC} from "../../core/Math2.js"
 
-/*箭头-晶格化修改器的节点
-*   single 静态属性，是否一线一节点，默认undefined
-*   v0 起点
-*   vF 结束点
-*   a1|a2 箭头点
-*   size 箭头尺寸
-*   arrowRadian 箭头夹角
-* */
+/*文本*/
 
 export default class Label extends Text{
     constructor(...attrs) {
-        super(...attrs,{textAlign:'center',textBaseline:'middle',fill:true});
+        super(...attrs,{textAlign:'center',textBaseline:'middle',fill:true,fontSize:16});
         this.update();
     }
     update() {

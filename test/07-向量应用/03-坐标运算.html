@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>视图变换</title>
+    <style>
+        html{height: 100%}
+        body{height: 100%;margin: 0;}
+    </style>
+</head>
+<body>
+<!--<div id="rect"></div>-->
+<canvas id="canvas"></canvas>
+<script type="module">
+    import Vector2 from "../../jsm/core/Vector2.js"
+    import Group from "../../jsm/core/Group.js"
+    import Poly from "../../jsm/core/Poly.js"
+    import Lattice from "../../jsm/modifierLib/Lattice.js"
+    import {getMousePos,setPosToBottom,setPosToTop} from "../../jsm/utils/Tool.js";
+    import Point from "../../jsm/modifierLib/latticeShapeLib/Point.js"
+    import Ball from "../../jsm/shapeLib/Ball.js"
+    import Axis from "../../jsm/helperLib/Axis.js"
+    import Rect from "../../jsm/shapeLib/Rect.js"
+
+    const canvas=document.getElementById('canvas');
+    const [w,h]=[window.innerWidth,window.innerHeight];
+    canvas.width=w;
+    canvas.height=h;
+    const ctx=canvas.getContext('2d');
+    const scene=new Group({
+        position:new Vector2(w/2,h/2)
+    });
+
+    /*{
+        const xps=[
+            new Vector2(0,0),
+            new Vector2(200,0),
+        ]
+        const yps=[
+            new Vector2(0,0),
+            new Vector2(0,-200),
+        ]
+        const e1=new Vector2(1,-1).normalize();
+        const e2=new Vector2(0,1);
+
+        function parseVs(vs){
+            return vs.map(v=>e1.clone().multiplyScalar(v.x).add(e2.clone().multiplyScalar(v.y)))
+        }
+
+        const xLine=new Poly({
+            vertices:parseVs(xps),
+            stroke:true,
+        })
+        xLine.addModifier(new Lattice({
+            type:'Arrow'
+        }))
+        xLine.addModifier(new Lattice({
+            type:'Label',
+            labels:['','e1']
+        }))
+        scene.add(xLine);
+
+        const yLine=new Poly({
+            vertices:parseVs(yps),
+            stroke:true,
+        })
+        yLine.addModifier(new Lattice({
+            type:'Arrow'
+        }))
+        yLine.addModifier(new Lattice({
+            type:'Label',
+            labels:['o','e2']
+        }))
+        scene.add(yLine);
+
+        const line1=new Poly({
+            vertices:parseVs([
+                new Vector2(),
+                new Vector2(80,-80)
+            ]),
+            stroke:true,
+        })
+        line1.addModifier(new Lattice())
+        line1.addModifier(new Lattice({
+            type:'Label',
+            labels:['','(a1,a2) '],
+            d:8,
+            lineWidth:6,
+            strokeStyle:'#fff',
+            stroke:true
+        }))
+        scene.add(line1);
+    }*/
+
+    /*{
+        const xps=[
+            new Vector2(0,0),
+            new Vector2(200,0),
+        ]
+        const yps=[
+            new Vector2(0,0),
+            new Vector2(0,-200),
+        ]
+        const e1=new Vector2(1,0);
+        const e2=new Vector2(0,1);
+
+        function parseVs(vs){
+            return vs.map(v=>e1.clone().multiplyScalar(v.x).add(e2.clone().multiplyScalar(v.y)))
+        }
+
+        const xLine=new Poly({
+            vertices:parseVs(xps),
+            stroke:true,
+        })
+        xLine.addModifier(new Lattice({
+            type:'Arrow'
+        }))
+        xLine.addModifier(new Lattice({
+            type:'Label',
+            labels:['','e1(1,0)']
+        }))
+        scene.add(xLine);
+
+        const yLine=new Poly({
+            vertices:parseVs(yps),
+            stroke:true,
+        })
+        yLine.addModifier(new Lattice({
+            type:'Arrow'
+        }))
+        yLine.addModifier(new Lattice({
+            type:'Label',
+            labels:['o','e2(0,1)']
+        }))
+        scene.add(yLine);
+
+        const line1=new Poly({
+            vertices:parseVs([
+                new Vector2(),
+                new Vector2(80,-80)
+            ]),
+            stroke:true,
+        })
+        line1.addModifier(new Lattice())
+        line1.addModifier(new Lattice({
+            type:'Label',
+            labels:['','a'],
+            d:8,
+            lineWidth:6,
+            strokeStyle:'#fff',
+            stroke:true
+        }))
+        scene.add(line1);
+    }*/
+
+    {
+        const xps=[
+            new Vector2(0,0),
+            new Vector2(200,0),
+            new Vector2(200,-200),
+            new Vector2(0,-200),
+        ]
+        const e1=new Vector2(1,-1).normalize();
+        const e2=new Vector2(0,1);
+
+        function parseVs(vs){
+            return vs.map(v=>e1.clone().multiplyScalar(v.x).add(e2.clone().multiplyScalar(v.y)))
+        }
+
+        const xLine=new Poly({
+            vertices:parseVs(xps),
+            stroke:true,
+            close:true
+        })
+        scene.add(xLine);
+
+
+        const line1=new Poly({
+            vertices:parseVs([
+                new Vector2(),
+                new Vector2(200,-200)
+            ]),
+            stroke:true,
+        })
+        scene.add(line1);
+    }
+
+    scene.draw(ctx);
+
+
+</script>
+</body>
+</html>
