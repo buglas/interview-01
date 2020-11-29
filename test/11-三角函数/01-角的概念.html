@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>三角函数</title>
+    <style>
+        html{height: 100%}
+        body{height: 100%;margin: 0;}
+    </style>
+</head>
+<body>
+<!--<div id="rect"></div>-->
+<canvas id="canvas"></canvas>
+<script type="module">
+    import Vector2 from "../../jsm/core/Vector2.js"
+    import Group from "../../jsm/core/Group.js"
+    import Poly from "../../jsm/core/Poly.js"
+    import Lattice from "../../jsm/modifierLib/Lattice.js"
+    import {getMousePos,setPosToBottom,setPosToTop} from "../../jsm/utils/Tool.js";
+    import Point from "../../jsm/modifierLib/latticeShapeLib/Point.js"
+    import Ball from "../../jsm/shapeLib/Ball.js"
+    import Axis from "../../jsm/helperLib/Axis.js"
+    import Rect from "../../jsm/shapeLib/Rect.js"
+
+    const canvas=document.getElementById('canvas');
+    const [winW,winH]=[window.innerWidth,window.innerHeight];
+    canvas.width=winW;
+    canvas.height=winH;
+    const ctx=canvas.getContext('2d');
+    const scene=new Group({
+        position:new Vector2(winW/2,winH/2),
+        scale:new Vector2(1,-1)
+    });
+
+    const axis=new Axis({
+        scale:new Vector2(1,-1),
+        position: new Vector2(-50,-50),
+        size:400
+    });
+    scene.add(axis);
+
+    const ray1Points=[
+        new Vector2(0,0),
+        new Vector2(300,0),
+    ]
+    const ray1=new Poly({
+        vertices:ray1Points,
+        stroke:true
+    })
+    ray1.addModifier(new Lattice({
+        type:'Arrow'
+    }))
+    scene.add(ray1);
+
+    const ray2Points=[
+        ray1Points[0],
+        ray1Points[1].clone().rotate(Math.PI/4)
+    ]
+    const ray2=new Poly({
+        vertices:ray2Points,
+        stroke:true
+    })
+    ray2.addModifier(new Lattice({
+        type:'Arrow'
+    }))
+    scene.add(ray2);
+
+    scene.draw(ctx);
+
+</script>
+</body>
+</html>

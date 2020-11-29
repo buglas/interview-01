@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>三角函数</title>
+    <style>
+        html{height: 100%}
+        body{height: 100%;margin: 0;}
+    </style>
+</head>
+<body>
+<!--<div id="rect"></div>-->
+<canvas id="canvas"></canvas>
+<script type="module">
+    import Vector2 from "../../jsm/core/Vector2.js"
+    import Group from "../../jsm/core/Group.js"
+    import Poly from "../../jsm/core/Poly.js"
+    import Lattice from "../../jsm/modifierLib/Lattice.js"
+    import {getMousePos,setPosToBottom,setPosToTop} from "../../jsm/utils/Tool.js";
+    import Point from "../../jsm/modifierLib/latticeShapeLib/Point.js"
+    import Ball from "../../jsm/shapeLib/Ball.js"
+    import Axis from "../../jsm/helperLib/Axis.js"
+    import Rect from "../../jsm/shapeLib/Rect.js"
+
+    const canvas=document.getElementById('canvas');
+    const [winW,winH]=[window.innerWidth,window.innerHeight];
+    canvas.width=winW;
+    canvas.height=winH;
+    const ctx=canvas.getContext('2d');
+    const scene=new Group({
+        position:new Vector2(winW/2,winH/2),
+    });
+
+    const ball=new Ball({
+        fill:true,
+        r:10
+    });
+    scene.add(ball);
+    scene.draw(ctx);
+
+    let mY=0;
+    let h=0;
+    const f2=5000;
+    let fm=0;
+    let time=0;
+    let subY=0;
+    let drag=false;
+
+    canvas.addEventListener('mousedown',function({clientY}){
+        mY=clientY;
+        subY=mY-ball.position.y;
+        drag=true;
+
+    })
+    canvas.addEventListener('mousemove',function({clientY}){
+        if(drag){
+            ball.position.y=clientY-subY;
+            render();
+        }
+
+    })
+    canvas.addEventListener('mouseup',function({clientY}){
+        drag=false;
+        h=clientY-mY;
+        time=new Date();
+        cancelAnimationFrame(fm);
+        play();
+    })
+
+    function play(){
+        const t=new Date()-time;
+
+        if(t<=f2){
+            console.log(t/f2);
+            ball.position.y=inter(t/f2)*h;
+            console.log('-',ball.position.y);
+            fm=requestAnimationFrame(play);
+        }else{
+            cancelAnimationFrame(fm);
+        }
+        render();
+    }
+    function render(){
+        ctx.clearRect(0,0,canvas.width,canvas.height);
+        scene.draw(ctx);
+    }
+
+
+    function inter(t){
+        const n=4;
+        const r=1-t;
+        const w=0.5+t*2;
+        const offset=Math.PI*3/2;
+        return Math.sin(w*Math.PI*2*n*t-offset)*r;
+    }
+
+
+
+</script>
+</body>
+</html>

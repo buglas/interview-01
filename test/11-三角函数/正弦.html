@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>三角函数</title>
+    <style>
+        html{height: 100%}
+        body{height: 100%;margin: 0;}
+    </style>
+</head>
+<body>
+<!--<div id="rect"></div>-->
+<canvas id="canvas"></canvas>
+<script type="module">
+    import Vector2 from "../../jsm/core/Vector2.js"
+    import Group from "../../jsm/core/Group.js"
+    import Poly from "../../jsm/core/Poly.js"
+    import Lattice from "../../jsm/modifierLib/Lattice.js"
+    import {getMousePos,setPosToBottom,setPosToTop} from "../../jsm/utils/Tool.js";
+    import Point from "../../jsm/modifierLib/latticeShapeLib/Point.js"
+    import Ball from "../../jsm/shapeLib/Ball.js"
+    import Axis from "../../jsm/helperLib/Axis.js"
+    import Rect from "../../jsm/shapeLib/Rect.js"
+
+    const canvas=document.getElementById('canvas');
+    const [winW,winH]=[window.innerWidth,window.innerHeight];
+    canvas.width=winW;
+    canvas.height=winH;
+    const ctx=canvas.getContext('2d');
+    const scene=new Group({
+        position:new Vector2(100,winH/2),
+        scale:new Vector2(700,-200)
+    });
+
+    const p0=new Vector2(50,300);
+    const p1=new Vector2(650,300);
+    /*半径*/
+    const r=100;
+    /*多少像素达标一圈*/
+    const b=600;
+    /*总长度*/
+    const len=p1.x-p0.x;
+    //圈数
+    const n=2;
+
+    /*插值集合*/
+    const interpolations=[];
+    /*建立多个插值*/
+    for(let t=0;t<1;t+=0.02){
+        interpolations.push(inter(t));
+    }
+    function inter(t){
+        const x=t;
+        const y=Math.sin(Math.PI*2*t);
+        return new Vector2(x,y)
+    }
+
+    /*多边形对象*/
+    const poly=new Poly({
+        vertices:interpolations,
+        stroke:true,
+        lineWidth:0.005
+    })
+
+    /*晶格化修改器*/
+    const lattice=new Lattice({
+        type:'Point',
+        r:0.01
+    });
+
+    /*将修改器应用于poly*/
+    poly.addModifier(lattice);
+    scene.add(poly);
+
+    /*绘图*/
+    scene.draw(ctx);
+
+
+</script>
+</body>
+</html>
