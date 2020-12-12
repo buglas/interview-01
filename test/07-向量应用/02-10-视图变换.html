@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>视图变换</title>
+    <style>
+        html{height: 100%}
+        body{height: 100%;margin: 0;}
+    </style>
+</head>
+<body>
+<!--<div id="rect"></div>-->
+<canvas id="canvas"></canvas>
+<script type="module">
+import Vector2 from "../../jsm/core/Vector2.js"
+import Group from "../../jsm/core/Group.js"
+import Poly from "../../jsm/core/Poly.js"
+import Lattice from "../../jsm/modifierLib/Lattice.js"
+import {getMousePos} from "../../jsm/utils/Tool.js";
+import Ball from "../../jsm/shapeLib/Ball.js"
+import Axis from "../../jsm/helperLib/Axis.js"
+import Rect from "../../jsm/shapeLib/Rect.js"
+
+/*画布*/
+const canvas=document.getElementById('canvas');
+const [w,h]=[window.innerWidth,window.innerHeight];
+canvas.width=w;
+canvas.height=h;
+/*画笔*/
+const ctx=canvas.getContext('2d');
+
+/*视图对象*/
+const scene=new Group({
+    position:new Vector2(300,400),
+    rotation:0,
+    scale:new Vector2(0.7,0.7)
+});
+/*矩形*/
+const rect=new Rect({
+    position:new Vector2(-200,-100),
+    size:new Vector2(400,200),
+    stroke:true
+});
+rect.addModifier(new Lattice());
+rect.addModifier(new Lattice({
+    type:'Label',
+    labels:['A','B','C','D'],
+    fontSize:18
+}));
+scene.add(rect);
+
+/*界外对象*/
+const outScene=new Group();
+/*位移轨道*/
+const moveOrbit=new Axis({
+    position:scene.position,
+    size:200,
+    o:'o1'
+})
+moveOrbit.__defineGetter__('rotation',()=>scene.rotation);
+outScene.add(moveOrbit);
+/*旋转轨道*/
+const rotateOrbit=new Ball({
+    position:scene.position,
+    r:50,
+    stroke:true,
+    lineDash:[5],
+    lineWidth:5,
+    strokeStyle:'rgba(0,0,0,0.2)'
+});
+outScene.add(rotateOrbit);
+
+/*鼠标引导线*/
+//鼠标点位
+const mp=new Vector2();
+//鼠标点弧度
+let mr=0;
+//引导线点位
+const vertices=[mp,scene.position];
+const mouseLine=new Poly({
+    vertices,
+    stroke:true,
+});
+mouseLine.addModifier(new Lattice());
+mouseLine.addModifier(new Lattice({type:'Arrow'}));
+mouseLine.addModifier(new Lattice({
+    type:'Label',
+    labels:[
+        'M',
+        ''
+    ],
+    fontSize:18
+}));
+outScene.add(mouseLine);
+
+render();
+/*渲染方法*/
+function render(){
+    outScene.update();
+    scene.update();
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    outScene.draw(ctx);
+    scene.draw(ctx);
+}
+
+//鼠标是否在平移视图
+let dragging=false;
+//鼠标是否在旋转视图
+let rotating=false;
+//鼠标是否划上了旋转轨
+let hoverRotateOrbit=false;
+
+/*鼠标按下事件
+*   当鼠标滚轮按下时，开始拖拽
+*   当鼠标左键按下时，如果鼠标在旋转轨上
+*       开启旋转状态rotating
+*       获取鼠标相对于视图位置的弧度mr
+* */
+canvas.addEventListener('mousedown',function(event){
+    const {button}=event;
+    if(button===1){
+        dragging=true;
+    }
+    if(button===0&&hoverRotateOrbit){
+        rotating=true;
+        mr=mp.clone().sub(scene.position).angle();
+    }
+})
+
+/*鼠标移动事件
+*   获取鼠标在canvas 中的位置pos
+*   更新旋转轨状态updateRotateOrbitStyle()
+*       鼠标划上变红
+*       鼠标离开变灰
+*   当拖拽时，移动视图translate(pos)
+*   当旋转时，旋转视图rotate(pos)
+*   更新鼠标位置 mp
+*   渲染render()
+* */
+canvas.addEventListener('mousemove',function(event){
+    const pos=getMousePos(event,canvas);
+    updateRotateOrbitStyle(pos)
+    if(dragging){
+        translate(pos);
+    }
+    if(rotating){
+        rotate(pos);
+    }
+    mp.copy(pos);
+    render();
+})
+
+/*鼠标滚轮滚动事件
+*   获取鼠标在canvas 中的位置pos
+*   更新旋转轨状态updateRotateOrbitStyle()
+*   基于滚轮滚动方向设置缩放比例rate
+*   缩放视图scale()
+*   渲染render()
+* */
+canvas.addEventListener('mousewheel',function(event){
+    const pos=getMousePos(event,canvas);
+    updateRotateOrbitStyle(pos);
+    const rate=event.wheelDelta>0?1.1:0.9;
+    scale(mp,scene,rate);
+    render();
+})
+
+/*鼠标抬起事件
+*   当鼠标滚轮在拖拽状态下抬起时，取消拖拽
+*   当鼠标左键在旋转状态下抬起时，取消旋转
+* */
+canvas.addEventListener('mouseup',function(event){
+    const {button}=event;
+    if(button===1&&dragging){
+        dragging=false;
+    }
+    if(button===0&&hoverRotateOrbit){
+        rotating=false;
+    }
+})
+
+/*更新旋转轨状态
+*   获取鼠标到视图原点的距离mto
+*   获取鼠标到旋转轨边界的距离subR
+*   如果距离小于10，就激活旋转轨
+*   否则，如果视图不处于旋转状态，置灰旋转轨
+* */
+function updateRotateOrbitStyle(pos){
+    const mto=pos.clone().sub(scene.position);
+    const subR=Math.abs(mto.length()-rotateOrbit.r);
+    if(subR<10){
+        actRotateOrbit();
+    }else if(!rotating){
+        unactRotateOrbit();
+    }
+}
+/*激活旋转轨*/
+function actRotateOrbit(){
+    canvas.style.cursor='pointer';
+    hoverRotateOrbit=true;
+    rotateOrbit.strokeStyle='rgba(255,0,0,.3)';
+}
+/*置灰旋转轨*/
+function unactRotateOrbit(){
+    canvas.style.cursor='default';
+    hoverRotateOrbit=true;
+    rotateOrbit.strokeStyle='rgba(0,0,0,0.2)';
+}
+/*缩放视图
+*   获取鼠标到视图的距离delta
+*   通过对delta进行数乘，更新视图在缩放后的位置position
+*   通过rate 缩放比，缩放视图
+* */
+function scale(mousePos,scene,rate){
+    const {position,scale}=scene;
+    const delta=position.clone().sub(mousePos);
+    position.copy(mousePos.clone().add(delta.multiplyScalar(rate)));
+    scale.multiplyScalar(rate);
+}
+function rotate(pos) {
+    const endAngle=pos.clone().sub(scene.position).angle();
+    scene.rotation+=endAngle-mr;
+    mr=endAngle;
+}
+function translate(pos){
+    const delta=pos.clone().sub(mp);
+    scene.position.add(delta);
+}
+
+
+
+
+
+
+
+
+</script>
+</body>
+</html>
