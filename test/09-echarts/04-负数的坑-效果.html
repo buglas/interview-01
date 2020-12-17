@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>多坐标轴</title>
+    <style>
+        #main{
+            margin: 20px;
+            width: 700px;
+            height: 500px;
+        }
+    </style>
+</head>
+<body>
+<!--建立dom 容器-->
+<div id="main"></div>
+<!--引入echarts-->
+<script src="https://lib.baomitu.com/echarts/4.7.0/echarts.min.js"></script>
+<script>
+    /*图表数据*/
+    const dataA=[30,20,40];
+    const dataB=[-33,45,85];
+
+    //行数
+    // const rowNum=6;
+    let rowNum=6;
+
+    /*核心属性
+    * minL 左侧轴的极小值
+    * maxL 左侧轴的极大值
+    * hL 左侧轴的行高
+    * minR 右侧轴的极小值
+    * maxR 右侧轴的极大值
+    * hR 右侧轴的行高
+    * */
+    let [minL,minR]=[
+        Math.min(0,...dataA),
+        Math.min(0,...dataB),
+    ];
+    let [maxL,maxR]=[
+        Math.max(...dataA),
+        Math.max(...dataB),
+    ]
+    let hL=(maxL-minL)/rowNum;
+    let hR=(maxR-minR)/rowNum;
+
+    /*行高上舍取整*/
+    hL=Math.ceil(hL);
+    hR=Math.ceil(hR);
+
+    /*行高切一半，上舍取整*/
+    hL=parseInt2(hL);
+    hR=parseInt2(hR);
+
+    function parseInt2(size){
+        const len=size.toString().length;
+        let type=size>10?'ceil':'floor';
+        const index=Math[type](len/2);
+        const power=Math.pow(10,index);
+        const flNum=size/power;
+        const intNum=Math.ceil(flNum);
+        const c=intNum*power;
+        return Math.max(c,1);
+    }
+
+    /*更新行数*/
+    rowNum=Math.max(
+        Math.ceil(maxL/hL),
+        Math.ceil(maxR/hR),
+    );
+
+
+    /*基于行高更新极大值*/
+    [maxL,maxR]=[
+        hL*rowNum,
+        hR*rowNum,
+    ];
+
+
+    /*初始化echarts实例*/
+    const myChart = echarts.init(document.getElementById('main'));
+
+    /*指定图表的配置项和数据*/
+    const option = {
+        /*图例*/
+        legend:{},
+        /*提示*/
+        tooltip:{},
+        /*x 轴*/
+        xAxis:{
+            data:['T恤','衬衫','外套']
+        },
+
+        /*y 轴
+        *   name 坐标轴名称
+        *   min 刻度最小值
+        *   max 刻度最大值
+        * */
+        yAxis:[
+            {name:'销售量',type:'value',min:minL,max:maxL,interval:hL},
+            {name:'盈利额',type:'value',min:minR,max:maxR,interval:hR},
+        ],
+
+        /*系列列表 series
+        *   yAxisIndex 当前系列对应的y 轴的索引位置
+        * */
+        series:[
+            {
+                name:'销售量',
+                type:'bar',
+                data:dataA,
+                yAxisIndex:0
+            },
+            {
+                name:'盈利额',
+                type:'bar',
+                data:dataB,
+                yAxisIndex:1
+            }
+        ]
+    };
+
+    // 基于配置项显示图表。
+    myChart.setOption(option);
+</script>
+</body>
+</html>

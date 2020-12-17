@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>多坐标轴</title>
+    <style>
+        #main{
+            margin: 20px;
+            width: 700px;
+            height: 500px;
+        }
+    </style>
+</head>
+<body>
+<!--建立dom 容器-->
+<div id="main"></div>
+<!--引入echarts-->
+<script src="https://lib.baomitu.com/echarts/4.7.0/echarts.min.js"></script>
+<script>
+    /*图表数据*/
+    const dataA=[30,20,40];
+    const dataB=[-33116,45221,85033];
+
+    /*初始化echarts实例*/
+    const myChart = echarts.init(document.getElementById('main'));
+
+    /*指定图表的配置项和数据*/
+    const option = {
+        /*图例*/
+        legend:{},
+        /*提示*/
+        tooltip:{},
+        /*x 轴*/
+        xAxis:{
+            data:['T恤','衬衫','外套']
+        },
+
+        /*y 轴
+        *   name 坐标轴名称
+        *   min 刻度最小值
+        *   max 刻度最大值
+        * */
+        yAxis:[
+            {name:'销售量',type:'value'},
+            {name:'盈利额',type:'value'},
+        ],
+
+        /*系列列表 series
+        *   yAxisIndex 当前系列对应的y 轴的索引位置
+        * */
+        series:[
+            {
+                name:'销售量',
+                type:'bar',
+                data:dataA,
+                yAxisIndex:0
+            },
+            {
+                name:'盈利额',
+                type:'bar',
+                data:dataB,
+                yAxisIndex:1
+            }
+        ]
+    };
+
+    // 基于配置项显示图表。
+    myChart.setOption(option);
+</script>
+</body>
+</html>
