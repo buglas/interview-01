@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>视图变换</title>
+    <style>
+        html{height: 100%}
+        body{height: 100%;margin: 0;}
+    </style>
+</head>
+<body>
+<!--<div id="rect"></div>-->
+<canvas id="canvas"></canvas>
+<script type="module">
+    import Vector2 from "../../jsm/core/Vector2.js"
+    import Group from "../../jsm/core/Group.js"
+    import Poly from "../../jsm/core/Poly.js"
+    import Lattice from "../../jsm/modifierLib/Lattice.js"
+    import {getMousePos,setPosToBottom,setPosToTop} from "../../jsm/utils/Tool.js";
+    import Point from "../../jsm/modifierLib/latticeShapeLib/Point.js"
+    import Ball from "../../jsm/shapeLib/Ball.js"
+    import Axis from "../../jsm/helperLib/Axis.js"
+    import Rect from "../../jsm/shapeLib/Rect.js"
+
+    const canvas=document.getElementById('canvas');
+    const [w,h]=[window.innerWidth,window.innerHeight];
+    canvas.width=w;
+    canvas.height=h;
+    const ctx=canvas.getContext('2d');
+    const scene=new Group({
+        position:new Vector2(100,h/2),
+    });
+
+    const OA=new Vector2(1,0);
+    const OB=new Vector2(50,255);
+
+    const AB=OB.clone().sub(OA);
+    const k=AB.y/AB.x;
+
+    const b=OA.y-k*OA.x;
+    
+    function scaler(x){
+        return k*x+b;
+    }
+
+    let px=0;
+    for(let i=1;i<50;i+=2){
+        px+=i;
+        const n=scaler(i);
+
+        /*const obj=new Ball({
+            fill:true,
+            fillStyle:`rgb(${n},${n},${n})`,
+            r:i,
+            orign:new Vector2(px,0)
+        })
+        scene.add(obj);*/
+
+
+        /*小心心*/
+        const s=i/100;
+        const obj=new Poly({
+            position:new Vector2(px,0),
+            scale:new Vector2(s,s),
+            fill:true,
+            stroke:true,
+            fillStyle:`rgb(255,${255-n},${n*0.7})`,
+            strokeStyle:'rgba(255,255,255,0.9)',
+            lineWidth:15,
+            crtPath:function(ctx){
+                ctx.beginPath();
+                ctx.moveTo(0,0);
+                ctx.bezierCurveTo(-200,-50,-180,-300,0,-200);
+                ctx.bezierCurveTo(180,-300,200,-50,0,0);
+            }
+        });
+        scene.add(obj);
+    }
+
+    scene.draw(ctx);
+
+</script>
+</body>
+</html>

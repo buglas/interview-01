@@ -5,7 +5,7 @@ import Shape from "./Shape.js"
 /*Rect 矩形对象-普通图形|晶格化修改器节点
 *   align 对齐方式，默认左上角lt，可为center
 *       lt 左上角,默认
-*       center 居中
+*       c 居中
 *   size 尺寸
 *   min 左上点
 *   max 右下点
@@ -36,7 +36,7 @@ export default class Rect extends Shape{
         const {align,min,max,orign:{x,y},size:{x:w,y:h}}=this;
         let l=0;
         let t=0;
-        if(align==='center'){
+        if(align==='c'){
             l=x-w/2;
             t=y-h/2;
         }else {
