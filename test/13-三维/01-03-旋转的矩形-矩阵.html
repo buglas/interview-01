@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>旋转的矩形</title>
+    <style>
+      html {
+        height: 100%;
+      }
+      body {
+        height: 100%;
+        margin: 0;
+      }
+    </style>
+  </head>
+  <body>
+    <canvas id="canvas"></canvas>
+    <script type="module">
+      import Vector2 from "../../jsm/core/Vector2.js";
+      import Vector3 from "../../jsm/core/Vector3.js";
+      import Group from "../../jsm/core/Group.js";
+      import Poly from "../../jsm/core/Poly.js";
+      import Lattice from "../../jsm/modifierLib/Lattice.js";
+      import {
+        getMousePos,
+        setPosToBottom,
+        setPosToTop,
+      } from "../../jsm/utils/Tool.js";
+      import Point from "../../jsm/modifierLib/latticeShapeLib/Point.js";
+      import Ball from "../../jsm/shapeLib/Ball.js";
+      import Axis from "../../jsm/helperLib/Axis.js";
+      import Rect from "../../jsm/shapeLib/Rect.js";
+
+      /* 渲染器 */
+      class Renderer {
+        constructor(attrs) {
+          Object.assign(this, attrs);
+          this.update();
+        }
+        update() {
+          const { canvas } = this;
+          this.ctx = canvas.getContext("2d");
+          this.ctx.translate(canvas.width / 2, canvas.height / 2);
+          this.ctx.scale(1, -1);
+        }
+        render(scene) {
+          const {
+            ctx,
+            canvas: { width, height },
+          } = this;
+          ctx.clearRect(-width / 2, -height / 2, width, height);
+          scene.children.forEach(({ geometry, material, matrix }) => {
+            const vertices = [];
+            geometry.forEach((p) => {
+              const { x, y } = matrix.multiply(p);
+              vertices.push(new Vector2(x, y));
+            });
+            const poly = new Poly({
+              vertices,
+              ...material,
+            });
+            poly.addModifier(new Lattice());
+            poly.draw(ctx);
+          });
+        }
+      }
+
+      /* 场景 */
+      class Scene {
+        constructor() {
+          this.children = [];
+        }
+        add(obj) {
+          this.children.push(obj);
+        }
+      }
+
+      /* 矩阵 */
+      class Matrix {
+        constructor({
+          a = [0, 0, 0, 0],
+          b = [0, 0, 0, 0],
+          c = [0, 0, 0, 0],
+          d = [0, 0, 0, 1],
+        } = {}) {
+          this.data = [a, b, c, d];
+        }
+        multiply(v) {
+          const [a, b, c, d] = this.data;
+          const { x = 1, y = 0, z = 0, w = 0 } = v;
+          return {
+            x: a[0] * x + a[1] * y + a[2] * z + a[3] * w,
+            y: b[0] * x + b[1] * y + b[2] * z + b[3] * w,
+            z: c[0] * x + c[1] * y + c[2] * z + c[3] * w,
+            w: d[0] * x + d[1] * y + d[2] * z + d[3] * w,
+          };
+        }
+      }
+
+      const canvas = document.getElementById("canvas");
+      const [w, h] = [window.innerWidth, window.innerHeight];
+      canvas.width = w;
+      canvas.height = h;
+
+      const renderer = new Renderer({ canvas });
+      const scene = new Scene();
+
+      const A = new Vector3(100, 100, 0);
+      const B = new Vector3(-100, 100, 0);
+      const C = new Vector3(-100, -100, 0);
+      const D = new Vector3(100, -100, 0);
+      const rect = {
+        geometry: [A, B, C, D],
+        material: {
+          stroke: true,
+          close: true,
+        },
+      };
+      scene.add(rect);
+
+      let angle = 0;
+      let sin = 0;
+      let cos = 0;
+      !(function ani() {
+        angle += 0.05;
+        const sin = Math.sin(angle);
+        const cos = Math.cos(angle);
+        rect.matrix = new Matrix({
+          a: [cos, 0, -sin, 0],
+          b: [0, 1, 0, 0],
+          c: [sin, 0, cos, 0],
+        });
+        renderer.render(scene);
+        requestAnimationFrame(ani);
+      })();
+    </script>
+  </body>
+</html>

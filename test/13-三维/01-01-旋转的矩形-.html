@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>旋转的矩形</title>
+    <style>
+        html{height: 100%}
+        body{height: 100%;margin: 0;}
+    </style>
+</head>
+<body>
+<!--<div id="rect"></div>-->
+<canvas id="canvas"></canvas>
+<script type="module">
+    import Vector2 from "../../jsm/core/Vector2.js"
+    import Vector3 from "../../jsm/core/Vector3.js"
+    import Group from "../../jsm/core/Group.js"
+    import Poly from "../../jsm/core/Poly.js"
+    import Lattice from "../../jsm/modifierLib/Lattice.js"
+    import {getMousePos,setPosToBottom,setPosToTop} from "../../jsm/utils/Tool.js";
+    import Point from "../../jsm/modifierLib/latticeShapeLib/Point.js"
+    import Ball from "../../jsm/shapeLib/Ball.js"
+    import Axis from "../../jsm/helperLib/Axis.js"
+    import Rect from "../../jsm/shapeLib/Rect.js"
+
+    const canvas=document.getElementById('canvas');
+    const [w,h]=[window.innerWidth,window.innerHeight];
+    canvas.width=w;
+    canvas.height=h;
+
+    const scene={
+        children:[]
+    };
+
+    const A=new Vector3(100,100,0)
+    const B=new Vector3(-100,100,0)
+    const C=new Vector3(-100,-100,0)
+    const D=new Vector3(100,-100,0)
+    const ps=[A,B,C,D]
+
+    const rect={
+        geometry:ps,
+
+        material:{
+            stroke:true,
+            close:true
+        }
+    }
+    scene.children.push(rect)
+    const render=Render(scene,canvas)
+    // render()
+
+    let angle=0
+    let sin=0
+    let cos=0
+    rotate()
+    function rotate() {
+        angle+=0.05;
+        sin=Math.sin(angle)
+        cos=Math.cos(angle)
+    }
+
+    !(function ani(){
+        rotate()
+        render()
+        requestAnimationFrame(ani)
+    })()
+
+
+
+    function Render(scene,canvas) {
+        const ctx=canvas.getContext('2d')
+        ctx.translate(canvas.width/2,canvas.height/2)
+        ctx.scale(1,-1)
+        return function(){
+            ctx.clearRect(-canvas.width/2,-canvas.height/2,canvas.width,canvas.height);
+            scene.children.forEach(({geometry,material})=>{
+                const vertices=[]
+                geometry.forEach(p=>{
+                    const v2=new Vector2(
+                        p.x*cos-p.z*sin,
+                        p.y
+                    )
+                    vertices.push(v2)
+                })
+
+                const poly=new Poly({
+                    vertices,
+                    ...material
+                })
+                poly.addModifier(new Lattice())
+                /*poly.addModifier(new Lattice({
+                    type:'Label',
+                    text:['A','B','C','D']
+                }))*/
+                poly.draw(ctx)
+                console.log(poly);
+            })
+        }
+    }
+
+
+</script>
+</body>
+</html>

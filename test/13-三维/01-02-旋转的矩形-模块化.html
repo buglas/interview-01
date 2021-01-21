@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>旋转的矩形</title>
+    <style>
+        html{height: 100%}
+        body{height: 100%;margin: 0;}
+    </style>
+</head>
+<body>
+<canvas id="canvas"></canvas>
+<script type="module">
+import Vector2 from "../../jsm/core/Vector2.js"
+import Vector3 from "../../jsm/core/Vector3.js"
+import Group from "../../jsm/core/Group.js"
+import Poly from "../../jsm/core/Poly.js"
+import Lattice from "../../jsm/modifierLib/Lattice.js"
+import {getMousePos,setPosToBottom,setPosToTop} from "../../jsm/utils/Tool.js";
+import Point from "../../jsm/modifierLib/latticeShapeLib/Point.js"
+import Ball from "../../jsm/shapeLib/Ball.js"
+import Axis from "../../jsm/helperLib/Axis.js"
+import Rect from "../../jsm/shapeLib/Rect.js"
+
+/* 渲染器 */
+class Renderer{
+  constructor(attrs){
+    Object.assign(this,attrs)
+    this.update()
+  }
+  update(){
+    const {canvas}=this
+    this.ctx=canvas.getContext('2d')
+    this.ctx.translate(canvas.width/2,canvas.height/2)
+    this.ctx.scale(1,-1)
+  }
+  render(scene){
+    const {ctx,canvas:{width,height}}=this
+    ctx.clearRect(-width/2,-height/2,width,height);
+    scene.children.forEach(({geometry,material,sin,cos})=>{
+        const vertices=[]
+        geometry.forEach(p=>{
+            const x=p.x*cos-p.z*sin
+            const z=p.z*cos+p.x*sin
+            const y=p.y
+            const v2=new Vector2(x,y)
+            vertices.push(v2)
+        })
+        const poly=new Poly({
+            vertices,
+            ...material
+        })
+        poly.addModifier(new Lattice())
+        poly.draw(ctx)
+    })
+  }
+}
+
+/* 场景 */
+class Scene{
+  constructor(){
+    this.children=[]
+  }
+  add(obj){
+    this.children.push(obj)
+  }
+}
+
+
+const canvas=document.getElementById('canvas');
+const [w,h]=[window.innerWidth,window.innerHeight];
+canvas.width=w;
+canvas.height=h;
+
+const renderer=new Renderer({canvas})
+const scene=new Scene()
+
+const A=new Vector3(100,100,0)
+const B=new Vector3(-100,100,0)
+const C=new Vector3(-100,-100,0)
+const D=new Vector3(100,-100,0)
+const rect={
+    geometry:[A,B,C,D],
+    material:{
+        stroke:true,
+        close:true
+    }
+}
+scene.add(rect)
+
+
+let angle=0
+let sin=0
+let cos=0
+!(function ani(){
+    angle+=0.05;
+    rect.sin=Math.sin(angle)
+    rect.cos=Math.cos(angle)
+    renderer.render(scene)
+    requestAnimationFrame(ani)
+})()
+
+
+
+
+
+
+
+
+</script>
+</body>
+</html>
