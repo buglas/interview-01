@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>边界偏移模块化</title>
+    <style>
+        html{height: 100%}
+        body{height: 100%;margin: 0;}
+    </style>
+</head>
+<body>
+<canvas id="canvas"></canvas>
+<script type="module">
+    import Vector2 from "../../jsm/core/Vector2.js"
+    import Group from "../../jsm/core/Group.js"
+    import Poly from "../../jsm/core/Poly.js"
+    import Lattice from "../../jsm/modifierLib/Lattice.js"
+    import Expand from "../../jsm/modifierLib/Expand.js";
+
+    const canvas=document.getElementById('canvas');
+    canvas.width=window.innerWidth;
+    canvas.height=window.innerHeight;
+    const ctx=canvas.getContext('2d');
+    const c=new Vector2(canvas.width/2,canvas.height/2);
+
+    const scene=new Group({
+        position:c
+    });
+
+    const vertices=[
+        new Vector2(-150,-200),
+        new Vector2(0,0),
+        new Vector2(-150,200)
+    ];
+
+    const triangle=new Poly({
+        vertices,
+        fill:true,
+        fillStyle:'#00acec',
+        close:true,
+    });
+    scene.add(triangle);
+
+    const l0=new Poly({
+        vertices,
+        stroke:true,
+        close:true,
+    });
+    scene.add(l0);
+    scene.draw(ctx);
+
+    const size=50
+    for(let i=size;i>0;i--){
+        const inter=i/size
+        l0.globalAlpha=inter*inter
+        const expand=new Expand({
+            id:1,
+            d:-1,
+        });
+        l0.addModifier(expand);
+        scene.draw(ctx);
+    }
+
+
+
+</script>
+</body>
+</html>

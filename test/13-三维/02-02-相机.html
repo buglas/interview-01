@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <title>相机</title>
+    <style>
+        html {
+            height: 30%;
+        }
+        body {
+            height: 30%;
+            margin: 0;
+        }
+    </style>
+</head>
+<body>
+<canvas id="canvas"></canvas>
+<script type="module">
+import Vector2 from "../../jsm/core/Vector2.js";
+import Vector3 from "../../jsm/core/Vector3.js";
+import Group from "../../jsm/core/Group.js";
+import Poly from "../../jsm/core/Poly.js";
+import Lattice from "../../jsm/modifierLib/Lattice.js";
+import {
+    getMousePos,
+    setPosToBottom,
+    setPosToTop,
+} from "../../jsm/utils/Tool.js";
+import Point from "../../jsm/modifierLib/latticeShapeLib/Point.js";
+import Ball from "../../jsm/shapeLib/Ball.js";
+import Axis from "../../jsm/helperLib/Axis.js";
+import Rect from "../../jsm/shapeLib/Rect.js";
+
+/* 渲染器 */
+class Renderer {
+    constructor(attrs) {
+        Object.assign(this, attrs);
+        this.update();
+    }
+    update() {
+        const { canvas } = this;
+        this.ctx = canvas.getContext("2d");
+
+    }
+    render(scene,camera) {
+        const {
+            ctx,
+            canvas: { width, height },
+        } = this;
+        const {h,aspect}=camera
+        const xMap=Renderer.Mapping(-h,0,h,width)
+        const yMap=Renderer.Mapping(h,0,-h,height)
+        ctx.clearRect(0, 0, width, height)
+        scene.children.forEach(({ geometry, material, matrix }) => {
+            const vertices = [];
+            geometry.forEach((p) => {
+                const mp = p.clone().applyMatrix4(matrix)
+                const p2=new Vector3(mp.x,mp.y,mp.z)
+                const p3=Renderer.getProjection(p2,camera)
+                const cx=xMap(p3.x/aspect)
+                const cy=yMap(p3.y)
+                vertices.push(new Vector2(cx,cy))
+            });
+            const poly = new Poly({
+                vertices,
+                ...material,
+            });
+            poly.addModifier(new Lattice());
+            poly.draw(ctx);
+        });
+    }
+    static getProjection(p,{position,fov,h,ct,ctLen,r}){
+        const {x:x1,y:y1,z:z1}=ct
+        const {x:x2,y:y2,z:z2}=p.clone().sub(position)
+        const x=Renderer.sin(z2,x2,z1,x1)*r
+        const y=Renderer.sin(z2,y2,z1,y1)*r
+        return new Vector2(x,y)
+    }
+    static sin(x1,y1,x2,y2){
+        const len1=Math.sqrt(x1*x1+y1*y1)
+        const len2=Math.sqrt(x2*x2+y2*y2)
+        const len=len1*len2
+        const cross=x1*y2-x2*y1
+        return cross / len
+    }
+    static Mapping(x1,y1,x2,y2){
+        const [x,y]=[x2-x1,y2-y1]
+        const k=y/x
+        const b=y1-k*x1
+        return function(x){
+            return k*x+b
+        }
+    }
+}
+/* 场景 */
+class Scene {
+    constructor() {
+        this.children = [];
+    }
+    add(obj) {
+        this.children.push(obj);
+    }
+}
+
+/* 矩阵 */
+class Matrix {
+    constructor(
+        m0=1,  m1=0,  m2=0,  m3=0,
+        m4=0,  m5=1,  m6=0,  m7=0,
+        m8=0,  m9=0,  m10=1, m11=0,
+        m12=0, m13=0, m14=0, m15=1
+    ){
+        this.set(
+            m0,  m1,  m2,  m3,
+            m4,  m5,  m6,  m7,
+            m8,  m9,  m10, m11,
+            m12, m13, m14, m15
+        )
+    }
+    set(
+        m0,  m1,  m2,  m3,
+        m4,  m5,  m6,  m7,
+        m8,  m9,  m10, m11,
+        m12, m13, m14, m15
+    ){
+        this.elements = [
+            m0,m4,m8,m12,
+            m1,m5,m9,m13,
+            m2,m6,m10,m14,
+            m3,m7,m11,m15,
+        ];
+    }
+    makeRotationX( theta ) {
+        const c = Math.cos( theta ), s = Math.sin( theta );
+        this.set(
+            1, 0, 0, 0,
+            0, c, - s, 0,
+            0, s, c, 0,
+            0, 0, 0, 1
+        );
+        return this;
+    }
+    makeRotationY( theta ) {
+        const c = Math.cos( theta ), s = Math.sin( theta );
+        this.set(
+            c, 0, s, 0,
+            0, 1, 0, 0,
+            - s, 0, c, 0,
+            0, 0, 0, 1
+        );
+        return this;
+    }
+    makeRotationZ( theta ) {
+        const c = Math.cos( theta ), s = Math.sin( theta );
+        this.set(
+            c, - s, 0, 0,
+            s, c, 0, 0,
+            0, 0, 1, 0,
+            0, 0, 0, 1
+
+        );
+        return this;
+    }
+}
+
+/*相机对象*/
+class Camera{
+    constructor(fov=Math.PI/4,aspect=1,near=1){
+        this.fov=fov
+        this.near=near
+        this.position=new Vector3()
+        this.target=new Vector3()
+        this.aspect=aspect
+        this.update()
+    }
+    update(){
+        const {fov,near,target,position}=this
+        this.r=near/Math.cos(fov)
+        this.h=Math.sin(fov)*this.r
+        this.ct=target.clone().sub(position)
+    }
+}
+
+const canvas = document.getElementById("canvas")
+const [w, h] = [window.innerWidth, window.innerHeight]
+canvas.width = w
+canvas.height = h
+
+/* 实例化渲染器 */
+const renderer = new Renderer({ canvas })
+/*场景*/
+const scene = new Scene()
+/*相机*/
+const camera=new Camera(Math.PI/3,w/h,40)
+camera.target.set(0,0,0)
+camera.position.set(0,0,160)
+camera.update()
+
+
+const A = new Vector3(30, 30, 0)
+const B = new Vector3(-30, 30, 0)
+const C = new Vector3(-30, -30, 0)
+const D = new Vector3(30, -30, 0)
+const rect = {
+    geometry: [A,B,C,D],
+    material: {
+        stroke: true,
+        close: true,
+    },
+}
+scene.add(rect)
+
+let angle = 0;
+!(function ani() {
+    angle += 0.05;
+    const sin = Math.sin(angle)
+    const cos = Math.cos(angle)
+    rect.matrix = new Matrix().makeRotationY(angle)
+
+    renderer.render(scene,camera)
+    requestAnimationFrame(ani)
+})();
+</script>
+</body>
+</html>
