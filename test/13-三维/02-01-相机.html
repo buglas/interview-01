@@ -69,7 +69,7 @@ class Renderer {
             poly.draw(ctx);
         });
     }
-    static getProjection(p,{position,fov,h,ct,ctLen,r}){
+    static getProjection(p,{position,ct,r}){
         const {x:x1,y:y1,z:z1}=ct
         const {x:x2,y:y2,z:z2}=p.clone().sub(position)
         const x=Renderer.sin(z2,x2,z1,x1)*r

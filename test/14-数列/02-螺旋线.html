@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>数列</title>
+    <style>
+        html{height: 100%}
+        body{height: 100%;margin: 0;}
+    </style>
+</head>
+<body>
+<!--<div id="rect"></div>-->
+<canvas id="canvas"></canvas>
+<script type="module">
+    import Vector2 from "../../jsm/core/Vector2.js"
+    import Group from "../../jsm/core/Group.js"
+    import Poly from "../../jsm/core/Poly.js"
+    import Lattice from "../../jsm/modifierLib/Lattice.js"
+    import {getMousePos,setPosToBottom,setPosToTop} from "../../jsm/utils/Tool.js";
+    import Point from "../../jsm/modifierLib/latticeShapeLib/Point.js"
+    import Ball from "../../jsm/shapeLib/Ball.js"
+    import Axis from "../../jsm/helperLib/Axis.js"
+    import Rect from "../../jsm/shapeLib/Rect.js"
+
+    const canvas=document.getElementById('canvas');
+    const [winW,winH]=[window.innerWidth,window.innerHeight];
+    canvas.width=winW;
+    canvas.height=winH;
+    const ctx=canvas.getContext('2d');
+    const scene=new Group({
+        position:new Vector2(winW*0.2,winH*0.8),
+        scale:new Vector2(1,-1)
+    });
+
+    const axis=new Axis({
+        scale:new Vector2(1,-1),
+        position: new Vector2(-50,-50),
+        size:700
+    });
+    scene.add(axis);
+
+    /*定义域*/
+    const domain=[0,600]
+
+    /*直线函数*/
+    function lf(x){
+        return x
+    }
+
+    /*曲线函数*/
+    function cf(x){
+        return Math.pow(0.2,x/domain[1])*600
+    }
+
+    /*直线对象*/
+    const lps=[
+        new Vector2(domain[0],lf(domain[0])),
+        new Vector2(domain[1],lf(domain[1])),
+    ]
+    const l=new Poly({
+        vertices:lps,
+        stroke:true
+    })
+    scene.add(l);
+
+    /*曲线对象*/
+    const cps=[]
+    for(let i=domain[0];i<domain[1];i+=20){
+        cps.push(
+            new Vector2(i,cf(i))
+        )
+    }
+    const c=new Poly({
+        vertices:cps,
+        stroke:true
+    })
+    scene.add(c);
+
+    /*螺旋线screw */
+    const x1=domain[1]-30
+    const p1=new Vector2(x1,cf(x1))
+    const sps=[p1]
+    const len=sps.length
+    for (let i=len;i<30;i++){
+        const pn=new Vector2()
+        if(i%2){
+            pn.y=sps[i-1].y
+            pn.x=lf(pn.y)
+        }else{
+            pn.x=sps[i-1].x
+            pn.y=cf(pn.x)
+        }
+        sps.push(pn)
+    }
+    const s=new Poly({
+        vertices:sps,
+        stroke:true
+    })
+
+    scene.add(s);
+
+    scene.draw(ctx);
+
+</script>
+</body>
+</html>

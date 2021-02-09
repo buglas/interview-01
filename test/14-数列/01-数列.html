@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>数列</title>
+    <style>
+        html{height: 100%}
+        body{height: 100%;margin: 0;}
+    </style>
+</head>
+<body>
+<!--<div id="rect"></div>-->
+<canvas id="canvas"></canvas>
+<script type="module">
+    import Vector2 from "../../jsm/core/Vector2.js"
+    import Group from "../../jsm/core/Group.js"
+    import Poly from "../../jsm/core/Poly.js"
+    import Lattice from "../../jsm/modifierLib/Lattice.js"
+    import {getMousePos,setPosToBottom,setPosToTop} from "../../jsm/utils/Tool.js";
+    import Point from "../../jsm/modifierLib/latticeShapeLib/Point.js"
+    import Ball from "../../jsm/shapeLib/Ball.js"
+    import Axis from "../../jsm/helperLib/Axis.js"
+    import Rect from "../../jsm/shapeLib/Rect.js"
+
+    const canvas=document.getElementById('canvas');
+    const [winW,winH]=[window.innerWidth,window.innerHeight];
+    canvas.width=winW;
+    canvas.height=winH;
+    const ctx=canvas.getContext('2d');
+    const scene=new Group({
+        position:new Vector2(winW*0.2,winH*0.8),
+        scale:new Vector2(1,-1)
+    });
+
+    /*定义域*/
+    const domain=[0,300]
+
+    const axis=new Axis({
+        scale:new Vector2(1,-1),
+        position: new Vector2(-50,-50),
+        size:domain[1]+100
+    });
+    scene.add(axis);
+
+
+
+
+    /*曲线函数*/
+    function cf(x){
+        return Math.pow(2,1+7*x/domain[1])
+    }
+
+
+    /*曲线对象*/
+    const cps=[]
+    for(let i=domain[0];i<=domain[1];i+=50){
+        cps.push(
+            new Vector2(i,cf(i))
+        )
+    }
+    const c=new Poly({
+        vertices:cps,
+        stroke:true
+    })
+    c.addModifier(new Lattice())
+    scene.add(c);
+
+
+    scene.draw(ctx);
+
+</script>
+</body>
+</html>
