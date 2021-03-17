@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>单点位移</title>
+    <style>
+        html{height: 100%}
+        body{height: 100%;margin: 0;}
+    </style>
+</head>
+<body>
+<canvas id="canvas"></canvas>
+<script type="module">
+    import Vector2 from "../../jsm/core/Vector2.js"
+    import Group from "../../jsm/core/Group.js"
+    import Text from "../../jsm/shapeLib/Text.js"
+    import Poly from "../../jsm/core/Poly.js"
+    import Lattice from "../../jsm/modifierLib/Lattice.js"
+    import Expand from "../../jsm/modifierLib/Expand.js";
+    import Axis from "../../jsm/helperLib/Axis.js"
+
+    const canvas=document.getElementById('canvas');
+    canvas.width=window.innerWidth;
+    canvas.height=window.innerHeight;
+    const ctx=canvas.getContext('2d');
+    const c=new Vector2(canvas.width/4,canvas.height*0.7);
+
+    const scene=new Group({
+        position:c
+    });
+
+
+    const vertices=[
+        new Vector2(0,-70),
+        new Vector2(-70,70),
+        new Vector2(70,70),
+    ];
+    const labels=['p(x,y,z)','p\'(x\',y\',z\')'];
+
+    const line=new Poly({
+        vertices:[
+            new Vector2(-70,70),
+            new Vector2(70,-70)
+        ],
+        stroke: true,
+    })
+    line.addModifier(new Lattice());
+    line.addModifier(new Lattice({
+        type:'Arrow',
+    }));
+    line.addModifier(new Lattice({
+        type:'Label',
+        fontSize:18,
+        fillStyle:'#000',
+        labels
+    }));
+    scene.add(line);
+
+
+    const sceneAxis=new Axis({
+        size:[300,300],
+        position: new Vector2(-160,120)
+    });
+    scene.add(sceneAxis);
+
+    /*sceneAxis.size=[400];
+    sceneAxis.arrowSize=50;
+    sceneAxis.update();*/
+
+    scene.draw(ctx);
+</script>
+</body>
+</html>

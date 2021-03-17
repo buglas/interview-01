@@ -92,7 +92,6 @@ export default class Vector2{
                 inPoly=false;
                 break
             }
-            const {x,y}=vector;
         }
         return inPoly;
     }
@@ -226,7 +225,7 @@ export default class Vector2{
         this.y *= scalar;
         return this;
     }
-    
+
 
     //根据半径，弧度，设置极坐标
     static polar(r,rad){
