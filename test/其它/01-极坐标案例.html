@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>极坐标</title>
+    <style>
+        html{height: 100%}
+        body{height: 100%;margin: 0;}
+    </style>
+</head>
+<body>
+<!--<div id="rect"></div>-->
+<canvas id="canvas"></canvas>
+<script type="module">
+    import Vector2 from "../../jsm/core/Vector2.js"
+    import Group from "../../jsm/core/Group.js"
+    import Poly from "../../jsm/core/Poly.js"
+    import Lattice from "../../jsm/modifierLib/Lattice.js"
+    import {getMousePos,setPosToBottom,setPosToTop} from "../../jsm/utils/Tool.js";
+    import Point from "../../jsm/modifierLib/latticeShapeLib/Point.js"
+    import Text from "../../jsm/shapeLib/Text.js"
+    import Axis from "../../jsm/helperLib/Axis.js"
+    import Rect from "../../jsm/shapeLib/Rect.js"
+
+    const canvas=document.getElementById('canvas');
+    const [winW,winH]=[window.innerWidth,window.innerHeight];
+    canvas.width=winW;
+    canvas.height=winH;
+    const ctx=canvas.getContext('2d');
+    const scene=new Group({
+        position: new Vector2(winW/2,winH/2)
+    });
+
+    class SectorShape extends Poly{
+        static defAttr=()=>({
+            pos:new Vector2(),
+            size:new Vector2(),
+            segmentLen:10,
+            stroke:true,
+            strokeStyle:'#000',
+            close:true
+        })
+        constructor(attr={}){
+            super();
+            Object.assign(this,SectorShape.defAttr(),attr)
+        }
+        update(){
+            const {size:{x:width,y:height},segmentLen,pos}=this;
+            const rowB=[]
+            const rowT=[]
+            const len=Math.floor(width/segmentLen)+1
+            for(let i=0;i<len;i++){
+                let x=i*segmentLen
+                if(x>width){
+                    x=width
+                }
+                const xPos=pos.x+x
+                rowT.push(new Vector2(xPos,pos.y))
+                rowB.unshift(new Vector2(xPos,pos.y+height))
+            }
+            this.vertices=[...rowT,...rowB]
+        }
+    }
+    /*
+    const rect=new SectorShape({
+        size: new Vector2(100,50)
+    })
+    rect.update()
+    rect.draw(ctx)
+    */
+    class SectorNode{
+        static defAttr=()=>({
+            position:new Vector2(),
+            padding:new Vector2(24,12),
+            text:null,
+            rect:null,
+            textAttr:{
+                text:'文字内容',
+                fontSize:24,
+                textBaseline:'middle',
+                textAlign:'center',
+                fill:true,
+                fillStyle:'#000'
+            },
+            rectAttr:{
+                stroke:true,
+                strokeStyle:'#000'
+            }
+        })
+        constructor(attr={}){
+            Object.assign(this,SectorNode.defAttr(),attr)
+        }
+        update(){
+            const {pos,textAttr,padding,rectAttr}=this
+            const text=new Text(textAttr)
+            const height=textAttr.fontSize+padding.y*2
+            const width=text.getWidth()+padding.x*2;
+            const size=new Vector2(width,height)
+
+            text.position=new Vector2(width/2,height/2+4).add(pos)
+            this.text=text
+            this.size=size
+
+            const rect=new SectorShape(rectAttr)
+            rect.pos=pos
+            rect.size=size
+            rect.update()
+            this.rect=rect
+        }
+        draw(ctx){
+            this.text.draw(ctx)
+            this.rect.draw(ctx)
+        }
+    }
+
+    class Ring extends Group{
+        static defAttr=()=>({
+            texts:[],
+            margin:10,
+            position:new Vector2(),
+            width:0,
+            radius:300,
+            textAttr:{
+                text:'文字内容',
+                fontSize:18,
+                textBaseline:'middle',
+                textAlign:'center',
+                fill:true,
+                fillStyle:'#000'
+            },
+            rectAttr:{
+                stroke:true,
+                strokeStyle:'#000'
+            }
+        })
+        constructor(attr={}){
+            super()
+            Object.assign(this,Ring.defAttr(),attr)
+        }
+        update(){
+            this.crtNodes()
+            this.parsePolar()
+        }
+        crtNodes(){
+            const {texts,children,margin,textAttr,rectAttr,radius}=this
+            const len=texts.length
+            let textsWidth=0;
+            texts.forEach(text=>{
+                textAttr.text=text
+                textsWidth+=new Text(textAttr).getWidth()
+            })
+            const clampWidth=textsWidth+margin*len;
+            let perimeter=2*Math.PI*radius
+            let padX=0
+            this.width=clampWidth
+            if(perimeter>clampWidth){
+                padX=(perimeter-clampWidth)/(len*2)
+            }else{
+                perimeter=clampWidth
+            }
+            this.width=perimeter
+            for(let i=0;i<len;i++){
+                const position=new Vector2()
+                if(i){
+                    const lastChild=children[i-1]
+                    const {pos:{x},size:{x:width}}=lastChild
+                    position.x=x+width+margin
+                }
+                const node=new SectorNode({
+                    pos:position,
+                    padding:new Vector2(padX,15),
+                    textAttr,
+                    rectAttr,
+                })
+                node.update()
+                this.add(node)
+            }
+        }
+        parsePolar(){
+            const {children}=this
+            children.forEach(({text,rect})=>{
+                const {
+                    angle:textAng,
+                    position:textPos
+                }=this.polar(text.position)
+                text.rotation=textAng
+                text.position.copy(textPos)
+                rect.vertices.forEach(vertice=>{
+                    const {position}=this.polar(vertice)
+                    vertice.copy(position)
+                })
+            })
+        }
+        polar({x,y}){
+            //极角
+            const ratio=x/this.width
+            const angle=ratio*Math.PI*2
+            //极径
+            const radius=this.radius-y
+            // 点位
+            const position=new Vector2(
+                Math.cos(angle)*radius,
+                Math.sin(angle)*radius,
+            ).add(this.position)
+            return {
+                angle:angle+Math.PI/2,
+                radius,
+                position
+            }
+        }
+    }
+
+    const texts=[
+        '一二三',
+        '一二三四',
+        '一二三四五',
+        '一二三四',
+        '八九十',
+        '八九十一',
+        '十十一十二',
+        '十二十三'
+    ]
+
+    const ring=new Ring({texts})
+    ring.update();
+    scene.add(ring)
+
+
+    scene.draw(ctx)
+
+</script>
+</body>
+</html>

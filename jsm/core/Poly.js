@@ -199,6 +199,13 @@ export default class Poly{
             }
         })
     }
+    updateMod(exclude=null){
+        this.modifiers.forEach(modifier=>{
+            if(exclude!==modifier){
+                modifier.update();
+            }
+        })
+    }
 
     /*删除修改器，基于修改器对象*/
     removeModifier(modifier){
